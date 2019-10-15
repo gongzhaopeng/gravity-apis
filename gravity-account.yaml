@@ -1,0 +1,635 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: 'Account Service'
+  description: 'Gravity:Account-Service对应的API.'
+  contact:
+    email: 'gongguochuanqi@gmail.com'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - description: Development Environment.
+    url: http://gravity.benbenedu.cn:9001/account/genesis
+tags:
+  - name: Client
+    description: 访问客户端.
+  - name: Account
+    description: 访问账户.
+paths:
+  /clients:
+    post:
+      tags: 
+        - Client
+      summary: 创建Client.
+      description: 创建Client.
+      operationId: createClient
+      requestBody:
+        description: 请求创建的Client信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientCreatingReq'
+      responses:
+        '201':
+          description: 成功创建Client.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientCreatedResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - accountCenterAuth: 
+          - client:inner
+  /clients/{client-id}:
+    get:
+      tags: 
+        - Client
+      summary: 获取指定的Client详情.
+      description: 获取指定的Client详情.
+      operationId: getClientById
+      parameters: 
+        - name: client-id
+          in: path
+          description: 指定Client的ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的Client不存在.
+      security:
+        - accountCenterAuth: 
+          - client:inner
+  /accounts:
+    post:
+      tags: 
+        - Account
+      summary: 创建Account.
+      description: 创建Account.
+      operationId: createAccount
+      requestBody:
+        description: 请求创建的Account信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreatingReq'
+      responses:
+        '201':
+          description: 成功创建Client.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountCreatedResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - accountCenterAuth: 
+          - client:inner
+  /accounts/{account-id}:
+    get:
+      tags: 
+        - Account
+      summary: 获取指定的Account详情.
+      description: 获取指定的Account详情.
+      operationId: getAccountById
+      parameters: 
+        - name: account-id
+          in: path
+          description: 指定account的ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的Account不存在.
+      security:
+        - accountCenterAuth: 
+          - client:inner
+components:
+  schemas:
+    ClientCreatingReq:
+      type: object
+      description: 创建Client的请求信息.
+      properties:
+        ownerId:
+          type: string
+          description: 'The ID of the owner account.'
+        scope:
+          type: array
+          description: "The scope of this client."
+          items:
+            type: string
+        resourceIds:
+          type: array
+          description: "The resources that this client can access."
+          items:
+            type: string
+        authorizedGrantTypes:
+          type: array
+          description: "The grant types for which this client is authorized."
+          items:
+            type: string
+        registeredRedirectUris:
+          type: array
+          description: 'The pre-defined redirect URI for this client to use during the "authorization_code" access grant. See OAuth spec, section 4.1.1.'
+          items:
+            type: string
+        autoApproveScopes:
+          type: array
+          description: "The scopes to auto-approve."
+          items:
+            type: string
+        authorities:
+          type: array
+          description: 'The authorities that are granted to the OAuth client.'
+          items:
+            type: string
+        accessTokenValiditySeconds:
+          type: integer
+          description: 'The access token validity period for this client.'
+          format: int32
+        refreshTokenValiditySeconds:
+          type: integer
+          description: 'The refresh token validity period for this client.'
+          format: int32
+      required: 
+        - ownerId
+        - scope
+        - authorizedGrantTypes
+    ClientCreatedResp:
+      type: object
+      description: Client创建成功时的响应.
+      properties:
+        id:
+          type: string
+      required: 
+        - id
+    AccountCreatingReq:
+      type: object
+      description: 创建Account的请求信息.
+      properties:
+        affiliation:
+          $ref: '#/components/schemas/AccountAffiliation'
+        idNumber:
+          type: string
+          description: 身份证号.
+        mobile:
+          type: string
+          description: 手机.
+        email:
+          type: string
+          description: 电子邮箱.
+        password:
+          type: string
+          description: 密码.
+        type:
+          $ref: '#/components/schemas/AccountType'
+        name:
+          type: string
+          description: 名称.
+        nickname:
+          type: string
+          description: 昵称.
+      required: 
+        - password
+        - type
+    AccountCreatedResp:
+      type: object
+      description: Account创建成功时的响应.
+      properties:
+        id:
+          type: string
+      required: 
+        - id
+    Client:
+      type: object
+      description: 客户端.
+      externalDocs: 
+        description: ClientDetails implementation.
+        url: 'https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/main/java/org/springframework/security/oauth2/provider/client/BaseClientDetails.java'
+      properties:
+        clientId:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        creator:
+          $ref: '#/components/schemas/AccountBrief'
+        state:
+          $ref: '#/components/schemas/ClientState'
+        owner:
+          $ref: '#/components/schemas/AccountBrief'
+        clientSecret:
+          type: string
+          description: 'The client secret.'
+        scope:
+          $ref: '#/components/schemas/ClientScope'
+        resourceIds:
+          $ref: '#/components/schemas/ClientResourceIds'
+        authorizedGrantTypes:
+          $ref: '#/components/schemas/ClientAuthorizedGrantTypes'
+        registeredRedirectUris:
+          $ref: '#/components/schemas/ClientRegisteredRedirectUris'
+        autoApproveScopes:
+          $ref: '#/components/schemas/ClientAutoApproveScopes'
+        authorities:
+          $ref: '#/components/schemas/ClientAuthorities'
+        accessTokenValiditySeconds:
+          $ref: '#/components/schemas/TokenValiditySeconds'
+        refreshTokenValiditySeconds:
+          $ref: '#/components/schemas/TokenValiditySeconds'
+      required: 
+        - clientId
+        - createTime
+        - lUTime
+        - creator
+        - state
+        - owner
+        - clientSecret
+        - scope
+        - authorizedGrantTypes
+    ClientAuthorities:
+      type: array
+      description: 'The authorities that are granted to the OAuth client.'
+      items:
+        type: string
+        minLength: 1
+        maxLength: 50
+      minLength: 1
+      maxLength: 50
+    ClientAutoApproveScopes:
+      type: array
+      description: "The scopes to auto-approve."
+      items:
+        $ref: '#/components/schemas/ClientScopeItem'
+      minLength: 1
+      maxLength: 5
+    ClientRegisteredRedirectUris:
+      type: array
+      description: 'The pre-defined redirect URI for the client to use during the "authorization_code" access grant. See OAuth spec, section 4.1.1.'
+      items:
+        $ref: '#/components/schemas/URL'
+      minLength: 1
+      maxLength: 10
+    ClientAuthorizedGrantTypes:
+      type: array
+      description: "The grant types for which the client is authorized."
+      items:
+        $ref: '#/components/schemas/GrantType'
+      minLength: 1
+      maxLength: 4
+    GrantType:
+      type: string
+      description: Grant type.
+      enum:
+        - password
+        - client_credentials
+        - authorization_code
+        - implicit
+      minLength: 1
+      maxLength: 50
+    ClientResourceIds:
+      type: array
+      description: Client resource IDs.
+      items:
+        $ref: '#/components/schemas/ResourceId'
+      minLength: 1
+      maxLength: 50
+    ResourceId:
+      type: string
+      description: Resource ID.
+      enum:
+        - ACCOUNT_API
+      minLength: 1
+      maxLength: 50
+    ClientScope:
+      type: array
+      description: Client scope.
+      items:
+        $ref: '#/components/schemas/ClientScopeItem'
+      minLength: 1
+      maxLength: 10
+    ClientScopeItem:
+      type: string
+      description: Client scope item.
+      enum:
+        - client:inner
+        - client:partner
+        - client:public
+      minLength: 1
+      maxLength: 50
+    ClientState:
+      type: string
+      description: 客户端状态.
+      enum:
+        - Unactivated
+        - Active
+        - Disabled
+        - Abandoned
+      minLength: 1
+      maxLength: 50
+    Account:
+      type: object
+      description: 账户.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        creator:
+          $ref: '#/components/schemas/AccountBrief'
+        state:
+          $ref: '#/components/schemas/AccountState'
+        affiliation:
+          $ref: '#/components/schemas/AccountAffiliation'
+        idNumber:
+          $ref: '#/components/schemas/IdNumber'
+        mobile:
+          $ref: '#/components/schemas/MobileNumber'
+        email:
+          $ref: '#/components/schemas/Email'
+        password:
+          $ref: '#/components/schemas/Password'
+        wechat:
+          $ref: '#/components/schemas/WechatInfo'
+        type:
+          $ref: '#/components/schemas/AccountType'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        birthday:
+          $ref: '#/components/schemas/Birthday'
+        address:
+          $ref: '#/components/schemas/AccountAddress'
+        avatar:
+          $ref: '#/components/schemas/URL'
+        roles:
+          $ref: '#/components/schemas/AccountRoles'
+      required: 
+        - id
+        - createTime
+        - lUTime
+        - creator
+        - state
+        - type
+        - roles
+    AccountRoles:
+      type: array
+      description: 账户角色集.
+      items:
+        $ref: '#/components/schemas/AccountRole'
+      minLength: 1
+      maxLength: 25
+    AccountAddress:
+      type: object
+      description: 账户地址.
+      properties:
+        country:
+          $ref: '#/components/schemas/Country'
+        region:
+          $ref: '#/components/schemas/Region'
+        locality:
+          $ref: '#/components/schemas/Locality'
+      required:
+        - country
+        - region
+        - locality
+    AccountState:
+      type: string
+      description: 账户状态.
+      enum:
+        - Unactivated
+        - Active
+        - Locked
+        - Disabled
+        - Abandoned
+      minLength: 1
+      maxLength: 50
+    AccountType:
+      type: string
+      description: 账户类型.
+      enum:
+        - Personal
+        - Organization
+        - AgencyL3
+        - AgencyL2
+        - AgencyL1
+        - Inner
+      minLength: 1
+      maxLength: 50
+    AccountRole:
+      type: string
+      description: 账户角色.
+      enum:
+        - Normal
+        - God
+        - SuperAdmin
+        - Admin
+        - QuestionBuilder
+        - ExamPaperBuilder
+        - ExamBuilder
+        - Grader
+        - Analyst
+      minLength: 1
+      maxLength: 50
+    WechatInfo:
+      type: object
+      description: 账户关联的微信信息.
+      properties:
+        openid:
+          type: string
+        unionid:
+          type: string
+        latestLogin:
+          $ref: '#/components/schemas/WechatLogin'
+    WechatLogin:
+      type: object
+      description: 微信登录信息.
+      properties:
+        loginAt:
+          $ref: '#/components/schemas/Timestamp'
+        accessToken:
+          type: string
+        expiresAt:
+          $ref: '#/components/schemas/Timestamp'
+        refreshToken:
+          type: string
+    AccountBrief:
+      type: object
+      description: 账户的简单信息.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+      required: 
+        - id
+    AccountAffiliation:
+      type: object
+      description: 账户从属关系.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+        foreignId:
+          $ref: '#/components/schemas/AccountAffiliationForeignId'
+      required: 
+        - id
+    AccountAffiliationForeignId:
+      type: string
+      description: 账户从属关系里的外部ID.
+      minLength: 1
+      maxLength: 128
+    AccountName:
+      type: string
+      description: 账户名.
+      minLength: 1
+      maxLength: 50
+    AccountNickname:
+      type: string
+      description: 账户昵称.
+      minLength: 1
+      maxLength: 25
+    
+    
+    Birthday:
+      type: string
+      format: date
+      description: 生日.
+    TokenValiditySeconds:
+      type: integer
+      description: 'The token validity period.'
+      format: int32
+    IdNumber:
+      type: string
+      description: 身份证号.
+      minLength: 1
+      maxLength: 25
+    MobileNumber:
+      type: string
+      description: 手机号码.
+      minLength: 1
+      maxLength: 25
+    Country:
+      type: string
+      description: |
+        The country. For example, USA. You can also provide the two-letter ISO 3166-1 alpha-2 country code.
+      enum:
+        - CN
+      minLength: 2
+      maxLength: 2
+    Region:
+      type: string
+      description: |
+        The region in which the locality is, and which is in the country. For example, California or another appropriate first-level Administrative division.
+        在中国对应省.
+      minLength: 1
+      maxLength: 50
+    Locality:
+      type: string
+      description: |
+        The locality in which the street address is, and which is in the region. For example, Mountain View.
+        在中国对应市.
+      minLength: 1
+      maxLength: 50
+    URL:
+      type: string
+      description: URL.
+      minLength: 1
+      maxLength: 250
+    Email:
+      type: string
+      description: Email.
+      minLength: 5
+      maxLength: 50
+    Password:
+      type: string
+      format: password
+      description: Password.
+      minLength: 6
+      maxLength: 50
+    Gender:
+      type: string
+      description: 性取向.
+      enum:
+        - Masculine
+        - Feminine
+        - Neutral
+      minLength: 5
+      maxLength: 50
+    Timestamp:
+      type: integer
+      format: int64
+      description: 时间戳.
+    ObjectID:
+      type: string
+      description: MongoDB:ObjectId
+      minLength: 24
+      maxLength: 24
+    ErrorResponse:
+      description: 错误响应.
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorResponseCode'
+        detail:
+          type: string
+          description: 错误详情.
+      required:
+        - code
+    ErrorResponseCode:
+      type: string
+      description: 错误码.
+      enum: 
+        - Undefined
+        
+        
+  securitySchemes:
+    accountCenterAuth:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: "http://gravity.benbenedu.cn:9001/account/oauth/token"
+          scopes:
+            'client:inner': 内网客户端
