@@ -139,49 +139,32 @@ components:
   schemas:
     ClientCreatingReq:
       type: object
-      description: 创建Client的请求信息.
+      description: |
+        创建Client的请求信息.  
+        仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
       properties:
         ownerId:
-          type: string
-          description: 'The ID of the owner account.'
+          $ref: '#/components/schemas/ObjectID'
         scope:
-          type: array
-          description: "The scope of this client."
-          items:
-            type: string
+          $ref: '#/components/schemas/ClientScope'
         resourceIds:
-          type: array
-          description: "The resources that this client can access."
-          items:
-            type: string
+          $ref: '#/components/schemas/ClientResourceIds'
         authorizedGrantTypes:
-          type: array
-          description: "The grant types for which this client is authorized."
-          items:
-            type: string
+          $ref: '#/components/schemas/ClientAuthorizedGrantTypes'
         registeredRedirectUris:
-          type: array
-          description: 'The pre-defined redirect URI for this client to use during the "authorization_code" access grant. See OAuth spec, section 4.1.1.'
-          items:
-            type: string
+          $ref: '#/components/schemas/ClientRegisteredRedirectUris'
         autoApproveScopes:
-          type: array
-          description: "The scopes to auto-approve."
-          items:
-            type: string
+          $ref: '#/components/schemas/ClientAutoApproveScopes'
         authorities:
-          type: array
-          description: 'The authorities that are granted to the OAuth client.'
-          items:
-            type: string
+          $ref: '#/components/schemas/ClientAuthorities'
         accessTokenValiditySeconds:
-          type: integer
-          description: 'The access token validity period for this client.'
-          format: int32
+          $ref: '#/components/schemas/TokenValiditySeconds'
         refreshTokenValiditySeconds:
-          type: integer
-          description: 'The refresh token validity period for this client.'
-          format: int32
+          $ref: '#/components/schemas/TokenValiditySeconds'
+        defaultActive:
+          type: boolean
+          description: |
+            是否缺省激活.
       required: 
         - ownerId
         - scope
@@ -191,46 +174,147 @@ components:
       description: Client创建成功时的响应.
       properties:
         id:
-          type: string
+          $ref: '#/components/schemas/ObjectID'
       required: 
         - id
+    ClientUpdatingReq:
+      type: object
+      description: |
+        更新Client的请求信息.  
+        仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
+      properties:
+        scope:
+          $ref: '#/components/schemas/ClientScope'
+        resourceIds:
+          $ref: '#/components/schemas/ClientResourceIds'
+        authorizedGrantTypes:
+          $ref: '#/components/schemas/ClientAuthorizedGrantTypes'
+        registeredRedirectUris:
+          $ref: '#/components/schemas/ClientRegisteredRedirectUris'
+        autoApproveScopes:
+          $ref: '#/components/schemas/ClientAutoApproveScopes'
+        authorities:
+          $ref: '#/components/schemas/ClientAuthorities'
+        accessTokenValiditySeconds:
+          $ref: '#/components/schemas/TokenValiditySeconds'
+        refreshTokenValiditySeconds:
+          $ref: '#/components/schemas/TokenValiditySeconds'
+      required:
+        - scope
+        - authorizedGrantTypes
+    ClientStateUpdatingReq:
+      type: object
+      description: |
+        更新Client的状态.
+        仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
+      properties:
+        newState:
+          $ref: '#/components/schemas/ClientState'
+      required:
+        - newState
     AccountCreatingReq:
       type: object
-      description: 创建Account的请求信息.
+      description: |
+        创建Account的请求信息.  
+        idNumber, mobile, email均可作为账户标识, 均不能被其它账户占用. 在请求中至少要包含一项.
       properties:
         affiliation:
-          $ref: '#/components/schemas/AccountAffiliation'
+          $ref: '#/components/schemas/AffiliationInAccountCreatingReq'
         idNumber:
-          type: string
-          description: 身份证号.
+          $ref: '#/components/schemas/IdNumber'
         mobile:
-          type: string
-          description: 手机.
+          $ref: '#/components/schemas/MobileNumber'
         email:
-          type: string
-          description: 电子邮箱.
+          $ref: '#/components/schemas/Email'
         password:
-          type: string
-          description: 密码.
+          $ref: '#/components/schemas/Password'
         type:
           $ref: '#/components/schemas/AccountType'
         name:
-          type: string
-          description: 名称.
+          $ref: '#/components/schemas/AccountName'
         nickname:
-          type: string
-          description: 昵称.
+          $ref: '#/components/schemas/AccountNickname'
+        defaultActive:
+          type: boolean
+          description: 是否缺省激活.
       required: 
         - password
         - type
+    AffiliationInAccountCreatingReq:
+      type: object
+      description: 创建Account的请求中携带的从属信息.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        foreignId:
+          $ref: '#/components/schemas/AccountAffiliationForeignId'
+      required: 
+        - id
     AccountCreatedResp:
       type: object
       description: Account创建成功时的响应.
       properties:
         id:
-          type: string
+          $ref: '#/components/schemas/ObjectID'
       required: 
         - id
+    AccountUpdatingReq:
+      type: object
+      description: |
+        更新Account的请求信息.  
+        账户未激活时, 允许其它拥有相应权限的账户更新其信息.  
+        账户激活后, 仅允许本账户更新自己的信息.
+      properties:
+        name:
+          $ref: '#/components/schemas/AccountName'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        birthday:
+          $ref: '#/components/schemas/Birthday'
+        address:
+          $ref: '#/components/schemas/AccountAddress'
+    AccountStateUpdatingReq:
+      type: object
+      description: |
+        更新账户的状态.
+        账户状态更新成功后, 若账户当前处于登录状态, 则将其自动登出.
+      properties:
+        newState:
+          $ref: '#/components/schemas/AccountState'
+      required:
+        - newState
+    AccountRolesUpdatingReq:
+      type: object
+      description: |
+        更新账户的角色集.
+        账户角色集更新成功后, 若账户当前处于登录状态, 则将其自动登出.
+      properties:
+        newRoles:
+          $ref: '#/components/schemas/AccountRoles'
+    MePasswordUpdatingReq:
+      type: object
+      description: |
+        更新当前账户的密码.
+        账户密码更新成功后, 若账户当前处于登录状态, 则将其自动登出.
+      properties:
+        oldPassword:
+          $ref: '#/components/schemas/Password'
+        newPassword:
+          $ref: '#/components/schemas/Password'
+      required:
+        - oldPassword
+        - newPassword
+    MeAvatarUpdatingReq:
+      type: object
+      description: |
+        更新当前账户的avatar.
+      properties:
+        newAvatar:
+          $ref: '#/components/schemas/URL'
+      required:
+        - newAvatar
     Client:
       type: object
       description: 客户端.
@@ -361,7 +445,9 @@ components:
       maxLength: 50
     Account:
       type: object
-      description: 账户.
+      description: |
+        账户.  
+        idNumber, mobile, email, wechat均只能对应到至多一个账户, 故均可以作为账号的标识.
       properties:
         id:
           $ref: '#/components/schemas/ObjectID'
