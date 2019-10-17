@@ -107,6 +107,7 @@ paths:
       security:
         - accountCenterAuth: 
           - client:inner
+          - client:partner
   /accounts/{account-id}:
     get:
       tags: 
@@ -834,4 +835,6 @@ components:
         password:
           tokenUrl: "http://gravity.benbenedu.cn:9001/account/oauth/token"
           scopes:
-            'client:inner': 内网客户端
+            'client:inner': 内部客户端
+            'client:partner': 合作方客户端
+            'client:public': 公开的客户端
