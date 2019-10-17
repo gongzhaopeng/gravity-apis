@@ -78,6 +78,55 @@ paths:
       security:
         - accountCenterAuth: 
           - client:inner
+    put:
+      tags:
+        - Client
+      summary: 更新指定Client的信息.
+      description: 更新指定Client的信息.
+      operationId: updateClientById
+      parameters: 
+        - name: client-id
+          in: path
+          description: 指定Client的ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: 请求更新的Client信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientUpdatingReq'
+      responses:
+        '204':
+          description: 更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的Client不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '更改仅在非Abandoned状态下被允许.'
+      security:
+        - accountCenterAuth: 
+          - client:inner
   /accounts:
     post:
       tags: 
@@ -186,6 +235,8 @@ components:
         更新Client的请求信息.  
         仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
       properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
         scope:
           $ref: '#/components/schemas/ClientScope'
         resourceIds:
@@ -211,6 +262,8 @@ components:
         更新Client状态的请求信息.
         仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
       properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
         newState:
           $ref: '#/components/schemas/ClientState'
       required:
@@ -268,6 +321,8 @@ components:
         账户未激活时, 允许其它拥有相应权限的账户更新其信息.  
         账户激活后, 仅允许本账户更新自己的信息.
       properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
         name:
           $ref: '#/components/schemas/AccountName'
         nickname:
@@ -284,6 +339,8 @@ components:
         更新账户状态的请求信息.
         账户状态更新成功后, 若账户当前处于登录状态, 则将其自动登出.
       properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
         newState:
           $ref: '#/components/schemas/AccountState'
       required:
@@ -294,6 +351,8 @@ components:
         更新账户角色集的请求信息.
         账户角色集更新成功后, 若账户当前处于登录状态, 则将其自动登出.
       properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
         newRoles:
           $ref: '#/components/schemas/AccountRoles'
       required:
@@ -379,6 +438,8 @@ components:
         更新当前账户的密码.
         账户密码更新成功后, 若账户当前处于登录状态, 则将其自动登出.
       properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
         oldPassword:
           $ref: '#/components/schemas/Password'
         newPassword:
@@ -391,6 +452,8 @@ components:
       description: |
         更新当前账户的avatar.
       properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
         newAvatar:
           $ref: '#/components/schemas/URL'
       required:
@@ -826,6 +889,9 @@ components:
       description: 错误码.
       enum: 
         - Undefined
+        - LUTimeConflict
+        - AlteringNotAllowed
+        - SpecifiedStateConversionNotAllowed
         
         
   securitySchemes:
