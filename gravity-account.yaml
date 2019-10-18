@@ -27,7 +27,9 @@ paths:
       description: 创建Client.
       operationId: createClient
       requestBody:
-        description: 请求创建的Client信息.
+        description: |
+          请求创建的Client信息.  
+          仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
         content:
           application/json:
             schema:
@@ -82,7 +84,9 @@ paths:
       tags:
         - Client
       summary: 更新指定Client的信息.
-      description: 更新指定Client的信息.
+      description: |
+        更新指定Client的信息.  
+        仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
       operationId: updateClientById
       parameters: 
         - name: client-id
@@ -132,7 +136,9 @@ paths:
       tags:
         - Client
       summary: 更新指定Client的状态.
-      description: 更新指定Client的状态.
+      description: |
+        更新指定Client的状态.  
+        仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
       operationId: updateClientStateById
       parameters: 
         - name: client-id
@@ -206,6 +212,7 @@ paths:
       security:
         - accountCenterAuth: 
           - client:inner
+        - accountCenterAuth: 
           - client:partner
   /accounts/{account-id}:
     get:
@@ -238,12 +245,16 @@ paths:
       security:
         - accountCenterAuth: 
           - client:inner
+        - accountCenterAuth: 
           - client:partner
     put:
       tags:
         - Account
       summary: 更新指定Account的信息.
-      description: 更新指定Account的信息.
+      description: |
+        更新指定Account的信息.  
+        账户未激活时, 允许其它拥有相应权限的账户更新其信息.  
+        账户激活后, 仅允许本账户更新自己的信息.
       operationId: updateAccountById
       parameters: 
         - name: account-id
@@ -288,13 +299,16 @@ paths:
       security:
         - accountCenterAuth: 
           - client:inner
+        - accountCenterAuth: 
           - client:partner
   /accounts/{account-id}/state:
     put:
       tags: 
         - Account
       summary: 更新指定Account的状态.
-      description: 更新指定Account的状态.
+      description: |
+        更新指定Account的状态.  
+        账户状态更新成功后, 若账户当前处于登录状态, 则将其自动登出.
       operationId: updateAccountStateById
       parameters: 
         - name: account-id
@@ -339,13 +353,16 @@ paths:
       security:
         - accountCenterAuth: 
           - client:inner
+        - accountCenterAuth: 
           - client:partner
   /accounts/{account-id}/roles:
     put:
       tags: 
         - Account
       summary: 更新指定Account的角色集.
-      description: 更新指定Account的角色集.
+      description: |
+        更新指定Account的角色集.  
+        账户角色集更新成功后, 若账户当前处于登录状态, 则将其自动登出.
       operationId: updateAccountRolesById
       parameters: 
         - name: account-id
@@ -391,7 +408,7 @@ paths:
         - accountCenterAuth: 
           - client:inner
   /signup/code/by/mobile:
-    put:
+    post:
       tags: 
         - Me
       summary: 通过手机获取注册码.
@@ -413,7 +430,7 @@ paths:
         '400':
           description: Bad Request.
   /signup/code/by/email:
-    put:
+    post:
       tags: 
         - Me
       summary: 通过邮箱获取注册码.
@@ -435,7 +452,7 @@ paths:
         '400':
           description: Bad Request.
   /signup/by/code:
-    put:
+    post:
       tags: 
         - Me
       summary: 通过注册码注册账户.
@@ -456,28 +473,174 @@ paths:
                 $ref: '#/components/schemas/SignupResp'
         '400':
           description: Bad Request.
-  # /me:
-  #   get:
-  #     tags: 
-  #       - Me
-  #   put:
-  #     tags: 
-  #       - Me
-  # /me/password:
-  #   put:
-  #     tags: 
-  #       - Me
-  # /me/avatar:
-  #   put:
-  #     tags: 
-  #       - Me
+  /me:
+    get:
+      tags: 
+        - Me
+      summary: 获取当前Account详情.
+      description: | 
+        获取当前Account详情.
+      operationId: getMe
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - accountCenterAuth: 
+          - client:inner
+        - accountCenterAuth: 
+          - client:partner
+        - accountCenterAuth: 
+          - client:public
+    put:
+      tags: 
+        - Me
+      summary: 更新当前Account信息.
+      description: 更新当前Account信息.
+      operationId: updateMe
+      requestBody:
+        description: 请求更新的Account信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdatingReq'
+      responses:
+        '204':
+          description: 更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '更改仅在Active状态下被允许.'
+      security:
+        - accountCenterAuth: 
+          - client:inner
+        - accountCenterAuth: 
+          - client:partner
+        - accountCenterAuth: 
+          - client:public
+  /me/password:
+    put:
+      tags: 
+        - Me
+      summary: 修改当前Account密码.
+      description: |
+        修改当前Account密码.
+        账户密码更新成功后, 若账户当前处于登录状态, 则将其自动登出.
+      operationId: updateMePassword
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MePasswordUpdatingReq'
+      responses:
+        '204':
+          description: 修改成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '密码修改仅在Active状态下被允许.'
+      security:
+        - accountCenterAuth: 
+          - client:inner
+        - accountCenterAuth: 
+          - client:partner
+        - accountCenterAuth: 
+          - client:public
+  /me/avatar:
+    put:
+      tags: 
+        - Me
+      summary: 更新当前Account的avatar.
+      description: 更新当前Account的avatar.
+      operationId: updateMeAvatar
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeAvatarUpdatingReq'
+      responses:
+        '204':
+          description: 修改成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '头像更新仅在Active状态下被允许.'
+      security:
+        - accountCenterAuth: 
+          - client:inner
+        - accountCenterAuth: 
+          - client:partner
+        - accountCenterAuth: 
+          - client:public
 components:
   schemas:
     ClientCreatingReq:
       type: object
       description: |
         创建Client的请求信息.  
-        仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
       properties:
         ownerId:
           $ref: '#/components/schemas/ObjectID'
@@ -516,8 +679,7 @@ components:
     ClientUpdatingReq:
       type: object
       description: |
-        更新Client的请求信息.  
-        仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
+        更新Client的请求信息.
       properties:
         lUTime:
           $ref: '#/components/schemas/Timestamp'
@@ -544,7 +706,6 @@ components:
       type: object
       description: |
         更新Client状态的请求信息.
-        仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
       properties:
         lUTime:
           $ref: '#/components/schemas/Timestamp'
@@ -601,9 +762,7 @@ components:
     AccountUpdatingReq:
       type: object
       description: |
-        更新Account的请求信息.  
-        账户未激活时, 允许其它拥有相应权限的账户更新其信息.  
-        账户激活后, 仅允许本账户更新自己的信息.
+        更新Account的请求信息.
       properties:
         lUTime:
           $ref: '#/components/schemas/Timestamp'
@@ -621,7 +780,6 @@ components:
       type: object
       description: |
         更新账户状态的请求信息.
-        账户状态更新成功后, 若账户当前处于登录状态, 则将其自动登出.
       properties:
         lUTime:
           $ref: '#/components/schemas/Timestamp'
@@ -633,7 +791,6 @@ components:
       type: object
       description: |
         更新账户角色集的请求信息.
-        账户角色集更新成功后, 若账户当前处于登录状态, 则将其自动登出.
       properties:
         lUTime:
           $ref: '#/components/schemas/Timestamp'
@@ -720,7 +877,6 @@ components:
       type: object
       description: |
         更新当前账户的密码.
-        账户密码更新成功后, 若账户当前处于登录状态, 则将其自动登出.
       properties:
         lUTime:
           $ref: '#/components/schemas/Timestamp'
