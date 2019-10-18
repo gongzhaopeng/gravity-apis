@@ -127,6 +127,56 @@ paths:
       security:
         - accountCenterAuth: 
           - client:inner
+  /clients/{client-id}/state:
+    put:
+      tags:
+        - Client
+      summary: 更新指定Client的状态.
+      description: 更新指定Client的状态.
+      operationId: updateClientStateById
+      parameters: 
+        - name: client-id
+          in: path
+          description: 指定Client的ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Client状态更新请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientStateUpdatingReq'
+      responses:
+        '204':
+          description: Client状态更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的Client不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                specifiedStateConversionNotAllowed:
+                  value:
+                    code: 'SpecifiedStateConversionNotAllowed'
+                    detail: '${detail}'
+                  description: '允许的状态转换路径: Unactivated->{Active,Disabled,Abandoned}, Active->{Disabled,Abandoned}, Disabled->{Active,Abandoned}'
+      security:
+        - accountCenterAuth: 
+          - client:inner
   /accounts:
     post:
       tags: 
@@ -162,7 +212,8 @@ paths:
       tags: 
         - Account
       summary: 获取指定的Account详情.
-      description: 获取指定的Account详情.
+      description: | 
+        获取指定的Account详情.
       operationId: getAccountById
       parameters: 
         - name: account-id
@@ -187,6 +238,239 @@ paths:
       security:
         - accountCenterAuth: 
           - client:inner
+          - client:partner
+    put:
+      tags:
+        - Account
+      summary: 更新指定Account的信息.
+      description: 更新指定Account的信息.
+      operationId: updateAccountById
+      parameters: 
+        - name: account-id
+          in: path
+          description: 指定account的ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: 请求更新的Account信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdatingReq'
+      responses:
+        '204':
+          description: 更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的Account不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '更改仅在Unactivated状态下被允许.'
+      security:
+        - accountCenterAuth: 
+          - client:inner
+          - client:partner
+  /accounts/{account-id}/state:
+    put:
+      tags: 
+        - Account
+      summary: 更新指定Account的状态.
+      description: 更新指定Account的状态.
+      operationId: updateAccountStateById
+      parameters: 
+        - name: account-id
+          in: path
+          description: 指定account的ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Account状态更新请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountStateUpdatingReq'
+      responses:
+        '204':
+          description: Account状态更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的Account不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                specifiedStateConversionNotAllowed:
+                  value:
+                    code: 'SpecifiedStateConversionNotAllowed'
+                    detail: '${detail}'
+                  description: '允许的状态转换路径: Unactivated->{Active}, Active->{Locked, Disabled}, Locked->{Active, Disabled}, Disabled->{Active, Locked}'
+      security:
+        - accountCenterAuth: 
+          - client:inner
+          - client:partner
+  /accounts/{account-id}/roles:
+    put:
+      tags: 
+        - Account
+      summary: 更新指定Account的角色集.
+      description: 更新指定Account的角色集.
+      operationId: updateAccountRolesById
+      parameters: 
+        - name: account-id
+          in: path
+          description: 指定account的ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Account角色集更新请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRolesUpdatingReq'
+      responses:
+        '204':
+          description: Account角色集更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的Account不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '更改仅在非Abandoned状态下被允许.'
+      security:
+        - accountCenterAuth: 
+          - client:inner
+  /signup/code/by/mobile:
+    put:
+      tags: 
+        - Me
+      summary: 通过手机获取注册码.
+      description: 通过手机获取注册码.
+      operationId: getSignupCodeByMobile
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupCodeAcquiringByMobileReq'
+      responses:
+        '200':
+          description: 获取注册码成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupCodeAcquiringByMobileResp'
+        '400':
+          description: Bad Request.
+  /signup/code/by/email:
+    put:
+      tags: 
+        - Me
+      summary: 通过邮箱获取注册码.
+      description: 通过邮箱获取注册码.
+      operationId: getSignupCodeByEmail
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupCodeAcquiringByEmailReq'
+      responses:
+        '200':
+          description: 获取注册码成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupCodeAcquiringByEmailResp'
+        '400':
+          description: Bad Request.
+  /signup/by/code:
+    put:
+      tags: 
+        - Me
+      summary: 通过注册码注册账户.
+      description: 通过注册码注册账户.
+      operationId: signupByCode
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupByCodeReq'
+      responses:
+        '201':
+          description: 注册成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupResp'
+        '400':
+          description: Bad Request.
+  # /me:
+  #   get:
+  #     tags: 
+  #       - Me
+  #   put:
+  #     tags: 
+  #       - Me
+  # /me/password:
+  #   put:
+  #     tags: 
+  #       - Me
+  # /me/avatar:
+  #   put:
+  #     tags: 
+  #       - Me
 components:
   schemas:
     ClientCreatingReq:
