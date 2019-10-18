@@ -50,6 +50,39 @@ paths:
       security:
         - accountCenterAuth: 
           - client:inner
+  /clients/query:
+    post:
+      tags: 
+        - Client
+      summary: Query Client.
+      description: Query Client.
+      operationId: queryClients
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - accountCenterAuth: 
+          - client:inner
   /clients/{client-id}:
     get:
       tags: 
@@ -676,6 +709,63 @@ components:
           $ref: '#/components/schemas/ObjectID'
       required: 
         - id
+    ClientQuery:
+      type: object
+      description: Client查询描述对象.
+      properties:
+        clientId: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        createTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        lUTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        creator:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        state:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientState'
+          description: 指定state所属的集合. =relation=>in.
+          minLength: 1
+          maxLength: 10
+        owner:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+    QueriedClient:
+      type: object
+      description: query返回的Client.
+      properties:
+        clientId:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        creator:
+          $ref: '#/components/schemas/AccountBrief'
+        state:
+          $ref: '#/components/schemas/ClientState'
+        owner:
+          $ref: '#/components/schemas/AccountBrief'
+      required: 
+        - clientId
+        - createTime
+        - lUTime
+        - creator
+        - state
+        - owner
+    ClientPage:
+      description: Client分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/QueriedClient'
+              minLength: 0
+          required:
+            - content
     ClientUpdatingReq:
       type: object
       description: |
@@ -853,8 +943,6 @@ components:
           $ref: '#/components/schemas/SignupCode'
         password:
           $ref: '#/components/schemas/Password'
-        type:
-          $ref: '#/components/schemas/AccountType'
         name:
           $ref: '#/components/schemas/AccountName'
         nickname:
@@ -863,7 +951,6 @@ components:
         - identifier
         - code
         - password
-        - type
     SignupResp:
       type: object
       description: |
@@ -1332,6 +1419,94 @@ components:
         - LUTimeConflict
         - AlteringNotAllowed
         - SpecifiedStateConversionNotAllowed
+    IdAnyMatchQueryField:
+      type: array
+      items:
+        $ref: '#/components/schemas/ObjectID'
+      description: 指定的id集合. =relation=>any-match.
+      minLength: 1
+      maxLength: 50
+    IdAllMatchQueryField:
+      type: array
+      items:
+        $ref: '#/components/schemas/ObjectID'
+      description: 指定的id集合. =relation=>all-match.
+      minLength: 1
+      maxLength: 50
+    TimeQueryField:
+      type: array
+      items:
+        type: integer
+        format: int64
+      description: 指定时间所属的区间序列. =relation=>in. 数组长度必须为偶数.
+      minLength: 2
+      maxLength: 20
+    TextSearchSpec:
+      type: object
+      description: 文本搜索描述对象.
+      properties:
+        include:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 25
+          description: =relation=>all.
+          minLength: 1
+          maxLength: 10
+        exclude:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 25
+          description: =relation=>all.
+          minLength: 1
+          maxLength: 10
+    BasicPage:
+      type: object
+      description: 分页基本信息.
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+      required: 
+        - totalPages
+        - totalElements
+    PageNumberSpec:
+      type: integer
+      format: int32
+      minimum: 0
+      default: 0
+    PageSizeSpec:
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 100
+      default: 10
+    PageSortWithDefaultCreateTimeDescSpec:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 50
+      minLength: 1
+      maxLength: 5
+      default: 
+        - 'createTime,desc'
+    PageSortWithDefaultLUTimeDescSpec:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 50
+      minLength: 1
+      maxLength: 5
+      default: 
+        - 'lUTime,desc'
         
         
   securitySchemes:
@@ -1344,3 +1519,34 @@ components:
             'client:inner': 内部客户端
             'client:partner': 合作方客户端
             'client:public': 公开的客户端
+  
+            
+  parameters:
+    pageNumber:
+      name: page
+      in: query
+      description: 指定页码.
+      schema:
+        $ref: '#/components/schemas/PageNumberSpec'
+    pageSize:
+      name: size
+      in: query
+      description: 指定页长.
+      schema:
+        $ref: '#/components/schemas/PageSizeSpec'
+    pageSortWithDefaultCreateTimeDesc:
+      name: sort
+      in: query
+      description: '排序规则. Sorting criteria in the format: property(,asc|desc). Default sort order is ascending. Multiple sort criteria are supported.'
+      schema:
+        $ref: '#/components/schemas/PageSortWithDefaultCreateTimeDescSpec'
+      style: form
+      explode: true
+    pageSortWithDefaultLUTimeDesc:
+      name: sort
+      in: query
+      description: '排序规则. Sorting criteria in the format: property(,asc|desc). Default sort order is ascending. Multiple sort criteria are supported.'
+      schema:
+        $ref: '#/components/schemas/PageSortWithDefaultLUTimeDescSpec'
+      style: form
+      explode: true
