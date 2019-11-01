@@ -1530,6 +1530,8 @@ components:
           $ref: '#/components/schemas/AccountNickname'
         foreignId:
           $ref: '#/components/schemas/AccountAffiliationForeignId'
+        foreignExtInfo:
+          $ref: '#/components/schemas/AccountAffiliationForeignExtInfo'
       required: 
         - id
     AccountAffiliationForeignId:
@@ -1537,6 +1539,15 @@ components:
       description: 账户从属关系里的外部ID.
       minLength: 1
       maxLength: 128
+    AccountAffiliationForeignExtInfo:
+      type: object
+      description: 账户从属关系里的外部扩展信息.
+      additionalProperties:
+        type: string
+        minLength: 1
+        maxLength: 250
+      minLength: 1
+      maxLength: 20
     AccountName:
       type: string
       description: 账户名.
