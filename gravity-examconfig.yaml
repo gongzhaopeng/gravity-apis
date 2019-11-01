@@ -1049,9 +1049,7 @@ components:
       description: 更新考试链的请求信息.
       properties:
         echainLUTime: 
-          type: integer
-          format: int64
-          description: 最近一次更新时间(timestamp).
+          $ref: '#/components/schemas/Timestamp'
         newDesign:
           $ref: '#/components/schemas/ExamChainDesign'
       required:
@@ -1062,9 +1060,7 @@ components:
       description: 更新考试链状态的请求信息.
       properties:
         echainLUTime:
-          type: integer
-          format: int64
-          description: 最近一次更新时间(timestamp).
+          $ref: '#/components/schemas/Timestamp'
         newState:
           $ref: '#/components/schemas/EchainState'
       required: 
@@ -1075,9 +1071,7 @@ components:
       description: 更新考试链标签集的请求信息.
       properties:
         echainLUTime:
-          type: integer
-          format: int64
-          description: 最近一次更新时间(timestamp).
+          $ref: '#/components/schemas/Timestamp'
         newTags:
           type: array
           description: 新的标签集. 该数组长度为0时表示清除所有标签.
@@ -1095,9 +1089,7 @@ components:
         id: 
           $ref: '#/components/schemas/ObjectID'
         createTime:
-          type: integer
-          format: int64
-          description: 创建时间(timestamp).
+          $ref: '#/components/schemas/Timestamp'
         author:
           $ref: '#/components/schemas/AccountBrief'
         title:
@@ -1123,6 +1115,8 @@ components:
           $ref: '#/components/schemas/AccountBrief'
         state:
           $ref: '#/components/schemas/ExamState'
+        owner:
+          $ref: '#/components/schemas/AccountBrief'
         form:
           $ref: '#/components/schemas/ExamForm'
         title:
@@ -1154,12 +1148,20 @@ components:
           description: 标签集.用于管理.
           items:
             $ref: '#/components/schemas/ExamTagBrief'
+        resourceRefs:
+          type: array
+          description: |
+            资源引用表.  
+            该属性仅用于后台维护引用关系, 不对外暴露.
+          items:
+            $ref: '#/components/schemas/VersioningRef'
       required: 
         - id
         - createTime
         - lUTime
         - author
         - state
+        - owner
         - form
         - title
         - epMoldPool
