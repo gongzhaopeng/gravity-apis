@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   version: 'genesis'
-  title: 'Exam Service API'
-  description: 'Assessment-Cloud:Exam-Service对应的API.'
+  title: 'ExamConfig Service API'
+  description: 'Gravity:ExamConfig-Service对应的API.'
   contact:
     email: gongguochuanqi@gmail.com
   license:
@@ -11,7 +11,7 @@ info:
 # Added by API Auto Mocking Plugin
 servers:
   - description: SwaggerHub API Auto Mocking
-    url: http://sundial.benbenedu.cn:9001/exam/genesis
+    url: http://gravity.benbenedu.cn:9001/examconfig/genesis
 tags:
   - name: ExamTag
     description: 访问考试标签.
