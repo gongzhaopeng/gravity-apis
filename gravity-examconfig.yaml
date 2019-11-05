@@ -589,66 +589,6 @@ paths:
       security:
         - examRepoAuth: 
           - client:inner
-    put:
-      tags:
-        - ExamChain
-      summary: 更新指定考试链的设计.
-      description: 更新指定考试链的设计.
-      operationId: updateExamChainById
-      parameters: 
-        - name: examchain-id
-          in: path
-          description: 指定考试链的ID.
-          required: true
-          schema:
-            $ref: '#/components/schemas/ObjectID'
-      requestBody:
-        description: 请求更新的考试链设计信息.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EchainUpdatingReq'
-      responses:
-        '204':
-          description: 更新成功.
-        '400':
-          description: Bad Request.
-        '401':
-          description: Unauthorized.
-        '403':
-          description: Forbidden.
-        '404':
-          description: 指定的考试链不存在.
-        '409':
-          description: Conflict.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                duplicateTitle:
-                  value:
-                    code: 'DuplicateTitle'
-                    detail: '${detail}'
-        '428':
-          description: Precondition Required.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                lUTimeConflict:
-                  value:
-                    code: 'LUTimeConflict'
-                    detail: '${detail}'
-                alteringNotAllowed:
-                  value:
-                    code: 'AlteringNotAllowed'
-                    detail: '${detail}'
-                  description: '更改仅在Preparing状态下被允许.'
-      security:
-        - examRepoAuth: 
-          - client:inner
   /examchains/{examchain-id}/state:
     put:
       tags: 
@@ -1021,6 +961,8 @@ components:
           description: 指定state所属的集合. =relation=>in.
           minLength: 1
           maxLength: 10
+        owner:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
         title:
           $ref: '#/components/schemas/TextSearchSpec'
         description:
@@ -1044,17 +986,6 @@ components:
               minLength: 0
           required:
             - content
-    EchainUpdatingReq:
-      type: object
-      description: 更新考试链的请求信息.
-      properties:
-        echainLUTime: 
-          $ref: '#/components/schemas/Timestamp'
-        newDesign:
-          $ref: '#/components/schemas/ExamChainDesign'
-      required:
-        - echainLUTime
-        - newDesign
     EchainStateUpdatingReq:
       type: object
       description: 更新考试链状态的请求信息.
