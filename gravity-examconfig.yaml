@@ -649,6 +649,105 @@ paths:
       security:
         - examRepoAuth: 
           - client:inner
+  /examchains/{examchain-id}/exams/appending:
+    patch:
+      tags: 
+        - ExamChain
+      summary: 向考试链中添加新的考试.
+      description: 向考试链中添加新的考试.
+      operationId: appendEchainExamsById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainExamsAppendingReq'
+      responses:
+        '204':
+          description: 添加成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                AlteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '更改仅在非Discarded状态下被允许.'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /examchains/{examchain-id}/epmserials/appending:
+    patch:
+      tags: 
+        - ExamChain
+      summary: 向考试链中添加新的epm-serial.
+      description: |  
+        向考试链中添加新的epm-serial.
+      operationId: appendEchainEpmSerialsById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainEpmSerialsAppendingReq'
+      responses:
+        '204':
+          description: 添加成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                AlteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '须满足以下条件方可执行更改: a.非Discarded状态; b.当前考试链对象中的epmSerials不为空'
+      security:
+        - examRepoAuth: 
+          - client:inner
   /examchains/{examchain-id}/state:
     put:
       tags: 
@@ -1063,6 +1162,33 @@ components:
       required:
         - echainLUTime
         - newDesign
+    EchainExamsAppendingReq:
+      type: object
+      description: |  
+        向考试链中添加新考试的请求信息.
+        如果考试链中配置了epmSerials, 则需对其进行相应的扩充, 以保证考试链中的每一个指定的epm-serial与考试集匹配.
+      properties:
+        echainLUTime: 
+          $ref: '#/components/schemas/Timestamp'
+        examsToAppend:
+          $ref: '#/components/schemas/EchainExams'
+        epmSerialsPatch:
+          $ref: '#/components/schemas/EchainEpmSerials'
+      required:
+        - echainLUTime
+        - examsToAppend
+    EchainEpmSerialsAppendingReq:
+      type: object
+      description: |  
+        向考试链中添加新epm-serial的请求信息.
+      properties:
+        echainLUTime: 
+          $ref: '#/components/schemas/Timestamp'
+        epmSerialsToAppend:
+          $ref: '#/components/schemas/EchainEpmSerials'
+      required:
+        - echainLUTime
+        - epmSerialsToAppend
     EchainStateUpdatingReq:
       type: object
       description: 更新考试链状态的请求信息.
