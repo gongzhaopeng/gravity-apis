@@ -589,6 +589,66 @@ paths:
       security:
         - examRepoAuth: 
           - client:inner
+    put:
+      tags:
+        - ExamChain
+      summary: 更新指定考试链的设计.
+      description: 更新指定考试链的设计.
+      operationId: updateExamChainById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 请求更新的考试链设计信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainUpdatingReq'
+      responses:
+        '204':
+          description: 更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+        '409':
+          description: Conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                duplicateTitle:
+                  value:
+                    code: 'DuplicateTitle'
+                    detail: '${detail}'
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '更改仅在Preparing状态下被允许.'
+      security:
+        - examRepoAuth: 
+          - client:inner
   /examchains/{examchain-id}/state:
     put:
       tags: 
@@ -735,6 +795,8 @@ components:
       type: object
       description: 考试的设计信息.
       properties:
+        owner:
+          $ref: '#/components/schemas/AccountBrief'
         form:
           $ref: '#/components/schemas/ExamForm'
         title:
@@ -762,6 +824,7 @@ components:
         resources:
           $ref: '#/components/schemas/ExamResources'
       required: 
+        - owner
         - form
         - title
         - epMoldPool
@@ -792,6 +855,8 @@ components:
           description: 指定state所属的集合. =relation=>in.
           minLength: 1
           maxLength: 10
+        owner:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
         form:
           type: array
           items:
@@ -806,11 +871,13 @@ components:
         introduction:
           $ref: '#/components/schemas/TextSearchSpec'
         epMolds:
-          $ref: '#/components/schemas/IdAllMatchQueryField'
+          $ref: '#/components/schemas/VersioningRefQueryField'
         beginTime:
           $ref: '#/components/schemas/TimeQueryField'
         tags:
           $ref: '#/components/schemas/IdAllMatchQueryField'
+        resourceRefs:
+          $ref: '#/components/schemas/VersioningRefQueryField'
     ExamPage:
       description: 考试分页.
       allOf:
@@ -829,9 +896,7 @@ components:
       description: 更新考试的请求信息.
       properties:
         examLUTime: 
-          type: integer
-          format: int64
-          description: 最近一次更新时间(timestamp).
+          $ref: '#/components/schemas/Timestamp'
         newDesign:
           $ref: '#/components/schemas/ExamDesign'
       required:
@@ -842,9 +907,7 @@ components:
       description: 更新考试状态的请求信息.
       properties:
         examLUTime:
-          type: integer
-          format: int64
-          description: 最近一次更新时间(timestamp).
+          $ref: '#/components/schemas/Timestamp'
         newState:
           $ref: '#/components/schemas/ExamState'
       required: 
@@ -855,9 +918,7 @@ components:
       description: 更新考试标签集的请求信息.
       properties:
         examLUTime:
-          type: integer
-          format: int64
-          description: 最近一次更新时间(timestamp).
+          $ref: '#/components/schemas/Timestamp'
         newTags:
           type: array
           description: 新的标签集. 该数组长度为0时表示清除所有标签.
@@ -917,6 +978,8 @@ components:
       type: object
       description: 考试链的设计信息.
       properties:
+        owner:
+          $ref: '#/components/schemas/AccountBrief'
         title:
           $ref: '#/components/schemas/EchainTitle'
         description:
@@ -932,6 +995,7 @@ components:
         resources:
           $ref: '#/components/schemas/EchainResources'
       required:
+        - owner
         - title
         - exams
     EchainCreatedResp:
@@ -973,6 +1037,8 @@ components:
           $ref: '#/components/schemas/IdAllMatchQueryField'
         tags:
           $ref: '#/components/schemas/IdAllMatchQueryField'
+        resourceRefs:
+          $ref: '#/components/schemas/VersioningRefQueryField'
     EchainPage:
       description: 考试链分页.
       allOf:
@@ -986,6 +1052,17 @@ components:
               minLength: 0
           required:
             - content
+    EchainUpdatingReq:
+      type: object
+      description: 更新考试链的请求信息.
+      properties:
+        echainLUTime: 
+          $ref: '#/components/schemas/Timestamp'
+        newDesign:
+          $ref: '#/components/schemas/ExamChainDesign'
+      required:
+        - echainLUTime
+        - newDesign
     EchainStateUpdatingReq:
       type: object
       description: 更新考试链状态的请求信息.
@@ -1601,9 +1678,7 @@ components:
         password:
           tokenUrl: "http://gravity.benbenedu.cn:9001/account/oauth/token"
           scopes:
-            'client:inner': 内部客户端
-            'client:partner': 合作方客户端
-            'client:public': 公开的客户端
+            'client:inner': 内网客户端
   
             
   parameters:
