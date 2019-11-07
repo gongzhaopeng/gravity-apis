@@ -383,6 +383,55 @@ paths:
       security:
         - examRepoAuth: 
           - client:inner
+  /exams/{exam-id}/deployment:
+    post:
+      tags: 
+        - Exam
+      summary: 部署指定的考试.
+      description: |  
+        部署指定的考试.
+        部署完成后,考试即处于外部可用状态.
+      operationId: deployExamById
+      parameters: 
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 考试部署请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamDeploymentReq'
+      responses:
+        '204':
+          description: 考试部署成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '部署仅在Released状态下被允许.'
   /echaintags:
     post:
       tags: 
@@ -843,6 +892,58 @@ paths:
       security:
         - examRepoAuth: 
           - client:inner
+  /examchains/{examchain-id}/deployment:
+    post:
+      tags: 
+        - ExamChain
+      summary: 部署指定的考试链.
+      description: |  
+        部署指定的考试链.
+        部署完成后,考试链即处于外部可用状态.
+      operationId: deployEchainById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 考试链部署请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainDeploymentReq'
+      responses:
+        '204':
+          description: 考试链部署成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '部署仅在Released状态下被允许.'
+      security:
+        - examRepoAuth: 
+          - client:inner
 components:
   schemas:
     ExamTagCreatingReq:
@@ -1028,6 +1129,16 @@ components:
       required: 
         - examLUTime
         - newTags
+    ExamDeploymentReq:
+      type: object
+      description: 部署考试的请求信息.
+      properties:
+        examLUTime:
+          $ref: '#/components/schemas/Timestamp'
+        resources:
+          $ref: '#/components/schemas/ExamResources'
+      required:
+        - examLUTime
     EchainTagCreatingReq:
       type: object
       description: 创建考试链标签的请求信息.
@@ -1216,6 +1327,16 @@ components:
       required: 
         - echainLUTime
         - newTags
+    EchainDeploymentReq:
+      type: object
+      description: 部署考试链的请求信息.
+      properties:
+        echainLUTime:
+          $ref: '#/components/schemas/Timestamp'
+        resources:
+          $ref: '#/components/schemas/EchainResources'
+      required:
+        - echainLUTime
     ExamTag:
       type: object
       description: 考试标签.用于考试管理.
