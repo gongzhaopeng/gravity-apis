@@ -21,6 +21,8 @@ tags:
     description: 访问考试链标签.
   - name: ExamChain
     description: 访问考试链.
+  - name: PubEpMold
+    description: 访问试卷模子(发布).
 paths:
   /examtags:
     post:
@@ -944,6 +946,66 @@ paths:
       security:
         - examRepoAuth: 
           - client:inner
+  /pubepmolds/deployment:
+    post:
+      tags: 
+        - PubEpMold
+      summary: 部署试卷模子.
+      description: |  
+        部署指定的试卷模子.
+        部署完成后,试卷模子即处于外部可用状态.
+      operationId: deployEpMoldById
+      requestBody:
+        description: 试卷模子部署请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EpMoldDeploymentReq'
+      responses:
+        '204':
+          description: 试卷模子部署成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /pubepmolds/query:
+    post:
+      tags: 
+        - PubEpMold
+      summary: Query试卷模子(发布).
+      description: Query试卷模子(发布).
+      operationId: queryPubEpMolds
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PubEpMoldQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PubEpMoldPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examRepoAuth: 
+          - client:inner
 components:
   schemas:
     ExamTagCreatingReq:
@@ -1337,6 +1399,35 @@ components:
           $ref: '#/components/schemas/EchainResources'
       required:
         - echainLUTime
+    EpMoldDeploymentReq:
+      type: object
+      description: 部署试卷模子的请求信息.
+      properties:
+        epMold:
+          $ref: '#/components/schemas/PubEpMold'
+      required:
+        - epMold
+    PubEpMoldQuery:
+      type: object
+      description: 试卷模子(发布)查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        version:
+          $ref: '#/components/schemas/VersioningRefQueryField'
+    PubEpMoldPage:
+      description: 试卷模子(发布)分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/PubEpMold'
+              minLength: 0
+          required:
+            - content
     ExamTag:
       type: object
       description: 考试标签.用于考试管理.
@@ -1660,6 +1751,330 @@ components:
         - id
         - version
         - title
+    PubEpMold:
+      type: object
+      description: |
+        发布的试卷模子.  
+        
+        当yieldingMode为Definite时,下属的EpmEpsGenerator只能为确定型的.  
+        当yieldingMode为Dynamic时,对下属的EpmEpsGenerator没有限制.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        version:
+          $ref: '#/components/schemas/VersioningRef'
+        yieldingMode:
+          $ref: '#/components/schemas/EpmYieldingMode'
+        title:
+          $ref: '#/components/schemas/EpTitle'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        epsGenerators:
+          $ref: '#/components/schemas/EpmEpsGenerators'
+        extFeatures:
+          $ref: '#/components/schemas/EpExtFeatures'
+        defaultQuScore:
+          $ref: '#/components/schemas/DefaultQuScore'
+        resources:
+          $ref: '#/components/schemas/EpResources'
+      required: 
+        - id
+        - lUTime
+        - version
+        - yieldingMode
+        - title
+        - epsGenerators
+    EpmYieldingMode:
+      type: string
+      description: 试卷模子的试卷产出模式.
+      enum:
+        - Definite
+        - Dynamic
+      minLength: 1
+      maxLength: 50
+    EpTitle:
+      type: string
+      description: 试卷标题.
+      minLength: 1
+      maxLength: 200
+    EpmEpsGenerators:
+      type: array
+      description: 试卷模子下最顶层的试卷块生成器集合.
+      items:
+        $ref: '#/components/schemas/CompositeEpsGenerator'
+      minLength: 1
+      maxLength: 50
+    EpExtFeatures:
+      type: object
+      description: 试卷的扩展特征集,有业务含义.
+      additionalProperties:
+        $ref: '#/components/schemas/MediumValue'
+      minLength: 1
+      maxLength: 20
+    EpResources:
+      type: array
+      description: 对应试卷层用到的资源集.
+      items:
+        $ref: '#/components/schemas/ResourceBrief'
+      minLength: 1
+      maxLength: 50
+    CompositeEpsGenerator:
+      type: object
+      description: 可复合的试卷块生成器.
+      properties:
+        title:
+          $ref: '#/components/schemas/EpsTitle'
+        purpose:
+          $ref: '#/components/schemas/EpsPurpose'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        generateStrategy:
+          $ref: '#/components/schemas/EpsGenerateStrategy'
+        subGenerators:
+          type: array
+          description: 下属的子生成器集.
+          items:
+            $ref: '#/components/schemas/CompositeEpsGenerator'
+          minLength: 1
+          maxLength: 50
+        questions:
+          type: array
+          description: '对应的题集. 当purpose取值为Formal时, 当前试卷块中引入的题目须将answerMatchStrategy, stdAnswers以及对应的资源过滤掉.'
+          items:
+            $ref: '#/components/schemas/EpQuestion'
+          minLength: 1
+          maxLength: 2000
+        timeLimit:
+          $ref: '#/components/schemas/EpsTimeLimit'
+        extFeatures:
+          $ref: '#/components/schemas/EpsExtFeatures'
+        defaultQuScore:
+          $ref: '#/components/schemas/DefaultQuScore'
+        resources:
+          $ref: '#/components/schemas/EpsResources'
+      required:
+        - title
+        - purpose
+        - generateStrategy
+    EpsTitle:
+      type: string
+      description: 试卷块标题.
+      minLength: 1
+      maxLength: 200
+    EpsPurpose:
+      type: string
+      description: 试卷块的用途.
+      enum:
+        - Formal
+        - Practice
+        - Example
+      minLength: 1
+      maxLength: 50
+    EpsGenerateStrategy:
+      type: object
+      description: 试卷块生成策略.
+      properties:
+        type:
+          type: string
+          description: 策略类型.
+          enum:
+            - CompositeFix
+            - CompositeRand
+            - QSetFix
+            - QSetRand
+          minLength: 1
+          maxLength: 50
+        metadata:
+          type: object
+          description: 策略元数据.用于定义辅助的策略参数.
+          additionalProperties:
+            type: string
+            minLength: 1
+            maxLength: 500
+          minLength: 1
+          maxLength: 50
+          example:
+            outputEpsCount: 3
+            outputQuestionCount: 10
+      required: 
+        - type
+    EpsTimeLimit:
+      type: integer
+      format: int32
+      description: 限时.单位(second).
+      minimum: 1
+    EpsExtFeatures:
+      type: object
+      description: 试卷块的扩展特征集,有业务含义.
+      additionalProperties:
+        $ref: '#/components/schemas/MediumValue'
+      minLength: 1
+      maxLength: 20
+    EpsResources:
+      type: array
+      description: 对应试卷块层用到的资源集.
+      items:
+        $ref: '#/components/schemas/ResourceBrief'
+      minLength: 1
+      maxLength: 50
+    EpQuestion:
+      type: object
+      description: 试卷题目.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        version:
+          $ref: '#/components/schemas/VersionSerial'
+        title:
+          $ref: '#/components/schemas/EpQuestionTitle'
+        compositeEpQunit:
+          $ref: '#/components/schemas/CompositeEpQuestionUnit'
+        difficulty:
+          $ref: '#/components/schemas/EpQuestionDifficulty'
+      required: 
+        - id
+        - version
+        - title
+        - compositeEpQunit
+    EpQuestionTitle:
+      type: string
+      description: 题目标题.
+      minLength: 1
+      maxLength: 200
+    EpQuestionDifficulty:
+      type: number
+      format: float
+      description: 题目的难度系数.
+    CompositeEpQuestionUnit:
+      type: object
+      description: 可复合的试卷题目单位.
+      properties:
+        form:
+          $ref: '#/components/schemas/EpQuForm'
+        stem:
+          $ref: '#/components/schemas/RichTextContentField'
+        options:
+          type: array
+          description: 可选项集.仅当形式为选择题时出现.
+          items:
+            $ref: '#/components/schemas/EpQuOption'
+          minLength: 1
+          maxLength: 20
+        quScore:
+          type: number
+          format: float
+          description: 题目单位的分值.
+        answerMatchStrategy:
+          $ref: '#/components/schemas/EpAnswerMatchStrategy'
+        stdAnswers:
+          type: array
+          description: 标准答案集.
+          items:
+            $ref: '#/components/schemas/EpStdAnswer'
+          minLength: 1
+          maxLength: 20
+        subQunits:
+          type: array
+          description: 下属的题目单位集.
+          items:
+            $ref: '#/components/schemas/CompositeEpQuestionUnit'
+          minLength: 1
+          maxLength: 20
+        extFeatures:
+          type: object
+          description: 扩展的特征集,有业务含义.
+          additionalProperties:
+            $ref: '#/components/schemas/MediumValue'
+          minLength: 1
+          maxLength: 20
+        resources:
+          type: array
+          description: 当前层面用到的资源集.
+          items:
+            $ref: '#/components/schemas/ResourceBrief'
+          minLength: 1
+          maxLength: 50
+      required: 
+        - form
+    EpQuForm:
+      type: string
+      description: 题目单位的形式.
+      enum: 
+        - Choice
+        - MChoice
+        - FillIn
+        - QA
+        - Composite
+      minLength: 1
+      maxLength: 50
+    EpQuOption:
+      type: object
+      description: 可选项.
+      properties:
+        number:
+          $ref: '#/components/schemas/NumberField'
+        content:
+          $ref: '#/components/schemas/RichTextContentField'
+      required: 
+        - number
+        - content
+    EpAnswerMatchStrategy:
+      type: object
+      description: 答案匹配策略.
+      properties:
+        type:
+          type: string
+          description: 策略类型.
+          enum: 
+            - OrderSensitiveEqual
+            - OrderInsensitiveEqual
+          minLength: 1
+          maxLength: 50
+        metadata:
+          type: object
+          description: 策略元数据.用于定义辅助的策略参数.
+          additionalProperties:
+            type: string
+            minLength: 1
+            maxLength: 500
+          minLength: 1
+          maxLength: 50
+      required: 
+        - type
+    EpStdAnswer:
+      type: object
+      description: 标准答案.
+      properties:
+        number:
+          $ref: '#/components/schemas/NumberField'
+        choices:
+          type: array
+          description: 选择集.用于支持类选择题形式.
+          items:
+            $ref: '#/components/schemas/NumberField'
+          minLength: 1
+          maxLength: 20
+        criteria:
+          type: array
+          description: 非选项形式的答案内容集.用于支持非选择题形式.
+          items:
+            $ref: '#/components/schemas/MediumValue'
+          minLength: 1
+          maxLength: 20
+        score:
+          type: number
+          format: float
+          description: 特定标准答案对应的分值.
+      required: 
+        - number
+    DefaultQuScore:
+      type: number
+      format: float
+      description: 对应范围内缺省的题目单位分值.
     TagTitle:
       type: string
       description: 不可重复.
