@@ -17,8 +17,8 @@ tags:
     description: 访问考试.
   - name: ExamChain
     description: 访问考试链.
-  - name: AssessCode
-    description: 访问AssessCode.
+  - name: AssessToken
+    description: 访问AssessToken.
   - name: AdmissionTicket
     description: 访问准考证.
   - name: AnswerSheet
@@ -309,10 +309,25 @@ components:
         - id
         - version
         - title
-    Token:
+    AssessToken:
       type: object
       description: |
-        参加Non-Public型考试
+        测评令牌.
+        参加Enclosed型的考试或考试链时提供.
+      properties:
+        code:
+          $ref: '#/components/schemas/AssessTokenCode'
+      required:
+        - code
+    AssessTokenCode:
+      type: string
+      description: |
+        测评令牌码.
+        由[大写字母,小写字母,数字]构成.
+      minLength: 10
+      maxLength: 10
+      example:
+        aX0s95PtBn
     PubEpMold:
       type: object
       description: |
