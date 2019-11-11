@@ -1,0 +1,934 @@
+openapi: 3.0.0
+info:
+  version: 'genesis'
+  title: 'ExamStation Service API'
+  description: 'Gravity:ExamStation-Service对应的API.'
+  contact:
+    email: gongguochuanqi@gmail.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: http://gravity.benbenedu.cn:9001/examstation/genesis
+tags:
+  - name: Exam
+    description: 访问考试.
+  - name: ExamChain
+    description: 访问考试链.
+  - name: AssessCode
+    description: 访问AssessCode.
+  - name: AdmissionTicket
+    description: 访问准考证.
+  - name: AnswerSheet
+    description: 访问答卷.
+paths:
+components:
+  schemas:
+    Exam:
+      type: object
+      description: 考试.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        author:
+          $ref: '#/components/schemas/AccountBrief'
+        state:
+          $ref: '#/components/schemas/ExamState'
+        owner:
+          $ref: '#/components/schemas/AccountBrief'
+        form:
+          $ref: '#/components/schemas/ExamForm'
+        title:
+          $ref: '#/components/schemas/ExamTitle'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        epMoldPool:
+          $ref: '#/components/schemas/ExamEpMoldPool'
+        beginTime:
+          $ref: '#/components/schemas/ExamBeginTime'
+        preEnterDuration:
+          $ref: '#/components/schemas/ExamPreEnterDuration'
+        postEnterDuration:
+          $ref: '#/components/schemas/ExamPostEnterDuration'
+        paperPreFetchDuration:
+          $ref: '#/components/schemas/ExamPaperPreFetchDuration'
+        duration:
+          $ref: '#/components/schemas/ExamDuration'
+        maxDurationOffset:
+          $ref: '#/components/schemas/ExamMaxDurationOffset'
+        extFeatures:
+          $ref: '#/components/schemas/ExamExtFeatures'
+        resources:
+          $ref: '#/components/schemas/ExamResources'
+        tags:
+          type: array
+          description: 标签集.用于管理.
+          items:
+            $ref: '#/components/schemas/ExamTagBrief'
+      required: 
+        - id
+        - createTime
+        - lUTime
+        - author
+        - state
+        - owner
+        - form
+        - title
+        - epMoldPool
+    ExamState:
+      type: string
+      description: 考试的状态.
+      enum: 
+        - Preparing
+        - Released
+        - Discarded
+      minLength: 1
+      maxLength: 50
+    ExamForm:
+      type: string
+      description: 考试的形式.
+      enum:
+        - Enclosed
+        - Public
+      minLength: 1
+      maxLength: 50
+    ExamTitle:
+      type: string
+      description: 考试标题.
+      minLength: 1
+      maxLength: 200
+    ExamEpMoldPool:
+      type: array
+      description: 考试对应的试卷模子池.
+      items:
+        $ref: '#/components/schemas/EpMoldBrief'
+      minLength: 1
+      maxLength: 20
+    ExamBeginTime:
+      type: integer
+      format: int64
+      description: 考试开始时间(timestamp).
+    ExamPreEnterDuration:
+      type: integer
+      format: int32
+      description: 开考前的提前进入时间窗(second).
+      minimum: 300
+      maximum: 7200
+    ExamPostEnterDuration:
+      type: integer
+      format: int32
+      description: 开考后的迟到进入时间窗(second).
+      minimum: 60
+      maximum: 3600
+    ExamPaperPreFetchDuration:
+      type: integer
+      format: int32
+      description: 开考前的提前获取试卷时间窗(second).
+      minimum: 30
+      maximum: 1800
+    ExamDuration:
+      type: integer
+      format: int32
+      description: 考试持续时长(second).
+      minimum: 60
+    ExamMaxDurationOffset:
+      type: integer
+      format: int32
+      description: 允许的时长顺延最大值(second).
+      minimum: 60
+      maximum: 3600
+    ExamExtFeatures:
+      type: object
+      description: 考试的扩展特征集,有业务含义.
+      additionalProperties:
+        $ref: '#/components/schemas/MediumValue'
+      minLength: 1
+      maxLength: 20
+    ExamResources:
+      type: array
+      description: 对应考试层用到的资源集.
+      items:
+        $ref: '#/components/schemas/ResourceBrief'
+      minLength: 1
+      maxLength: 50
+    ExamTagBrief:
+      type: object
+      description: 考试标签的简单形式.
+      properties:
+        id: 
+          $ref: '#/components/schemas/ObjectID'
+        title:
+          $ref: '#/components/schemas/TagTitle'
+      required: 
+        - id
+        - title
+    ExamChain:
+      type: object
+      description: 考试链.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        author:
+          $ref: '#/components/schemas/AccountBrief'
+        state:
+          $ref: '#/components/schemas/EchainState'
+        owner:
+          $ref: '#/components/schemas/AccountBrief'
+        form:
+          $ref: '#/components/schemas/EchainForm'
+        title:
+          $ref: '#/components/schemas/EchainTitle'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        exams:
+          $ref: '#/components/schemas/EchainExams'
+        epmSerials:
+          $ref: '#/components/schemas/EchainEpmSerials'
+        extFeatures:
+          $ref: '#/components/schemas/EchainExtFeatures'
+        resources:
+          $ref: '#/components/schemas/EchainResources'
+        tags:
+          type: array
+          description: 标签集.用于管理.
+          items:
+            $ref: '#/components/schemas/EchainTagBrief'
+      required: 
+        - id
+        - createTime
+        - lUTime
+        - author
+        - state
+        - owner
+        - form
+        - title
+        - exams
+    EchainState:
+      type: string
+      description: 考试链的状态.
+      enum: 
+        - Preparing
+        - Released
+        - Discarded
+      minLength: 1
+      maxLength: 50
+    EchainForm:
+      type: string
+      description: 考试链的形式.
+      enum:
+        - Enclosed
+        - Cooperate
+        - Public
+      minLength: 1
+      maxLength: 50
+    EchainTitle:
+      type: string
+      description: 考试链标题.
+      minLength: 1
+      maxLength: 200
+    EchainExams:
+      type: array
+      description: 考试链对应的考试序列.
+      items:
+        $ref: '#/components/schemas/ExamBrief'
+      minLength: 2
+      maxLength: 100
+    ExamBrief:
+      type: object
+      description: 考试的简单信息.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        title:
+          $ref: '#/components/schemas/ExamTitle'
+      required:
+        - id
+        - title
+    EchainEpmSerials:
+      type: array
+      description: '考试链对应的试卷序列群.指定此属性时,加入考试链的参考人在初始时会被分配确定的试卷序列,由此,其在考试链下的每场考试中的试卷被确定.若未指定此属性,则参考人在考试链下的每场考试中的试卷由具体考试的试卷分配规则确定. 任意两个试卷序列不能完全一致.'
+      items:
+        type: array
+        description: '试卷序列的长度须等于考试序列的长度.'
+        items: 
+          $ref: '#/components/schemas/EpMoldBrief'
+        minLength: 2
+        maxLength: 100
+      minLength: 1
+      maxLength: 100
+    EchainExtFeatures:
+      type: object
+      description: 考试链的扩展特征集,有业务含义.
+      additionalProperties:
+        $ref: '#/components/schemas/MediumValue'
+      minLength: 1
+      maxLength: 20
+    EchainResources:
+      type: array
+      description: 对应考试链层用到的资源集.
+      items:
+        $ref: '#/components/schemas/ResourceBrief'
+      minLength: 1
+      maxLength: 50
+    EchainTagBrief:
+      type: object
+      description: 考试链标签的简单形式.
+      properties:
+        id: 
+          $ref: '#/components/schemas/ObjectID'
+        title:
+          $ref: '#/components/schemas/TagTitle'
+      required: 
+        - id
+        - title
+    EpMoldBrief:
+      type: object
+      description: 试卷模子的简单信息.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        version:
+          $ref: '#/components/schemas/VersionSerial'
+        title:
+          $ref: '#/components/schemas/ExamTitle'
+      required:
+        - id
+        - version
+        - title
+    Token:
+      type: object
+      description: |
+        参加Non-Public型考试
+    PubEpMold:
+      type: object
+      description: |
+        发布的试卷模子.  
+        
+        当yieldingMode为Definite时,下属的EpmEpsGenerator只能为确定型的.  
+        当yieldingMode为Dynamic时,对下属的EpmEpsGenerator没有限制.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        version:
+          $ref: '#/components/schemas/VersioningRef'
+        yieldingMode:
+          $ref: '#/components/schemas/EpmYieldingMode'
+        title:
+          $ref: '#/components/schemas/EpTitle'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        epsGenerators:
+          $ref: '#/components/schemas/EpmEpsGenerators'
+        extFeatures:
+          $ref: '#/components/schemas/EpExtFeatures'
+        defaultQuScore:
+          $ref: '#/components/schemas/DefaultQuScore'
+        resources:
+          $ref: '#/components/schemas/EpResources'
+      required: 
+        - id
+        - lUTime
+        - version
+        - yieldingMode
+        - title
+        - epsGenerators
+    EpmYieldingMode:
+      type: string
+      description: 试卷模子的试卷产出模式.
+      enum:
+        - Definite
+        - Dynamic
+      minLength: 1
+      maxLength: 50
+    EpTitle:
+      type: string
+      description: 试卷标题.
+      minLength: 1
+      maxLength: 200
+    EpmEpsGenerators:
+      type: array
+      description: 试卷模子下最顶层的试卷块生成器集合.
+      items:
+        $ref: '#/components/schemas/CompositeEpsGenerator'
+      minLength: 1
+      maxLength: 50
+    EpExtFeatures:
+      type: object
+      description: 试卷的扩展特征集,有业务含义.
+      additionalProperties:
+        $ref: '#/components/schemas/MediumValue'
+      minLength: 1
+      maxLength: 20
+    EpResources:
+      type: array
+      description: 对应试卷层用到的资源集.
+      items:
+        $ref: '#/components/schemas/ResourceBrief'
+      minLength: 1
+      maxLength: 50
+    CompositeEpsGenerator:
+      type: object
+      description: 可复合的试卷块生成器.
+      properties:
+        title:
+          $ref: '#/components/schemas/EpsTitle'
+        purpose:
+          $ref: '#/components/schemas/EpsPurpose'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        generateStrategy:
+          $ref: '#/components/schemas/EpsGenerateStrategy'
+        subGenerators:
+          type: array
+          description: 下属的子生成器集.
+          items:
+            $ref: '#/components/schemas/CompositeEpsGenerator'
+          minLength: 1
+          maxLength: 50
+        questions:
+          type: array
+          description: '对应的题集. 当purpose取值为Formal时, 当前试卷块中引入的题目须将answerMatchStrategy, stdAnswers以及对应的资源过滤掉.'
+          items:
+            $ref: '#/components/schemas/EpQuestion'
+          minLength: 1
+          maxLength: 2000
+        timeLimit:
+          $ref: '#/components/schemas/EpsTimeLimit'
+        extFeatures:
+          $ref: '#/components/schemas/EpsExtFeatures'
+        defaultQuScore:
+          $ref: '#/components/schemas/DefaultQuScore'
+        resources:
+          $ref: '#/components/schemas/EpsResources'
+      required:
+        - title
+        - purpose
+        - generateStrategy
+    EpsTitle:
+      type: string
+      description: 试卷块标题.
+      minLength: 1
+      maxLength: 200
+    EpsPurpose:
+      type: string
+      description: 试卷块的用途.
+      enum:
+        - Formal
+        - Practice
+        - Example
+      minLength: 1
+      maxLength: 50
+    EpsGenerateStrategy:
+      type: object
+      description: 试卷块生成策略.
+      properties:
+        type:
+          type: string
+          description: 策略类型.
+          enum:
+            - CompositeFix
+            - CompositeRand
+            - QSetFix
+            - QSetRand
+          minLength: 1
+          maxLength: 50
+        metadata:
+          type: object
+          description: 策略元数据.用于定义辅助的策略参数.
+          additionalProperties:
+            type: string
+            minLength: 1
+            maxLength: 500
+          minLength: 1
+          maxLength: 50
+          example:
+            outputEpsCount: 3
+            outputQuestionCount: 10
+      required: 
+        - type
+    EpsTimeLimit:
+      type: integer
+      format: int32
+      description: 限时.单位(second).
+      minimum: 1
+    EpsExtFeatures:
+      type: object
+      description: 试卷块的扩展特征集,有业务含义.
+      additionalProperties:
+        $ref: '#/components/schemas/MediumValue'
+      minLength: 1
+      maxLength: 20
+    EpsResources:
+      type: array
+      description: 对应试卷块层用到的资源集.
+      items:
+        $ref: '#/components/schemas/ResourceBrief'
+      minLength: 1
+      maxLength: 50
+    EpQuestion:
+      type: object
+      description: 试卷题目.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        version:
+          $ref: '#/components/schemas/VersionSerial'
+        title:
+          $ref: '#/components/schemas/EpQuestionTitle'
+        compositeEpQunit:
+          $ref: '#/components/schemas/CompositeEpQuestionUnit'
+        difficulty:
+          $ref: '#/components/schemas/EpQuestionDifficulty'
+      required: 
+        - id
+        - version
+        - title
+        - compositeEpQunit
+    EpQuestionTitle:
+      type: string
+      description: 题目标题.
+      minLength: 1
+      maxLength: 200
+    EpQuestionDifficulty:
+      type: number
+      format: float
+      description: 题目的难度系数.
+    CompositeEpQuestionUnit:
+      type: object
+      description: 可复合的试卷题目单位.
+      properties:
+        form:
+          $ref: '#/components/schemas/EpQuForm'
+        stem:
+          $ref: '#/components/schemas/RichTextContentField'
+        options:
+          type: array
+          description: 可选项集.仅当形式为选择题时出现.
+          items:
+            $ref: '#/components/schemas/EpQuOption'
+          minLength: 1
+          maxLength: 20
+        quScore:
+          type: number
+          format: float
+          description: 题目单位的分值.
+        answerMatchStrategy:
+          $ref: '#/components/schemas/EpAnswerMatchStrategy'
+        stdAnswers:
+          type: array
+          description: 标准答案集.
+          items:
+            $ref: '#/components/schemas/EpStdAnswer'
+          minLength: 1
+          maxLength: 20
+        subQunits:
+          type: array
+          description: 下属的题目单位集.
+          items:
+            $ref: '#/components/schemas/CompositeEpQuestionUnit'
+          minLength: 1
+          maxLength: 20
+        extFeatures:
+          type: object
+          description: 扩展的特征集,有业务含义.
+          additionalProperties:
+            $ref: '#/components/schemas/MediumValue'
+          minLength: 1
+          maxLength: 20
+        resources:
+          type: array
+          description: 当前层面用到的资源集.
+          items:
+            $ref: '#/components/schemas/ResourceBrief'
+          minLength: 1
+          maxLength: 50
+      required: 
+        - form
+    EpQuForm:
+      type: string
+      description: 题目单位的形式.
+      enum: 
+        - Choice
+        - MChoice
+        - FillIn
+        - QA
+        - Composite
+      minLength: 1
+      maxLength: 50
+    EpQuOption:
+      type: object
+      description: 可选项.
+      properties:
+        number:
+          $ref: '#/components/schemas/NumberField'
+        content:
+          $ref: '#/components/schemas/RichTextContentField'
+      required: 
+        - number
+        - content
+    EpAnswerMatchStrategy:
+      type: object
+      description: 答案匹配策略.
+      properties:
+        type:
+          type: string
+          description: 策略类型.
+          enum: 
+            - OrderSensitiveEqual
+            - OrderInsensitiveEqual
+          minLength: 1
+          maxLength: 50
+        metadata:
+          type: object
+          description: 策略元数据.用于定义辅助的策略参数.
+          additionalProperties:
+            type: string
+            minLength: 1
+            maxLength: 500
+          minLength: 1
+          maxLength: 50
+      required: 
+        - type
+    EpStdAnswer:
+      type: object
+      description: 标准答案.
+      properties:
+        number:
+          $ref: '#/components/schemas/NumberField'
+        choices:
+          type: array
+          description: 选择集.用于支持类选择题形式.
+          items:
+            $ref: '#/components/schemas/NumberField'
+          minLength: 1
+          maxLength: 20
+        criteria:
+          type: array
+          description: 非选项形式的答案内容集.用于支持非选择题形式.
+          items:
+            $ref: '#/components/schemas/MediumValue'
+          minLength: 1
+          maxLength: 20
+        score:
+          type: number
+          format: float
+          description: 特定标准答案对应的分值.
+      required: 
+        - number
+    DefaultQuScore:
+      type: number
+      format: float
+      description: 对应范围内缺省的题目单位分值.
+    TagTitle:
+      type: string
+      description: 不可重复.
+      minLength: 1
+      maxLength: 25
+    ResourceBrief:
+      type: object
+      description: 资源的简单形式.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        version:
+          $ref: '#/components/schemas/VersionSerial'
+        mediaType:
+          $ref: '#/components/schemas/MediaTypeField'
+        contents:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceContentBrief'
+          minLength: 1
+          maxLength: 5
+      required: 
+        - id
+        - version
+        - mediaType
+        - contents
+    ResourceContentBrief:
+      type: object
+      description: 资源内容摘要.
+      properties:
+        number:
+          $ref: '#/components/schemas/NumberField'
+        quality:
+          $ref: '#/components/schemas/ResourceContentQuality'
+        size:
+          type: integer
+          format: int32
+          description: File size in bytes.
+        duration:
+          type: integer
+          format: int32
+          description: The duration.
+        height:
+          type: integer
+          format: int32
+        width:
+          type: integer
+          format: int32
+        url:
+          type: string
+          description: 资源内容的实际访问地址.
+          minLength: 1
+          maxLength: 250
+      required: 
+        - number
+        - size
+        - url
+    ResourceContentQuality:
+      type: integer
+      format: int32
+      description: 质量等级.
+      minimum: 1
+      maximum: 10
+    IdAnyMatchQueryField:
+      type: array
+      items:
+        $ref: '#/components/schemas/ObjectID'
+      description: 指定的id集合. =relation=>any-match.
+      minLength: 1
+      maxLength: 50
+    IdAllMatchQueryField:
+      type: array
+      items:
+        $ref: '#/components/schemas/ObjectID'
+      description: 指定的id集合. =relation=>all-match.
+      minLength: 1
+      maxLength: 50
+    TimeQueryField:
+      type: array
+      items:
+        type: integer
+        format: int64
+      description: 指定时间所属的区间序列. =relation=>in. 数组长度必须为偶数.
+      minLength: 2
+      maxLength: 20
+    TextSearchSpec:
+      type: object
+      description: 文本搜索描述对象.
+      properties:
+        include:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 25
+          description: =relation=>all.
+          minLength: 1
+          maxLength: 10
+        exclude:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 25
+          description: =relation=>all.
+          minLength: 1
+          maxLength: 10
+    VersioningRefQueryField:
+      type: array
+      items:
+        $ref: '#/components/schemas/VersioningRef'
+      description: 指定的VersioningRef集合. =relation=>all.
+      minLength: 1
+      maxLength: 10
+    VersioningRef:
+      type: object
+      description: 带版本的引用描述符.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        version:
+          $ref: '#/components/schemas/VersionSerial'
+      required:
+        - id
+    VersionSerial:
+      type: integer
+      format: int32
+      description: |
+        版本对应的序号.
+      minimum: 0
+    AccountBrief:
+      type: object
+      description: 账户的简单信息.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        name:
+          type: string
+        nickname:
+          type: string
+      required: 
+        - id
+    RichTextContentField:
+      type: string
+      description: 富文本编辑器输出的内容.
+      minLength: 1
+      maxLength: 2000
+    NumberField:
+      type: integer
+      format: int32
+      description: 编号.编号越小,优先级越高.
+      minimum: 0
+    MediumValue:
+      type: object
+      description: '多媒体形式的值.表现为两种形式: a.资源型,此时有效字段为resourceId和mediaType, b.直接文本型,此时有效字段为mediaType和value.'
+      properties:
+        resourceId:
+          $ref: '#/components/schemas/ObjectID'
+        mediaType:
+          $ref: '#/components/schemas/MediaTypeField'
+        value:
+          type: string
+          description: 值.
+          minLength: 1
+          maxLength: 1000
+      required:
+        - mediaType
+      example: 
+        mediaType: "text/plain"
+        value: "tabu"
+    MgmtDescriptionField:
+      type: string
+      description: 用于管理的描述信息.
+      minLength: 1
+      maxLength: 250
+    MediaTypeField:
+      type: string
+      externalDocs: 
+        description: wiki
+        url: https://en.wikipedia.org/wiki/Media_type
+      description: mime.types
+      minLength: 1
+      maxLength: 100
+    Timestamp:
+      type: integer
+      format: int64
+      description: 时间戳.
+    ObjectID:
+      type: string
+      description: MongoDB:ObjectId
+      minLength: 24
+      maxLength: 24
+    ErrorResponse:
+      description: 错误响应.
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorResponseCode'
+        detail:
+          type: string
+          description: 错误详情.
+      required:
+        - code
+    ErrorResponseCode:
+      type: string
+      description: 错误码.
+      enum: 
+        - Undefined
+        - LUTimeConflict
+        - AlteringNotAllowed
+    BasicPage:
+      type: object
+      description: 分页基本信息.
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+      required: 
+        - totalPages
+        - totalElements
+    PageNumberSpec:
+      type: integer
+      format: int32
+      minimum: 0
+      default: 0
+    PageSizeSpec:
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 100
+      default: 10
+    PageSortWithDefaultCreateTimeDescSpec:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 50
+      minLength: 1
+      maxLength: 5
+      default: 
+        - 'createTime,desc'
+    PageSortWithDefaultLUTimeDescSpec:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 50
+      minLength: 1
+      maxLength: 5
+      default: 
+        - 'lUTime,desc'
+        
+        
+  securitySchemes:
+    examStationAuth:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: "http://gravity.benbenedu.cn:9001/account/oauth/token"
+          scopes:
+            'client:inner': 内网客户端
+  
+            
+  parameters:
+    pageNumber:
+      name: page
+      in: query
+      description: 指定页码.
+      schema:
+        $ref: '#/components/schemas/PageNumberSpec'
+    pageSize:
+      name: size
+      in: query
+      description: 指定页长.
+      schema:
+        $ref: '#/components/schemas/PageSizeSpec'
+    pageSortWithDefaultCreateTimeDesc:
+      name: sort
+      in: query
+      description: '排序规则. Sorting criteria in the format: property(,asc|desc). Default sort order is ascending. Multiple sort criteria are supported.'
+      schema:
+        $ref: '#/components/schemas/PageSortWithDefaultCreateTimeDescSpec'
+      style: form
+      explode: true
+    pageSortWithDefaultLUTimeDesc:
+      name: sort
+      in: query
+      description: '排序规则. Sorting criteria in the format: property(,asc|desc). Default sort order is ascending. Multiple sort criteria are supported.'
+      schema:
+        $ref: '#/components/schemas/PageSortWithDefaultLUTimeDescSpec'
+      style: form
+      explode: true
