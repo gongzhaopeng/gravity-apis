@@ -2334,7 +2334,7 @@ components:
         
         
   securitySchemes:
-    accountCenterAuth:
+    examRepoAuth:
       type: oauth2
       flows:
         password:
