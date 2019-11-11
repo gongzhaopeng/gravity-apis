@@ -1252,6 +1252,8 @@ components:
       properties:
         owner:
           $ref: '#/components/schemas/AccountBrief'
+        form:
+          $ref: '#/components/schemas/EchainForm'
         title:
           $ref: '#/components/schemas/EchainTitle'
         description:
@@ -1268,6 +1270,7 @@ components:
           $ref: '#/components/schemas/EchainResources'
       required:
         - owner
+        - form
         - title
         - exams
     EchainCreatedResp:
@@ -1299,6 +1302,13 @@ components:
           maxLength: 10
         owner:
           $ref: '#/components/schemas/IdAnyMatchQueryField'
+        form:
+          type: array
+          items:
+            $ref: '#/components/schemas/EchainForm'
+          description: 指定所属的集合. =relation=>in.
+          minLength: 1
+          maxLength: 10
         title:
           $ref: '#/components/schemas/TextSearchSpec'
         description:
@@ -1525,6 +1535,7 @@ components:
       description: 考试的形式.
       enum:
         - Enclosed
+        - Cooperate
         - Public
       minLength: 1
       maxLength: 50
@@ -1633,6 +1644,8 @@ components:
           $ref: '#/components/schemas/EchainState'
         owner:
           $ref: '#/components/schemas/AccountBrief'
+        form:
+          $ref: '#/components/schemas/EchainForm'
         title:
           $ref: '#/components/schemas/EchainTitle'
         description:
@@ -1675,6 +1688,15 @@ components:
         - Preparing
         - Released
         - Discarded
+      minLength: 1
+      maxLength: 50
+    EchainForm:
+      type: string
+      description: 考试链的形式.
+      enum:
+        - Enclosed
+        - Cooperate
+        - Public
       minLength: 1
       maxLength: 50
     EchainTitle:
