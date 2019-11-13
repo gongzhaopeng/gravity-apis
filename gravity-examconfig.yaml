@@ -1769,7 +1769,7 @@ components:
         version:
           $ref: '#/components/schemas/VersionSerial'
         title:
-          $ref: '#/components/schemas/ExamTitle'
+          $ref: '#/components/schemas/EpTitle'
       required:
         - id
         - version
