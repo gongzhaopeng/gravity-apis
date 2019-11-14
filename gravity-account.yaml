@@ -878,7 +878,7 @@ components:
         idNumber, mobile, email均可作为账户标识, 均不能被其它账户占用. 在请求中至少要包含一项.
       properties:
         affiliation:
-          $ref: '#/components/schemas/AffiliationInAccountCreatingReq'
+          $ref: '#/components/schemas/AccountAffiliation'
         idNumber:
           $ref: '#/components/schemas/IdNumber'
         mobile:
@@ -899,16 +899,6 @@ components:
       required: 
         - password
         - type
-    AffiliationInAccountCreatingReq:
-      type: object
-      description: 创建Account的请求中携带的从属信息.
-      properties:
-        id:
-          $ref: '#/components/schemas/ObjectID'
-        foreignId:
-          $ref: '#/components/schemas/AccountAffiliationForeignId'
-      required: 
-        - id
     AccountCreatedResp:
       type: object
       description: Account创建成功时的响应.
@@ -1051,9 +1041,11 @@ components:
           description: 指定country所属的集合. =relation=>in.
           minLength: 1
           maxLength: 10
-        addressRegion:
+        addressProvince:
           $ref: '#/components/schemas/TextSearchSpec'
-        addressLocality:
+        addressCity:
+          $ref: '#/components/schemas/TextSearchSpec'
+        addressCounty:
           $ref: '#/components/schemas/TextSearchSpec'
         roles:
           type: array
@@ -1092,6 +1084,10 @@ components:
           $ref: '#/components/schemas/Birthday'
         address:
           $ref: '#/components/schemas/AccountAddress'
+        studyingStatus:
+          $ref: '#/components/schemas/StudyingStatus'
+        extInfo:
+          $ref: '#/components/schemas/AccountExtInfo'
     AccountStateUpdatingReq:
       type: object
       description: |
@@ -1417,6 +1413,10 @@ components:
           $ref: '#/components/schemas/URL'
         roles:
           $ref: '#/components/schemas/AccountRoles'
+        studyingStatus:
+          $ref: '#/components/schemas/StudyingStatus'
+        extInfo:
+          $ref: '#/components/schemas/AccountExtInfo'
       required: 
         - id
         - createTime
@@ -1425,6 +1425,14 @@ components:
         - state
         - type
         - roles
+    AccountExtInfo:
+      type: object
+      additionalProperties:
+        type: string
+        minLength: 1
+        maxLength: 250
+      minLength: 1
+      maxLength: 20
     AccountRoles:
       type: array
       description: 账户角色集.
@@ -1438,14 +1446,16 @@ components:
       properties:
         country:
           $ref: '#/components/schemas/Country'
-        region:
-          $ref: '#/components/schemas/Region'
-        locality:
-          $ref: '#/components/schemas/Locality'
+        province:
+          $ref: '#/components/schemas/Province'
+        city:
+          $ref: '#/components/schemas/City'
+        county:
+          $ref: '#/components/schemas/County'
       required:
         - country
-        - region
-        - locality
+        - province
+        - city
     AccountState:
       type: string
       description: 账户状态.
@@ -1558,6 +1568,83 @@ components:
       description: 账户昵称.
       minLength: 1
       maxLength: 25
+    StudyingStatus:
+      type: object
+      description: 就学信息.
+      properties:
+        sno:
+          type: string
+          description: 学号.
+          minLength: 1
+          maxLength: 50
+        school:
+          type: string
+          description: 学校.
+          minLength: 1
+          maxLength: 100
+        grade:
+          $ref: '#/components/schemas/GradeInSchool'
+        executiveClass:
+          type: string
+          description: 行政班级.
+          minLength: 1
+          maxLength: 20
+        chosenSubjects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subject'
+          minLength: 1
+          maxLength: 10
+        subjectClass:
+          type: string
+          description: 学科班级.
+          minLength: 1
+          maxLength: 20
+        tutors:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 20
+          minLength: 1
+          maxLength: 10
+      required:
+        - sno
+        - school
+        - grade
+    GradeInSchool:
+      type: string
+      description: 年级
+      enum:
+        - KG1
+        - KG2
+        - KG3
+        - E1
+        - E2
+        - E3
+        - E4
+        - E5
+        - E6
+        - J1_7
+        - J2_8
+        - J3_9
+        - S1_10
+        - S2_11
+        - S3_12
+      minLength: 1
+      maxLength: 50
+    Subject:
+      type: string
+      description: 学科.
+      enum:
+        - Physics
+        - Chemistry
+        - Biology
+        - History
+        - Geography
+        - Politics
+      minLength: 1
+      maxLength: 20
     SignupCode:
       type: string
       description: 注册验证码.
@@ -1589,18 +1676,19 @@ components:
         - CN
       minLength: 2
       maxLength: 2
-    Region:
+    Province:
       type: string
-      description: |
-        The region in which the locality is, and which is in the country. For example, California or another appropriate first-level Administrative division.
-        在中国对应省.
+      description: 省.
       minLength: 1
       maxLength: 50
-    Locality:
+    City:
       type: string
-      description: |
-        The locality in which the street address is, and which is in the region. For example, Mountain View.
-        在中国对应市.
+      description: 市.
+      minLength: 1
+      maxLength: 50
+    County:
+      type: string
+      description: 县.
       minLength: 1
       maxLength: 50
     URL:
