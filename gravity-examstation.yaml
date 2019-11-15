@@ -181,6 +181,21 @@ components:
       required: 
         - id
         - title
+    ExamWhitelist:
+      type: object
+      description: | 
+        考试对应的白名单.
+      properties:
+        examId:
+          $ref: '#/components/schemas/ObjectID'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountBrief'
+          minLength: 0
+      required:
+        - examId
+        - members
     ExamChain:
       type: object
       description: 考试链.
@@ -320,6 +335,21 @@ components:
         - id
         - version
         - title
+    EchainWhitelist:
+      type: object
+      description: | 
+        考试链对应的白名单.
+      properties:
+        echainId:
+          $ref: '#/components/schemas/ObjectID'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountBrief'
+          minLength: 0
+      required:
+        - echainId
+        - members
     AssessToken:
       type: object
       description: |
