@@ -19,8 +19,10 @@ tags:
     description: 访问考试链.
   - name: AssessToken
     description: 访问AssessToken.
-  - name: AdmissionTicket
-    description: 访问准考证.
+  - name: ExamAticket
+    description: 访问考试准考证.
+  - name: EchainAticket
+    description: 访问考试链准考证
   - name: AnswerSheet
     description: 访问答卷.
 paths:
@@ -46,6 +48,8 @@ components:
           $ref: '#/components/schemas/ExamForm'
         title:
           $ref: '#/components/schemas/ExamTitle'
+        maxRepeatTimes:
+          $ref: '#/components/schemas/ExamMaxRepeatTimes'
         description:
           $ref: '#/components/schemas/MgmtDescriptionField'
         introduction:
@@ -97,6 +101,7 @@ components:
       description: 考试的形式.
       enum:
         - Enclosed
+        - Cooperate
         - Public
       minLength: 1
       maxLength: 50
@@ -105,6 +110,12 @@ components:
       description: 考试标题.
       minLength: 1
       maxLength: 200
+    ExamMaxRepeatTimes:
+      type: integer
+      format: int32
+      description: |
+        单个用户的最大考试次数.
+      minimum: 1
     ExamEpMoldPool:
       type: array
       description: 考试对应的试卷模子池.
@@ -304,7 +315,7 @@ components:
         version:
           $ref: '#/components/schemas/VersionSerial'
         title:
-          $ref: '#/components/schemas/ExamTitle'
+          $ref: '#/components/schemas/EpTitle'
       required:
         - id
         - version
@@ -315,19 +326,216 @@ components:
         测评令牌.
         参加Enclosed型的考试或考试链时提供.
       properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        creator:
+          $ref: '#/components/schemas/AccountBrief'
+        targetType:
+          $ref: '#/components/schemas/AssessTokenTargetType'
         code:
           $ref: '#/components/schemas/AssessTokenCode'
+        targets:
+          $ref: '#/components/schemas/AssessTokenTargets'
+        expiresAt:
+          $ref: '#/components/schemas/Timestamp'
+        taker:
+          $ref: '#/components/schemas/AccountBrief'
+        exchanging:
+          $ref: '#/components/schemas/AssessTokenExchanging'
+        tags:
+          $ref: '#/components/schemas/AssessTokenTags'
       required:
+        - id
+        - createTime
+        - lUTime
+        - creator
+        - targetType
         - code
+        - targets
+    AssessTokenTargetType:
+      type: string
+      description: 测评令牌的适用目标类型.
+      enum: 
+        - Exam
+        - ExamChain
     AssessTokenCode:
       type: string
       description: |
         测评令牌码.
         由[大写字母,小写字母,数字]构成.
       minLength: 10
-      maxLength: 10
+      maxLength: 20
       example:
         aX0s95PtBn
+    AssessTokenTargets:
+      type: array
+      description: |
+        测评令牌码适用目标集.
+      items:
+        $ref: '#/components/schemas/AssessTokenTarget'
+      minLength: 1
+      maxLength: 25
+    AssessTokenTarget:
+      type: object
+      description: |
+        测评令牌码适用的目标.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        title:
+          $ref: '#/components/schemas/AssessTokenTargetTitle'
+      required:
+        - id
+        - title
+    AssessTokenTargetTitle:
+      type: string
+      minLength: 1
+      maxLength: 200
+    AssessTokenExchanging:
+      type: object
+      description: |
+        测评令牌承兑记录.
+      properties:
+        applicant:
+          $ref: '#/components/schemas/AccountBrief'
+        targetId:
+          $ref: '#/components/schemas/ObjectID'
+      required:
+        - applicant
+        - targetId
+    AssessTokenTags:
+      type: array
+      items:
+        $ref: '#/components/schemas/TagTitle'
+      description: |
+        测评令牌标签集.
+    ExamAticket:
+      type: object
+      description: |  
+        考试对应的准考证.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        exam:
+          $ref: '#/components/schemas/ExamBrief'
+        owner:
+          $ref: '#/components/schemas/ObjectID'
+        epMold:
+          $ref: '#/components/schemas/ObjectID'
+        examPaper:
+          $ref: '#/components/schemas/ObjectID'
+        name:
+          type: string
+          description: 姓名.
+          minLength: 1
+          maxLength: 50
+        gender:
+          $ref: '#/components/schemas/Gender'
+        province:
+          $ref: '#/components/schemas/Province'
+        city:
+          $ref: '#/components/schemas/City'
+        county:
+          $ref: '#/components/schemas/County'
+        age:
+          $ref: '#/components/schemas/Age'
+        studyingStatus:
+          $ref: '#/components/schemas/StudyingStatus'
+        extInfo:
+          type: object
+          additionalProperties:
+            type: string
+            minLength: 1
+            maxLength: 250
+          minLength: 1
+          maxLength: 20
+      required:
+        - id
+        - createTime
+        - lUTime
+        - exam
+        - owner
+        - epMold
+    EchainAticket:
+      type: object
+      description: |  
+        考试链对应的准考证.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        echain:
+          $ref: '#/components/schemas/EchainBrief'
+        owner:
+          $ref: '#/components/schemas/ObjectID'
+        epmSerialIndex:
+          type: integer
+          format: int32
+          description: | 
+            对应的emp-serial的索引.
+          minimum: 0
+        examTickets:
+          type: array
+          description: |
+            所辖的各场考试对应的准考证矩阵, 每一行对应一场考试.
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ObjectID'
+        name:
+          type: string
+          description: 姓名.
+          minLength: 1
+          maxLength: 50
+        gender:
+          $ref: '#/components/schemas/Gender'
+        province:
+          $ref: '#/components/schemas/Province'
+        city:
+          $ref: '#/components/schemas/City'
+        county:
+          $ref: '#/components/schemas/County'
+        age:
+          $ref: '#/components/schemas/Age'
+        studyingStatus:
+          $ref: '#/components/schemas/StudyingStatus'
+        extInfo:
+          type: object
+          additionalProperties:
+            type: string
+            minLength: 1
+            maxLength: 250
+          minLength: 1
+          maxLength: 20
+      required:
+        - id
+        - createTime
+        - lUTime
+        - echain
+        - owner
+    EchainBrief:
+      type: object
+      description: |
+        考试链的简单信息.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        title:
+          $ref: '#/components/schemas/EchainTitle'
+      required:
+        - id
+        - title
     PubEpMold:
       type: object
       description: |
@@ -652,6 +860,83 @@ components:
       type: number
       format: float
       description: 对应范围内缺省的题目单位分值.
+    StudyingStatus:
+      type: object
+      description: 就学信息.
+      properties:
+        sno:
+          type: string
+          description: 学号.
+          minLength: 1
+          maxLength: 50
+        school:
+          type: string
+          description: 学校.
+          minLength: 1
+          maxLength: 100
+        grade:
+          $ref: '#/components/schemas/GradeInSchool'
+        executiveClass:
+          type: string
+          description: 行政班级.
+          minLength: 1
+          maxLength: 20
+        chosenSubjects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subject'
+          minLength: 1
+          maxLength: 10
+        subjectClass:
+          type: string
+          description: 学科班级.
+          minLength: 1
+          maxLength: 20
+        tutors:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 20
+          minLength: 1
+          maxLength: 10
+      required:
+        - sno
+        - school
+        - grade
+    GradeInSchool:
+      type: string
+      description: 年级
+      enum:
+        - KG1
+        - KG2
+        - KG3
+        - E1
+        - E2
+        - E3
+        - E4
+        - E5
+        - E6
+        - J1_7
+        - J2_8
+        - J3_9
+        - S1_10
+        - S2_11
+        - S3_12
+      minLength: 1
+      maxLength: 50
+    Subject:
+      type: string
+      description: 学科.
+      enum:
+        - Physics
+        - Chemistry
+        - Biology
+        - History
+        - Geography
+        - Politics
+      minLength: 1
+      maxLength: 20
     TagTitle:
       type: string
       description: 不可重复.
@@ -835,6 +1120,35 @@ components:
       description: mime.types
       minLength: 1
       maxLength: 100
+    Province:
+      type: string
+      description: 省.
+      minLength: 1
+      maxLength: 50
+    City:
+      type: string
+      description: 市.
+      minLength: 1
+      maxLength: 50
+    County:
+      type: string
+      description: 县.
+      minLength: 1
+      maxLength: 50
+    Age:
+      type: integer
+      format: int32
+      description: 年龄.
+      minimum: 0
+    Gender:
+      type: string
+      description: 性取向.
+      enum:
+        - Masculine
+        - Feminine
+        - Neutral
+      minLength: 1
+      maxLength: 50
     Timestamp:
       type: integer
       format: int64
