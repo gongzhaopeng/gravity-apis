@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   version: 'genesis'
-  title: 'ExamStation Service API'
-  description: 'Gravity:ExamStation-Service对应的API.'
+  title: 'ExamConfig Service API'
+  description: 'Gravity:ExamConfig-Service对应的API.'
   contact:
     email: gongguochuanqi@gmail.com
   license:
@@ -11,23 +11,1454 @@ info:
 # Added by API Auto Mocking Plugin
 servers:
   - description: SwaggerHub API Auto Mocking
-    url: http://gravity.benbenedu.cn:9001/examstation/genesis
+    url: http://gravity.benbenedu.cn:9001/examconfig/genesis
 tags:
+  - name: ExamTag
+    description: 访问考试标签.
   - name: Exam
     description: 访问考试.
+  - name: EchainTag
+    description: 访问考试链标签.
   - name: ExamChain
     description: 访问考试链.
-  - name: AssessToken
-    description: 访问AssessToken.
-  - name: ExamAticket
-    description: 访问考试准考证.
-  - name: EchainAticket
-    description: 访问考试链准考证
-  - name: AnswerSheet
-    description: 访问答卷.
+  - name: PubEpMold
+    description: 访问试卷模子(发布).
 paths:
+  /examtags:
+    post:
+      tags: 
+        - ExamTag
+      summary: 创建考试标签.
+      description: 创建考试标签.
+      operationId: createExamTag
+      requestBody:
+        description: 请求创建的考试标签信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamTagCreatingReq'
+      responses:
+        '201':
+          description: 成功创建考试标签.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamTagCreatedResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '409':
+          description: Conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                duplicateTitle:
+                  value:
+                    code: 'DuplicateTitle'
+                    detail: '${detail}'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /examtags/query:
+    post:
+      tags: 
+        - ExamTag
+      summary: Query考试标签.
+      description: Query考试标签.
+      operationId: queryExamTags
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultCreateTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamTagQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamTagPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /examtags/{examtag-id}:
+    get:
+      tags: 
+        - ExamTag
+      summary: 获取指定的考试标签详情.
+      description: 获取指定的考试标签详情.
+      operationId: getExamTagById
+      parameters: 
+        - name: examtag-id
+          in: path
+          description: 指定examtag的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamTag'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试标签不存在.
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /exams:
+    post:
+      tags:
+        - Exam
+      summary: 创建考试.
+      description: 创建考试.
+      operationId: createExam
+      requestBody:
+        description: 请求创建的考试设计信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamDesign'
+      responses:
+        '201':
+          description: 成功创建考试.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamCreatedResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '409':
+          description: Conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                duplicateTitle:
+                  value:
+                    code: 'DuplicateTitle'
+                    detail: '${detail}'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /exams/query:
+    post:
+      tags: 
+        - Exam
+      summary: Query考试.
+      description: Query考试.
+      operationId: queryExams
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /exams/{exam-id}:
+    get:
+      tags: 
+        - Exam
+      summary: 获取指定的考试详情.
+      description: 获取指定的考试详情.
+      operationId: getExamById
+      parameters: 
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试不存在.
+      security:
+        - examRepoAuth: 
+          - client:inner
+    put:
+      tags:
+        - Exam
+      summary: 更新指定考试的设计.
+      description: 更新指定考试的设计.
+      operationId: updateExamById
+      parameters: 
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 请求更新的考试设计信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamUpdatingReq'
+      responses:
+        '204':
+          description: 更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试不存在.
+        '409':
+          description: Conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                duplicateTitle:
+                  value:
+                    code: 'DuplicateTitle'
+                    detail: '${detail}'
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '更改仅在Preparing状态下被允许.'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /exams/{exam-id}/state:
+    put:
+      tags: 
+        - Exam
+      summary: 更新指定考试的状态.
+      description: 更新指定考试的状态.
+      operationId: updateExamStateById
+      parameters: 
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 考试状态更新请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamStateUpdatingReq'
+      responses:
+        '204':
+          description: 考试状态更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                specifiedStateConversionNotAllowed:
+                  value:
+                    code: 'SpecifiedStateConversionNotAllowed'
+                    detail: '${detail}'
+                  description: '允许的状态转换路径: Preparing->{Released,Discarded}, Released->{Discarded}'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /exams/{exam-id}/tags:
+    put:
+      tags: 
+        - Exam
+      summary: 更新指定考试的标签集.
+      description: 更新指定考试的标签集.
+      operationId: updateExamTagsById
+      parameters: 
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 考试标签集更新请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamTagsUpdatingReq'
+      responses:
+        '204':
+          description: 考试标签集更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /exams/{exam-id}/deployment:
+    post:
+      tags: 
+        - Exam
+      summary: 部署指定的考试.
+      description: |  
+        部署指定的考试.
+        部署完成后,考试即处于外部可用状态.
+      operationId: deployExamById
+      parameters: 
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 考试部署请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamDeploymentReq'
+      responses:
+        '204':
+          description: 考试部署成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '部署仅在Released状态下被允许.'
+  /echaintags:
+    post:
+      tags: 
+        - EchainTag
+      summary: 创建考试链标签.
+      description: 创建考试链标签.
+      operationId: createEchainTag
+      requestBody:
+        description: 请求创建的考试链标签信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainTagCreatingReq'
+      responses:
+        '201':
+          description: 成功创建考试链标签.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainTagCreatedResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '409':
+          description: Conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                duplicateTitle:
+                  value:
+                    code: 'DuplicateTitle'
+                    detail: '${detail}'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /echaintags/query:
+    post:
+      tags: 
+        - EchainTag
+      summary: Query考试链标签.
+      description: Query考试链标签.
+      operationId: queryEchainTags
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultCreateTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainTagQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainTagPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /echaintags/{echaintag-id}:
+    get:
+      tags: 
+        - EchainTag
+      summary: 获取指定的考试链标签详情.
+      description: 获取指定的考试链标签详情.
+      operationId: getEchainTagById
+      parameters: 
+        - name: echaintag-id
+          in: path
+          description: 指定echaintag的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainTag'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链标签不存在.
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /examchains:
+    post:
+      tags:
+        - ExamChain
+      summary: 创建考试链.
+      description: 创建考试链.
+      operationId: createExamChain
+      requestBody:
+        description: 请求创建的考试链设计信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamChainDesign'
+      responses:
+        '201':
+          description: 成功创建考试链.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainCreatedResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '409':
+          description: Conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                duplicateTitle:
+                  value:
+                    code: 'DuplicateTitle'
+                    detail: '${detail}'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /examchains/query:
+    post:
+      tags: 
+        - ExamChain
+      summary: Query考试链.
+      description: Query考试链.
+      operationId: queryExamChains
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /examchains/{examchain-id}:
+    get:
+      tags: 
+        - ExamChain
+      summary: 获取指定的考试链详情.
+      description: 获取指定的考试链详情.
+      operationId: getExamChainById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamChain'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+      security:
+        - examRepoAuth: 
+          - client:inner
+    put:
+      tags:
+        - ExamChain
+      summary: 更新指定考试链的设计.
+      description: 更新指定考试链的设计.
+      operationId: updateExamChainById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 请求更新的考试链设计信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainUpdatingReq'
+      responses:
+        '204':
+          description: 更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+        '409':
+          description: Conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                duplicateTitle:
+                  value:
+                    code: 'DuplicateTitle'
+                    detail: '${detail}'
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '更改仅在Preparing状态下被允许.'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /examchains/{examchain-id}/exams/appending:
+    patch:
+      tags: 
+        - ExamChain
+      summary: 向考试链中添加新的考试.
+      description: 向考试链中添加新的考试.
+      operationId: appendEchainExamsById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainExamsAppendingReq'
+      responses:
+        '204':
+          description: 添加成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                AlteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '更改仅在非Discarded状态下被允许.'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /examchains/{examchain-id}/epmserials/appending:
+    patch:
+      tags: 
+        - ExamChain
+      summary: 向考试链中添加新的epm-serial.
+      description: |  
+        向考试链中添加新的epm-serial.
+      operationId: appendEchainEpmSerialsById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainEpmSerialsAppendingReq'
+      responses:
+        '204':
+          description: 添加成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                AlteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '须满足以下条件方可执行更改: a.非Discarded状态; b.当前考试链对象中的epmSerials不为空'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /examchains/{examchain-id}/state:
+    put:
+      tags: 
+        - ExamChain
+      summary: 更新指定考试链的状态.
+      description: 更新指定考试链的状态.
+      operationId: updateEchainStateById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 考试链状态更新请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainStateUpdatingReq'
+      responses:
+        '204':
+          description: 考试链状态更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                specifiedStateConversionNotAllowed:
+                  value:
+                    code: 'SpecifiedStateConversionNotAllowed'
+                    detail: '${detail}'
+                  description: '允许的状态转换路径: Preparing->{Released,Discarded}, Released->{Discarded}'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /examchains/{examchain-id}/tags:
+    put:
+      tags: 
+        - ExamChain
+      summary: 更新指定考试链的标签集.
+      description: 更新指定考试链的标签集.
+      operationId: updateEchainTagsById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 考试链标签集更新请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainTagsUpdatingReq'
+      responses:
+        '204':
+          description: 考试链标签集更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /examchains/{examchain-id}/deployment:
+    post:
+      tags: 
+        - ExamChain
+      summary: 部署指定的考试链.
+      description: |  
+        部署指定的考试链.
+        部署完成后,考试链即处于外部可用状态.
+      operationId: deployEchainById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 考试链部署请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainDeploymentReq'
+      responses:
+        '204':
+          description: 考试链部署成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '部署仅在Released状态下被允许.'
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /pubepmolds/deployment:
+    post:
+      tags: 
+        - PubEpMold
+      summary: 部署试卷模子.
+      description: |  
+        部署指定的试卷模子.
+        部署完成后,试卷模子即处于外部可用状态.
+      operationId: deployEpMoldById
+      requestBody:
+        description: 试卷模子部署请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EpMoldDeploymentReq'
+      responses:
+        '204':
+          description: 试卷模子部署成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examRepoAuth: 
+          - client:inner
+  /pubepmolds/query:
+    post:
+      tags: 
+        - PubEpMold
+      summary: Query试卷模子(发布).
+      description: Query试卷模子(发布).
+      operationId: queryPubEpMolds
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PubEpMoldQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PubEpMoldPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examRepoAuth: 
+          - client:inner
 components:
   schemas:
+    ExamTagCreatingReq:
+      type: object
+      description: 创建考试标签的请求信息.
+      properties:
+        title:
+          $ref: '#/components/schemas/TagTitle'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
+      required: 
+        - title
+    ExamTagCreatedResp:
+      type: object
+      description: 考试标签创建成功时的响应.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+      required: 
+        - id
+    ExamTagQuery:
+      type: object
+      description: 考试标签查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        createTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        author:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        title:
+          $ref: '#/components/schemas/TextSearchSpec'
+        description:
+          $ref: '#/components/schemas/TextSearchSpec'
+    ExamTagPage:
+      description: 考试标签分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExamTag'
+              minLength: 0
+          required:
+            - content
+    ExamDesign:
+      type: object
+      description: 考试的设计信息.
+      properties:
+        owner:
+          $ref: '#/components/schemas/AccountBrief'
+        form:
+          $ref: '#/components/schemas/ExamForm'
+        title:
+          $ref: '#/components/schemas/ExamTitle'
+        maxRepeatTimes:
+          $ref: '#/components/schemas/ExamMaxRepeatTimes'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        epMoldPool:
+          $ref: '#/components/schemas/ExamEpMoldPool'
+        beginTime:
+          $ref: '#/components/schemas/ExamBeginTime'
+        preEnterDuration:
+          $ref: '#/components/schemas/ExamPreEnterDuration'
+        postEnterDuration:
+          $ref: '#/components/schemas/ExamPostEnterDuration'
+        paperPreFetchDuration:
+          $ref: '#/components/schemas/ExamPaperPreFetchDuration'
+        duration:
+          $ref: '#/components/schemas/ExamDuration'
+        maxDurationOffset:
+          $ref: '#/components/schemas/ExamMaxDurationOffset'
+        extFeatures:
+          $ref: '#/components/schemas/ExamExtFeatures'
+        resources:
+          $ref: '#/components/schemas/ExamResources'
+      required: 
+        - owner
+        - form
+        - title
+        - epMoldPool
+    ExamCreatedResp:
+      type: object
+      description: 考试创建成功时的响应.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+      required: 
+        - id
+    ExamQuery:
+      type: object
+      description: 考试查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        createTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        lUTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        author:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        state:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExamState'
+          description: 指定state所属的集合. =relation=>in.
+          minLength: 1
+          maxLength: 10
+        owner:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        form:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExamForm'
+          description: 指定所属的集合. =relation=>in.
+          minLength: 1
+          maxLength: 10
+        title:
+          $ref: '#/components/schemas/TextSearchSpec'
+        description:
+          $ref: '#/components/schemas/TextSearchSpec'
+        introduction:
+          $ref: '#/components/schemas/TextSearchSpec'
+        epMolds:
+          $ref: '#/components/schemas/VersioningRefQueryField'
+        beginTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        tags:
+          $ref: '#/components/schemas/IdAllMatchQueryField'
+        resourceRefs:
+          $ref: '#/components/schemas/VersioningRefQueryField'
+    ExamPage:
+      description: 考试分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/Exam'
+              minLength: 0
+          required:
+            - content
+    ExamUpdatingReq:
+      type: object
+      description: 更新考试的请求信息.
+      properties:
+        examLUTime: 
+          $ref: '#/components/schemas/Timestamp'
+        newDesign:
+          $ref: '#/components/schemas/ExamDesign'
+      required:
+        - examLUTime
+        - newDesign
+    ExamStateUpdatingReq:
+      type: object
+      description: 更新考试状态的请求信息.
+      properties:
+        examLUTime:
+          $ref: '#/components/schemas/Timestamp'
+        newState:
+          $ref: '#/components/schemas/ExamState'
+      required: 
+        - examLUTime
+        - newState
+    ExamTagsUpdatingReq:
+      type: object
+      description: 更新考试标签集的请求信息.
+      properties:
+        examLUTime:
+          $ref: '#/components/schemas/Timestamp'
+        newTags:
+          type: array
+          description: 新的标签集. 该数组长度为0时表示清除所有标签.
+          items:
+            $ref: '#/components/schemas/ObjectID'
+          minLength: 0
+          maxLength: 50
+      required: 
+        - examLUTime
+        - newTags
+    ExamDeploymentReq:
+      type: object
+      description: 部署考试的请求信息.
+      properties:
+        examLUTime:
+          $ref: '#/components/schemas/Timestamp'
+        resources:
+          $ref: '#/components/schemas/ExamResources'
+      required:
+        - examLUTime
+    EchainTagCreatingReq:
+      type: object
+      description: 创建考试链标签的请求信息.
+      properties:
+        title:
+          $ref: '#/components/schemas/TagTitle'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
+      required: 
+        - title
+    EchainTagCreatedResp:
+      type: object
+      description: 考试链标签创建成功时的响应.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+      required: 
+        - id
+    EchainTagQuery:
+      type: object
+      description: 考试链标签查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        createTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        author:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        title:
+          $ref: '#/components/schemas/TextSearchSpec'
+        description:
+          $ref: '#/components/schemas/TextSearchSpec'
+    EchainTagPage:
+      description: 考试链标签分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/EchainTag'
+              minLength: 0
+          required:
+            - content
+    ExamChainDesign:
+      type: object
+      description: 考试链的设计信息.
+      properties:
+        owner:
+          $ref: '#/components/schemas/AccountBrief'
+        form:
+          $ref: '#/components/schemas/EchainForm'
+        title:
+          $ref: '#/components/schemas/EchainTitle'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        exams:
+          $ref: '#/components/schemas/EchainExams'
+        epmSerials:
+          $ref: '#/components/schemas/EchainEpmSerials'
+        extFeatures:
+          $ref: '#/components/schemas/EchainExtFeatures'
+        resources:
+          $ref: '#/components/schemas/EchainResources'
+      required:
+        - owner
+        - form
+        - title
+        - exams
+    EchainCreatedResp:
+      type: object
+      description: 考试链创建成功时的响应.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+      required: 
+        - id
+    EchainQuery:
+      type: object
+      description: 考试链查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        createTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        lUTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        author:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        state:
+          type: array
+          items:
+            $ref: '#/components/schemas/EchainState'
+          description: 指定state所属的集合. =relation=>in.
+          minLength: 1
+          maxLength: 10
+        owner:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        form:
+          type: array
+          items:
+            $ref: '#/components/schemas/EchainForm'
+          description: 指定所属的集合. =relation=>in.
+          minLength: 1
+          maxLength: 10
+        title:
+          $ref: '#/components/schemas/TextSearchSpec'
+        description:
+          $ref: '#/components/schemas/TextSearchSpec'
+        introduction:
+          $ref: '#/components/schemas/TextSearchSpec'
+        exams:
+          $ref: '#/components/schemas/IdAllMatchQueryField'
+        tags:
+          $ref: '#/components/schemas/IdAllMatchQueryField'
+        resourceRefs:
+          $ref: '#/components/schemas/VersioningRefQueryField'
+    EchainPage:
+      description: 考试链分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExamChain'
+              minLength: 0
+          required:
+            - content
+    EchainUpdatingReq:
+      type: object
+      description: 更新考试链的请求信息.
+      properties:
+        echainLUTime: 
+          $ref: '#/components/schemas/Timestamp'
+        newDesign:
+          $ref: '#/components/schemas/ExamChainDesign'
+      required:
+        - echainLUTime
+        - newDesign
+    EchainExamsAppendingReq:
+      type: object
+      description: |  
+        向考试链中添加新考试的请求信息.
+        如果考试链中配置了epmSerials, 则需对其进行相应的扩充, 以保证考试链中的每一个指定的epm-serial与考试集匹配.
+      properties:
+        echainLUTime: 
+          $ref: '#/components/schemas/Timestamp'
+        examsToAppend:
+          $ref: '#/components/schemas/EchainExams'
+        epmSerialsPatch:
+          $ref: '#/components/schemas/EchainEpmSerials'
+      required:
+        - echainLUTime
+        - examsToAppend
+    EchainEpmSerialsAppendingReq:
+      type: object
+      description: |  
+        向考试链中添加新epm-serial的请求信息.
+      properties:
+        echainLUTime: 
+          $ref: '#/components/schemas/Timestamp'
+        epmSerialsToAppend:
+          $ref: '#/components/schemas/EchainEpmSerials'
+      required:
+        - echainLUTime
+        - epmSerialsToAppend
+    EchainStateUpdatingReq:
+      type: object
+      description: 更新考试链状态的请求信息.
+      properties:
+        echainLUTime:
+          $ref: '#/components/schemas/Timestamp'
+        newState:
+          $ref: '#/components/schemas/EchainState'
+      required: 
+        - echainLUTime
+        - newState
+    EchainTagsUpdatingReq:
+      type: object
+      description: 更新考试链标签集的请求信息.
+      properties:
+        echainLUTime:
+          $ref: '#/components/schemas/Timestamp'
+        newTags:
+          type: array
+          description: 新的标签集. 该数组长度为0时表示清除所有标签.
+          items:
+            $ref: '#/components/schemas/ObjectID'
+          minLength: 0
+          maxLength: 50
+      required: 
+        - echainLUTime
+        - newTags
+    EchainDeploymentReq:
+      type: object
+      description: 部署考试链的请求信息.
+      properties:
+        echainLUTime:
+          $ref: '#/components/schemas/Timestamp'
+        resources:
+          $ref: '#/components/schemas/EchainResources'
+      required:
+        - echainLUTime
+    EpMoldDeploymentReq:
+      type: object
+      description: 部署试卷模子的请求信息.
+      properties:
+        epMold:
+          $ref: '#/components/schemas/PubEpMold'
+      required:
+        - epMold
+    PubEpMoldQuery:
+      type: object
+      description: 试卷模子(发布)查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        version:
+          $ref: '#/components/schemas/VersioningRefQueryField'
+    PubEpMoldPage:
+      description: 试卷模子(发布)分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/PubEpMold'
+              minLength: 0
+          required:
+            - content
+    ExamTag:
+      type: object
+      description: 考试标签.用于考试管理.
+      properties:
+        id: 
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        author:
+          $ref: '#/components/schemas/AccountBrief'
+        title:
+          $ref: '#/components/schemas/TagTitle'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
+      required: 
+        - id
+        - createTime
+        - author
+        - title
     Exam:
       type: object
       description: 考试.
@@ -48,6 +1479,8 @@ components:
           $ref: '#/components/schemas/ExamForm'
         title:
           $ref: '#/components/schemas/ExamTitle'
+        maxRepeatTimes:
+          $ref: '#/components/schemas/ExamMaxRepeatTimes'
         description:
           $ref: '#/components/schemas/MgmtDescriptionField'
         introduction:
@@ -75,6 +1508,13 @@ components:
           description: 标签集.用于管理.
           items:
             $ref: '#/components/schemas/ExamTagBrief'
+        resourceRefs:
+          type: array
+          description: |
+            资源引用表.  
+            该属性仅用于后台维护引用关系, 不对外暴露.
+          items:
+            $ref: '#/components/schemas/VersioningRef'
       required: 
         - id
         - createTime
@@ -108,6 +1548,12 @@ components:
       description: 考试标题.
       minLength: 1
       maxLength: 200
+    ExamMaxRepeatTimes:
+      type: integer
+      format: int32
+      description: |
+        单个用户的最大考试次数.
+      minimum: 1
     ExamEpMoldPool:
       type: array
       description: 考试对应的试卷模子池.
@@ -173,6 +1619,25 @@ components:
       required: 
         - id
         - title
+    EchainTag:
+      type: object
+      description: 考试链标签.用于考试链管理.
+      properties:
+        id: 
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        author:
+          $ref: '#/components/schemas/AccountBrief'
+        title:
+          $ref: '#/components/schemas/TagTitle'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
+      required: 
+        - id
+        - createTime
+        - author
+        - title
     ExamChain:
       type: object
       description: 考试链.
@@ -210,6 +1675,13 @@ components:
           description: 标签集.用于管理.
           items:
             $ref: '#/components/schemas/EchainTagBrief'
+        resourceRefs:
+          type: array
+          description: |
+            资源引用表.  
+            该属性仅用于后台维护引用关系, 不对外暴露.
+          items:
+            $ref: '#/components/schemas/VersioningRef'
       required: 
         - id
         - createTime
@@ -312,167 +1784,6 @@ components:
         - id
         - version
         - title
-    AssessToken:
-      type: object
-      description: |
-        测评令牌.
-        参加Enclosed型的考试或考试链时提供.
-      properties:
-        id:
-          $ref: '#/components/schemas/ObjectID'
-        createTime:
-          $ref: '#/components/schemas/Timestamp'
-        lUTime:
-          $ref: '#/components/schemas/Timestamp'
-        creator:
-          $ref: '#/components/schemas/AccountBrief'
-        targetType:
-          $ref: '#/components/schemas/AssessTokenTargetType'
-        code:
-          $ref: '#/components/schemas/AssessTokenCode'
-        targets:
-          $ref: '#/components/schemas/AssessTokenTargets'
-        expiresAt:
-          $ref: '#/components/schemas/Timestamp'
-        taker:
-          $ref: '#/components/schemas/AccountBrief'
-        exchanging:
-          $ref: '#/components/schemas/AssessTokenExchanging'
-        tags:
-          $ref: '#/components/schemas/AssessTokenTags'
-      required:
-        - id
-        - createTime
-        - lUTime
-        - creator
-        - targetType
-        - code
-        - targets
-    AssessTokenTargetType:
-      type: string
-      description: 测评令牌的适用目标类型.
-      enum: 
-        - Exam
-        - ExamChain
-    AssessTokenCode:
-      type: string
-      description: |
-        测评令牌码.
-        由[大写字母,小写字母,数字]构成.
-      minLength: 10
-      maxLength: 20
-      example:
-        aX0s95PtBn
-    AssessTokenTargets:
-      type: array
-      description: |
-        测评令牌码适用目标集.
-      items:
-        $ref: '#/components/schemas/AssessTokenTarget'
-      minLength: 1
-      maxLength: 25
-    AssessTokenTarget:
-      type: object
-      description: |
-        测评令牌码适用的目标.
-      properties:
-        id:
-          $ref: '#/components/schemas/ObjectID'
-        title:
-          $ref: '#/components/schemas/AssessTokenTargetTitle'
-      required:
-        - id
-        - title
-    AssessTokenTargetTitle:
-      type: string
-      minLength: 1
-      maxLength: 200
-    AssessTokenExchanging:
-      type: object
-      description: |
-        测评令牌承兑记录.
-      properties:
-        applicant:
-          $ref: '#/components/schemas/AccountBrief'
-        targetId:
-          $ref: '#/components/schemas/ObjectID'
-      required:
-        - applicant
-        - targetId
-    AssessTokenTags:
-      type: array
-      items:
-        $ref: '#/components/schemas/TagTitle'
-      description: |
-        测评令牌标签集.
-    ExamAticket:
-      type: object
-      description: |  
-        考试对应的准考证.
-      properties:
-        id:
-          $ref: '#/components/schemas/ObjectID'
-        createTime:
-          $ref: '#/components/schemas/Timestamp'
-        lUTime:
-          $ref: '#/components/schemas/Timestamp'
-        exam:
-          $ref: '#/components/schemas/ExamBrief'
-        owner:
-          $ref: '#/components/schemas/ObjectID'
-        epMold:
-          $ref: '#/components/schemas/ObjectID'
-        examPaper:
-          $ref: '#/components/schemas/ObjectID'
-        name:
-          type: string
-          description: 姓名.
-          minLength: 1
-          maxLength: 50
-        gender:
-          $ref: '#/components/schemas/Gender'
-        province:
-          $ref: '#/components/schemas/Province'
-        city:
-          $ref: '#/components/schemas/City'
-        county:
-          $ref: '#/components/schemas/County'
-        age:
-          type: integer
-          format: int32
-        studyingStatus:
-          $ref: '#/components/schemas/StudyingStatus'
-        extInfo:
-          type: object
-          additionalProperties:
-            type: string
-            minLength: 1
-            maxLength: 250
-          minLength: 1
-          maxLength: 20
-      required:
-        - id
-        - createTime
-        - lUTime
-        - exam
-        - owner
-        - epMold
-    EchainAticket:
-      type: object
-      description: |  
-        考试链对应的准考证.
-      properties:
-        id:
-          $ref: '#/components/schemas/ObjectID'
-        createTime:
-          $ref: '#/components/schemas/Timestamp'
-        lUTime:
-          $ref: '#/components/schemas/Timestamp'
-        //TODO
-      required:
-        - id
-        - createTime
-        - lUTime
     PubEpMold:
       type: object
       description: |
@@ -797,83 +2108,6 @@ components:
       type: number
       format: float
       description: 对应范围内缺省的题目单位分值.
-    StudyingStatus:
-      type: object
-      description: 就学信息.
-      properties:
-        sno:
-          type: string
-          description: 学号.
-          minLength: 1
-          maxLength: 50
-        school:
-          type: string
-          description: 学校.
-          minLength: 1
-          maxLength: 100
-        grade:
-          $ref: '#/components/schemas/GradeInSchool'
-        executiveClass:
-          type: string
-          description: 行政班级.
-          minLength: 1
-          maxLength: 20
-        chosenSubjects:
-          type: array
-          items:
-            $ref: '#/components/schemas/Subject'
-          minLength: 1
-          maxLength: 10
-        subjectClass:
-          type: string
-          description: 学科班级.
-          minLength: 1
-          maxLength: 20
-        tutors:
-          type: array
-          items:
-            type: string
-            minLength: 1
-            maxLength: 20
-          minLength: 1
-          maxLength: 10
-      required:
-        - sno
-        - school
-        - grade
-    GradeInSchool:
-      type: string
-      description: 年级
-      enum:
-        - KG1
-        - KG2
-        - KG3
-        - E1
-        - E2
-        - E3
-        - E4
-        - E5
-        - E6
-        - J1_7
-        - J2_8
-        - J3_9
-        - S1_10
-        - S2_11
-        - S3_12
-      minLength: 1
-      maxLength: 50
-    Subject:
-      type: string
-      description: 学科.
-      enum:
-        - Physics
-        - Chemistry
-        - Biology
-        - History
-        - Geography
-        - Politics
-      minLength: 1
-      maxLength: 20
     TagTitle:
       type: string
       description: 不可重复.
@@ -1057,30 +2291,6 @@ components:
       description: mime.types
       minLength: 1
       maxLength: 100
-    Province:
-      type: string
-      description: 省.
-      minLength: 1
-      maxLength: 50
-    City:
-      type: string
-      description: 市.
-      minLength: 1
-      maxLength: 50
-    County:
-      type: string
-      description: 县.
-      minLength: 1
-      maxLength: 50
-    Gender:
-      type: string
-      description: 性取向.
-      enum:
-        - Masculine
-        - Feminine
-        - Neutral
-      minLength: 1
-      maxLength: 50
     Timestamp:
       type: integer
       format: int64
@@ -1108,6 +2318,8 @@ components:
         - Undefined
         - LUTimeConflict
         - AlteringNotAllowed
+        - SpecifiedStateConversionNotAllowed
+        - DuplicateTitle
     BasicPage:
       type: object
       description: 分页基本信息.
@@ -1155,7 +2367,7 @@ components:
         
         
   securitySchemes:
-    examStationAuth:
+    examRepoAuth:
       type: oauth2
       flows:
         password:
