@@ -919,15 +919,9 @@ components:
         endTime:
           $ref: '#/components/schemas/Timestamp'
         quReplies:
-          type: array
-          description: 题目单位作答集.
-          items:
-            $ref: '#/components/schemas/AsQuReply'
+          $ref: '#/components/schemas/AsQuReplies'
         epsDetails:
-          type: array
-          description: 试卷块信息集.
-          items:
-            $ref: '#/components/schemas/AsEpsDetail'
+          $ref: '#/components/schemas/AsEpsDetails'
         extFeedbacks:
           $ref: '#/components/schemas/AsExtFeedbacks'
         resources:
@@ -937,6 +931,71 @@ components:
         - createTime
         - lUTime
         - startTime
+    AsEpsDetails:
+      type: object
+      description: 答卷中的试卷块对应信息集.
+      additionalProperties:
+        $ref: '#/components/schemas/AsEpsDetail'
+      minLength: 0
+    EpsPath:
+      type: string
+      description: |
+        试卷块在试卷中的路径.
+        FORMAT => $eps_a_index.$eps_aa_index...
+      example:
+        1.2
+    AsEpsDetail:
+      type: object
+      description: 答卷中试卷块对应的信息.
+      properties:
+        startTime:
+          $ref: '#/components/schemas/Timestamp'
+        endTime:
+          $ref: '#/components/schemas/Timestamp'
+        extFeedbacks:
+          $ref: '#/components/schemas/AsExtFeedbacks'
+        resources:
+          $ref: '#/components/schemas/AsInputResources'
+    AsQuReplies:
+      type: object
+      description: 答卷中的题目单位作答集.
+      additionalProperties:
+        $ref: '#/components/schemas/AsQuReply'
+      minLength: 0
+    EpQuPath:
+      type: string
+      description: |
+        题目单位在试卷中的路径.
+        FORMAT => $eps_a_index.$eps_aa_index.../$qu_b_index.qu_bb_index...
+      example:
+        1.2/5.3
+    AsQuReply:
+      type: object
+      description: 题目单位作答信息.
+      properties:
+        startTime:
+          $ref: '#/components/schemas/Timestamp'
+        endTime:
+          $ref: '#/components/schemas/Timestamp'
+        choices:
+          type: array
+          description: 选择集.
+          items:
+            type: integer
+            format: int32
+          minLength: 1
+          maxLength: 20
+        contents:
+          type: array
+          description: 非选择类型的作答内容集.
+          items:
+            $ref: '#/components/schemas/InputMediumValue'
+          minLength: 1
+          maxLength: 20
+        extFeedbacks:
+          $ref: '#/components/schemas/AsExtFeedbacks'
+        resources:
+          $ref: '#/components/schemas/AsInputResources'
     AsExtFeedbacks:
       type: object
       description: 答卷中扩展的反馈信息集.
