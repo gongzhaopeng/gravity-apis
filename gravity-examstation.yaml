@@ -181,21 +181,30 @@ components:
       required: 
         - id
         - title
-    ExamWhitelist:
+    ExamWhitelistItem:
       type: object
       description: | 
-        考试对应的白名单.
+        考试对应的白名单条目.
       properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
         examId:
           $ref: '#/components/schemas/ObjectID'
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/AccountBrief'
-          minLength: 0
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        creator:
+          $ref: '#/components/schemas/AccountBrief'
+        member:
+          $ref: '#/components/schemas/AccountBrief'
       required:
+        - id
         - examId
-        - members
+        - createTime
+        - lUTime
+        - creator
+        - member
     ExamChain:
       type: object
       description: 考试链.
@@ -335,21 +344,30 @@ components:
         - id
         - version
         - title
-    EchainWhitelist:
+    EchainWhitelistItem:
       type: object
       description: | 
-        考试链对应的白名单.
+        考试链对应的白名单条目.
       properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
         echainId:
           $ref: '#/components/schemas/ObjectID'
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/AccountBrief'
-          minLength: 0
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        creator:
+          $ref: '#/components/schemas/AccountBrief'
+        member:
+          $ref: '#/components/schemas/AccountBrief'
       required:
+        - id
         - echainId
-        - members
+        - createTime
+        - lUTime
+        - creator
+        - member
     AssessToken:
       type: object
       description: |
@@ -886,6 +904,81 @@ components:
           description: 特定标准答案对应的分值.
       required: 
         - number
+    AnswerSheet:
+      type: object
+      description: 答卷
+      properties:
+        aticket:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        startTime:
+          $ref: '#/components/schemas/Timestamp'
+        endTime:
+          $ref: '#/components/schemas/Timestamp'
+        quReplies:
+          type: array
+          description: 题目单位作答集.
+          items:
+            $ref: '#/components/schemas/AsQuReply'
+        epsDetails:
+          type: array
+          description: 试卷块信息集.
+          items:
+            $ref: '#/components/schemas/AsEpsDetail'
+        extFeedbacks:
+          $ref: '#/components/schemas/AsExtFeedbacks'
+        resources:
+          $ref: '#/components/schemas/AsInputResources'
+      required: 
+        - aticket
+        - createTime
+        - lUTime
+        - startTime
+    AsExtFeedbacks:
+      type: object
+      description: 答卷中扩展的反馈信息集.
+      additionalProperties:
+        $ref: '#/components/schemas/InputMediumValue'
+      minLength: 1
+    AsInputResources:
+      type: array
+      description: 答卷中传入的资源集.
+      items:
+        $ref: '#/components/schemas/InputResource'
+      minLength: 1
+    InputMediumValue:
+      type: object
+      description: 外部传入的多媒体值.
+      properties:
+        resourceIndex:
+          type: integer
+          format: int32
+          description: 对应资源在资源表中的索引值.
+          minimum: 0
+        mediaType:
+          $ref: '#/components/schemas/MediaTypeField'
+        value:
+          type: string
+          description: 值.
+    InputResource:
+      type: object
+      description: 外部传入的资源.
+      properties:
+        id:
+          type: string
+          description: |
+            内部存档后, 该属性用于存储对应的内部ID.
+        mediaType:
+          $ref: '#/components/schemas/MediaTypeField'
+        contentUrl:
+          type: string
+          description: 资源内容的实际访问地址.
+      required: 
+        - mediaType
+        - contentUrl
     DefaultQuScore:
       type: number
       format: float
