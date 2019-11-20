@@ -1008,6 +1008,7 @@ components:
       items:
         $ref: '#/components/schemas/InputResource'
       minLength: 1
+    
     InputMediumValue:
       type: object
       description: 外部传入的多媒体值.
