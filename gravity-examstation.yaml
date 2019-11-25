@@ -1008,7 +1008,91 @@ components:
       items:
         $ref: '#/components/schemas/InputResource'
       minLength: 1
-    
+    ExamPaper:
+      type: object
+      description: 试卷.
+      properties:
+        id: 
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        aticket:
+          $ref: '#/components/schemas/EpAticket'
+        epMold:
+          $ref: '#/components/schemas/VersioningRef'
+        mark:
+          $ref: '#/components/schemas/EpMark'
+        title:
+          $ref: '#/components/schemas/EpTitle'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        sections:
+          type: array
+          description: 包含的试卷块集.
+          items:
+            $ref: '#/components/schemas/CompositeEpSection'
+        extFeatures:
+          $ref: '#/components/schemas/EpExtFeatures'
+        defaultQuScore:
+          $ref: '#/components/schemas/DefaultQuScore'
+        resources:
+          $ref: '#/components/schemas/EpResources'
+      required: 
+        - id
+        - createTime
+        - epMold
+        - title
+        - sections
+    EpAticket:
+      type: object
+      description: 准考证在试卷内的表示.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        owner:
+          $ref: '#/components/schemas/ObjectID'
+        exam:
+          $ref: '#/components/schemas/ObjectID'
+      required: 
+        - id
+        - owner
+        - exam
+    EpMark:
+      type: string
+      description: 标记.
+      minLength: 1
+      maxLength: 200
+    CompositeEpSection:
+      type: object
+      description: 可复合的试卷块.
+      properties:
+        title:
+          $ref: '#/components/schemas/EpsTitle'
+        purpose:
+          $ref: '#/components/schemas/EpsPurpose'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        subSections:
+          type: array
+          description: 下属的子试卷块集.
+          items:
+            $ref: '#/components/schemas/CompositeEpSection'
+        questions:
+          type: array
+          description: 对应的题集.
+          items:
+            $ref: '#/components/schemas/EpQuestion'
+        timeLimit:
+          $ref: '#/components/schemas/EpsTimeLimit'
+        extFeatures:
+          $ref: '#/components/schemas/EpsExtFeatures'
+        defaultQuScore:
+          $ref: '#/components/schemas/DefaultQuScore'
+        resources:
+          $ref: '#/components/schemas/EpsResources'
+      required: 
+        - title
+        - purpose
     InputMediumValue:
       type: object
       description: 外部传入的多媒体值.
