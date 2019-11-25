@@ -11,7 +11,7 @@ info:
 # Added by API Auto Mocking Plugin
 servers:
   - description: SwaggerHub API Auto Mocking
-    url: http://gravity.benbenedu.cn:9001/examstation/genesis
+    url: http://sundial.benbenedu.cn:9001/examstation/genesis
 tags:
   - name: Exam
     description: 访问考试.
@@ -26,8 +26,372 @@ tags:
   - name: AnswerSheet
     description: 访问答卷.
 paths:
+  /exams/{exam-id}/load:
+    post:
+      tags:
+        - Exam
+      summary: 加载指定的考试.
+      description: |
+        加载指定的考试.
+        检查epMoldPool中的EpMold是否已经加载,若未加载,则须对其进行加载.
+        加载EmpMold时,若其yieldingMode为Definite,则为其预生成对应的唯一的通用ExamPaper.
+      operationId: loadExamById
+      parameters: 
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '204':
+          description: 加载成功.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试不存在.
+      security:
+        - examStationAuth: 
+          - client:inner
+  /exams/query:
+    post:
+      tags: 
+        - Exam
+      summary: Query考试.
+      description: Query考试.
+      operationId: queryExams
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examStationAuth: 
+          - client:inner
+  /exams/{exam-id}:
+    get:
+      tags:
+        - Exam
+      summary: 获取指定的考试详情.
+      description: |
+        获取指定的考试详情.
+      operationId: getExamById
+      parameters: 
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试不存在.
+      security:
+        - examStationAuth: 
+          - client:inner
+  /exams/{exam-id}/pub:
+    get:
+      tags:
+        - Exam
+      summary: 获取指定考试的公开信息.
+      description: |
+        获取指定考试的公开信息.
+      operationId: getPubExamById
+      parameters: 
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PubExam'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试不存在.
+      security:
+        - examStationAuth: 
+          - client:inner
+  /examchains/{examchain-id}/load:
+    post:
+      tags:
+        - ExamChain
+      summary: 加载指定的考试链.
+      description: |
+        加载指定的考试链.
+      operationId: loadExamChainById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '204':
+          description: 加载成功.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                DependencyMissed:
+                  value:
+                    code: 'DependencyMissed'
+                    detail: '${detail}'
+                  description: |
+                    加载考试链时, 所依赖的考试必须已经被加载为最新状态.
+      security:
+        - examStationAuth: 
+          - client:inner
+  /examchains/query:
+    post:
+      tags: 
+        - ExamChain
+      summary: Query考试链.
+      description: Query考试链.
+      operationId: queryExamChains
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamChainQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamChainPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examStationAuth: 
+          - client:inner
+  /examchains/{examchain-id}:
+    get:
+      tags:
+        - ExamChain
+      summary: 获取指定的考试链详情.
+      description: |
+        获取指定的考试链详情.
+      operationId: getExamChainById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamChain'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+      security:
+        - examStationAuth: 
+          - client:inner
+  /examchains/{examchain-id}/pub:
+    get:
+      tags:
+        - ExamChain
+      summary: 获取指定考试链的公开信息.
+      description: |
+        获取指定考试链的公开信息.
+      operationId: getPubExamChainById
+      parameters: 
+        - name: examchain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PubExamChain'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链不存在.
+      security:
+        - examStationAuth: 
+          - client:inner
 components:
   schemas:
+    ExamQuery:
+      type: object
+      description: 考试查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        author:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+    ExamPage:
+      description: 考试分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/Exam'
+              minLength: 0
+          required:
+            - content
+    PubExam:
+      type: object
+      description: 考试的公开信息.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        form:
+          $ref: '#/components/schemas/ExamForm'
+        title:
+          $ref: '#/components/schemas/ExamTitle'
+        maxRepeatTimes:
+          $ref: '#/components/schemas/ExamMaxRepeatTimes'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        beginTime:
+          $ref: '#/components/schemas/ExamBeginTime'
+        preEnterDuration:
+          $ref: '#/components/schemas/ExamPreEnterDuration'
+        postEnterDuration:
+          $ref: '#/components/schemas/ExamPostEnterDuration'
+        paperPreFetchDuration:
+          $ref: '#/components/schemas/ExamPaperPreFetchDuration'
+        duration:
+          $ref: '#/components/schemas/ExamDuration'
+        maxDurationOffset:
+          $ref: '#/components/schemas/ExamMaxDurationOffset'
+        extFeatures:
+          $ref: '#/components/schemas/ExamExtFeatures'
+        resources:
+          $ref: '#/components/schemas/ExamResources'
+      required:
+        - id
+        - lUTime
+        - form
+        - title
+    ExamChainQuery:
+      type: object
+      description: 考试链查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        author:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+    ExamChainPage:
+      description: 考试链分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExamChain'
+              minLength: 0
+          required:
+            - content
+    PubExamChain:
+      type: object
+      description: 考试链的公开信息.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        form:
+          $ref: '#/components/schemas/EchainForm'
+        title:
+          $ref: '#/components/schemas/EchainTitle'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        exams:
+          $ref: '#/components/schemas/EchainExams'
+        extFeatures:
+          $ref: '#/components/schemas/EchainExtFeatures'
+        resources:
+          $ref: '#/components/schemas/EchainResources'
+      required:
+        - id
+        - lUTime
+        - form
+        - title
+        - exams
     Exam:
       type: object
       description: 考试.
@@ -1443,6 +1807,7 @@ components:
         - Undefined
         - LUTimeConflict
         - AlteringNotAllowed
+        - DependencyMissed
     BasicPage:
       type: object
       description: 分页基本信息.
@@ -1494,7 +1859,7 @@ components:
       type: oauth2
       flows:
         password:
-          tokenUrl: "http://gravity.benbenedu.cn:9001/account/oauth/token"
+          tokenUrl: "http://sundial.benbenedu.cn:9001/account/oauth/token"
           scopes:
             'client:inner': 内网客户端
   
