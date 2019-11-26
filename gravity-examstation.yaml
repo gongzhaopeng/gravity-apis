@@ -285,6 +285,43 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
+  /assesstokens:
+    post:
+      tags:
+        - AssessToken
+      summary: 生成AssessTokens.
+      description: |
+        生成AssessTokens.
+      operationId: generateAssessTokens
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssessTokensGeneratingReq'
+      responses:
+        '201':
+          description: 生成成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessTokensGeneratingResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examStationAuth: 
+          - client:inner
+  /assesstokens/{assesstoken-id}:
+    get:
+      tags:
+        - AssessToken
+  /assesstokens/query:
+    post:
+      tags:
+        - AssessToken
 components:
   schemas:
     ExamQuery:
@@ -392,6 +429,40 @@ components:
         - form
         - title
         - exams
+    AssessTokensGeneratingReq:
+      type: object
+      description: |
+        生成AssessToken的请求信息.
+      properties:
+        targetType:
+          $ref: '#/components/schemas/AssessTokenTargetType'
+        targets:
+          $ref: '#/components/schemas/AssessTokenTargets'
+        expiresAt:
+          $ref: '#/components/schemas/Timestamp'
+        amount:
+          type: integer
+          format: int32
+          description: 数量.
+          minimum: 1
+          maximum: 200
+        tags:
+          $ref: '#/components/schemas/AssessTokenTags'
+      required:
+        - targetType
+        - targets
+        - amount
+    AssessTokensGeneratingResp:
+      type: object
+      description: |
+        生成AssessToken成功时的响应.
+      properties:
+        assesstokens:
+          type: array
+          description: |
+            生成的AssessToken列表.
+          items:
+            $ref: '#/components/schemas/AssessToken'
     Exam:
       type: object
       description: 考试.
