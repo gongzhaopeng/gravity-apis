@@ -19,6 +19,8 @@ tags:
     description: 访问考试链.
   - name: AssessToken
     description: 访问AssessToken.
+  - name: WhiteList
+    description: 访问WhiteList.
   - name: ExamAticket
     description: 访问考试准考证.
   - name: EchainAticket
@@ -285,6 +287,43 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
+  /whitelist/items:
+    post:
+      tags:
+        - WhiteList
+      summary: 添加Whitelist-Items.
+      description: |
+        添加Whitelist-Items.
+      operationId: addWhitelistItems
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WhitelistItemsAddingReq'
+      responses:
+        '201':
+          description: 添加成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhitelistItemsAddingResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examStationAuth: 
+          - client:inner
+  /whitelist/items/query:
+    post:
+      tags:
+        - WhiteList
+  /whitelist/items/{items-id}:
+    delete:
+      tags:
+        - WhiteList
   /assesstokens:
     post:
       tags:
@@ -617,6 +656,40 @@ components:
           minLength: 0
       required:
         - tokensTaken
+    WhitelistItemsAddingReq:
+      type: object
+      description: |
+        添加白名单项的请求信息.
+      properties:
+        targetType:
+          $ref: '#/components/schemas/WhitelistItemTargetType'
+        target:
+          $ref: '#/components/schemas/WhitelistItemTarget'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountBrief'
+          minLength: 1
+          maxLength: 200
+      required:
+        - targetType
+        - target
+        - members
+    WhitelistItemsAddingResp:
+      type: object
+      description: |
+        添加白名单项成功时的响应.
+      properties:
+        preExistingItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/WhitelistItem'
+          minLength: 1
+        newItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/WhitelistItem'
+          minLength: 1
     Exam:
       type: object
       description: 考试.
@@ -770,30 +843,55 @@ components:
       required: 
         - id
         - title
-    ExamWhitelistItem:
+    WhitelistItem:
       type: object
       description: | 
-        考试对应的白名单条目.
+        白名单项.
       properties:
         id:
-          $ref: '#/components/schemas/ObjectID'
-        examId:
           $ref: '#/components/schemas/ObjectID'
         createTime:
           $ref: '#/components/schemas/Timestamp'
         lUTime:
           $ref: '#/components/schemas/Timestamp'
+        targetType:
+          $ref: '#/components/schemas/WhitelistItemTargetType'
+        target:
+          $ref: '#/components/schemas/WhitelistItemTarget'
         creator:
           $ref: '#/components/schemas/AccountBrief'
         member:
           $ref: '#/components/schemas/AccountBrief'
       required:
         - id
-        - examId
         - createTime
         - lUTime
+        - targetType
+        - target
         - creator
         - member
+    WhitelistItemTargetType:
+      type: string
+      description: 白名单项的适用目标类型.
+      enum: 
+        - Exam
+        - ExamChain
+    WhitelistItemTarget:
+      type: object
+      description: |
+        白名单项适用的目标.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        title:
+          $ref: '#/components/schemas/WhitelistItemTargetTitle'
+      required:
+        - id
+        - title
+    WhitelistItemTargetTitle:
+      type: string
+      minLength: 1
+      maxLength: 200
     ExamChain:
       type: object
       description: 考试链.
@@ -933,30 +1031,6 @@ components:
         - id
         - version
         - title
-    EchainWhitelistItem:
-      type: object
-      description: | 
-        考试链对应的白名单条目.
-      properties:
-        id:
-          $ref: '#/components/schemas/ObjectID'
-        echainId:
-          $ref: '#/components/schemas/ObjectID'
-        createTime:
-          $ref: '#/components/schemas/Timestamp'
-        lUTime:
-          $ref: '#/components/schemas/Timestamp'
-        creator:
-          $ref: '#/components/schemas/AccountBrief'
-        member:
-          $ref: '#/components/schemas/AccountBrief'
-      required:
-        - id
-        - echainId
-        - createTime
-        - lUTime
-        - creator
-        - member
     AssessToken:
       type: object
       description: |
@@ -2033,6 +2107,7 @@ components:
         - LUTimeConflict
         - AlteringNotAllowed
         - DependencyMissed
+        - DuplicateCreating
     BasicPage:
       type: object
       description: 分页基本信息.
