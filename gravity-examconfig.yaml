@@ -1640,7 +1640,12 @@ components:
         - title
     ExamChain:
       type: object
-      description: 考试链.
+      description: |
+        考试链.
+        ### 可包含的考试类型根据考试链本身的类型对应如下:
+          - ExamChain:Enclosed 	=> Exam:{Enclosed} 
+          - ExamChain:Cooperate => Exam:{Cooperate} 
+          - ExamChain:Public 		=> Exam:{Public} 
       properties:
         id:
           $ref: '#/components/schemas/ObjectID'
