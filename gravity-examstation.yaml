@@ -313,6 +313,21 @@ paths:
           description: Unauthorized.
         '403':
           description: Forbidden.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unmatchedExamForm:
+                  value:
+                    code: 'UnmatchedExamForm'
+                    detail: '${detail}'
+                unmatchedEchainForm:
+                  value:
+                    code: 'UnmatchedEchainForm'
+                    detail: '${detail}'
       security:
         - examStationAuth: 
           - client:inner
@@ -527,20 +542,100 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
-  # /examtickets:
-  #   post:
-  #     tags:
-  #       - ExamAticket
-  #     summary: 创建准考证.
-  #     description: |
-  #       创建准考证.
-  #   operationId: acquireExamAticket
-  #   requestBody:
-  #     description: 请求信息.
-  #     content:
-  #       application/json:
-  #         schema:
-  #           $ref: '#/components/schemas/ExamAticketAcquiringReq'
+  /examtickets/of/form/enclosed:
+    post:
+      tags:
+        - ExamAticket
+      summary: 创建Enclosed型考试的准考证.
+      description: |
+        ### Enclosed型考试准考证核发
+        #### **基本约束**
+        - 目标考试为Enclosed型.
+        - 当前认证用户对目标考试未达到最大参考次数.
+        - 若目标考试设置了开考时间,则目标考试必须未开考.
+        #### **申领方式**
+        - 经由AssessToken兑换其适用的特定考试的准考证.  
+          **约束条件**
+          - 出示的AssessToken适用目标考试.
+          - 出示的AssessToken未被兑换.
+          - 出示的AssessToken未过期.
+        - 经由EchainAticket申领其对应的考试链所包含的考试的准考证.  
+          **约束条件**
+          - 出示的EchainAticket属于当前认证用户.
+          - 出示的EchainAticket对应考试链下的考试序列中包含目标考试.
+        - 当前认证用户已被添加到指定考试对应的白名单上时,可直接申领.  
+          **约束条件**
+          - 当前认证用户在目标考试对应的白名单上.
+        ### 其它注意事项
+        #### **自动完善准考证信息**
+        - 对于请求中未提供的考试准考证相关信息,自动从账户信息(和考试链准考证信息)中获取并完善.
+        - 各信息源的优先级  考试链准考证信息 > 账户信息.
+        #### **经由EchainAticket核发ExamAticket时,须更新EchainAticket中的相关内容**
+      operationId: acquireEnclosedExamAticket
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnclosedExamAticketAcquiringReq'
+      responses:
+        '200':
+          description: |
+            请求已被处理,但准考证未予核发.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                examAticketGrantingDeny:
+                  value:
+                    code: 'ExamAticketGrantingDeny'
+                    detail: '${detail}'
+        '201':
+          description: |
+            成功核发准考证.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainAticket'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 对应的考试不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unmatchedExamForm:
+                  value:
+                    code: 'UnmatchedExamForm'
+                    detail: '${detail}'
+                exceedExamMRTsLimit:
+                  value:
+                    code: 'ExceedExamMRTsLimit'
+                    detail: '${detail}'
+                  description: '超过了考试的最大重复次数限制.'
+                outOfExamAticketAcqDuration:
+                  value:
+                    code: 'OutOfExamAticketAcqDuration'
+                    detail: '${detail}'
+                  description: '未处在ExamAticket申领时间段内.'
+                invalidAssessToken:
+                  value:
+                    code: 'InvalidAssessToken'
+                    detail: '${detail}'
+                invalidEchainAticket:
+                  value:
+                    code: 'InvalidEchainAticket'
+                    detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
   # /echaintickets:
   #   post:
   #     tags:
@@ -841,16 +936,12 @@ components:
               minLength: 0
           required:
             - content
-    ExamAticketAcquiringReq:
+    ExamAticketAcquiringBasicReq:
       type: object
-      description: 获取准考证的请求信息.
+      description: 申领考试准考证的基本请求信息.
       properties:
         exam:
           $ref: '#/components/schemas/ObjectID'
-        owner:
-          $ref: '#/components/schemas/ObjectID'
-        assessToken:
-          $ref: '#/components/schemas/AssessTokenCode'
         echainTicket:
           $ref: '#/components/schemas/ObjectID'
         name:
@@ -871,6 +962,31 @@ components:
           $ref: '#/components/schemas/ExamAticketExtInfo'
       required:
         - exam
+    EnclosedExamAticketAcquiringReq:
+      type: object
+      description: 申领Enclosed型考试准考证的请求信息.
+      allOf:
+        - $ref: '#/components/schemas/ExamAticketAcquiringBasicReq'
+        - type: object
+          properties:
+            assessToken:
+              $ref: '#/components/schemas/AssessTokenCode'
+    CooperateExamAticketAcquiringReq:
+      type: object
+      description: 申领Cooperate型考试准考证的请求信息.
+      allOf:
+        - $ref: '#/components/schemas/ExamAticketAcquiringBasicReq'
+        - type: object
+          properties:
+            owner:
+              $ref: '#/components/schemas/ObjectID'
+          required:
+            - owner
+    PublicExamAticketAcquiringReq:
+      type: object
+      description: 申领Public型考试准考证的请求信息.
+      allOf:
+        - $ref: '#/components/schemas/ExamAticketAcquiringBasicReq'
     Exam:
       type: object
       description: 考试.
@@ -1028,7 +1144,8 @@ components:
       type: object
       description: | 
         白名单项.
-        (targetType,target,member)须确保唯一性.
+        (targetType,target,member)须确保唯一性.  
+        允许添加白名单项的考试类型为 {Enclosed}.
       properties:
         id:
           $ref: '#/components/schemas/ObjectID'
@@ -2298,6 +2415,13 @@ components:
         - AlteringNotAllowed
         - DependencyMissed
         - DuplicateCreating
+        - UnmatchedExamForm
+        - UnmatchedEchainForm
+        - ExceedExamMRTsLimit
+        - OutOfExamAticketAcqDuration
+        - InvalidAssessToken
+        - InvalidEchainAticket
+        - ExamAticketGrantingDeny
     BasicPage:
       type: object
       description: 分页基本信息.
