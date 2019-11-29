@@ -806,6 +806,13 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
+  # /examtickets/of/exam/{exam-id}:
+  #   get:
+  #     tags:
+  #       - ExamAticket
+  #     security:
+  #       - examStationAuth: 
+  #         - client:inner
   # /echaintickets:
   #   post:
   #     tags:
