@@ -25,6 +25,8 @@ tags:
     description: 访问考试准考证.
   - name: EchainAticket
     description: 访问考试链准考证
+  - name: ExamPaper
+    description: 访问试卷.
   - name: AnswerSheet
     description: 访问答卷.
 paths:
@@ -1280,6 +1282,35 @@ paths:
                   value:
                     code: 'UnmatchedEchainForm'
                     detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
+  /exampapers/to/ticket/{ticket-id}:
+    get:
+      tags:
+        - ExamPaper
+      summary: 获取指定考试准考证对应的试卷.
+      description: 获取指定考试准考证对应的试卷.
+      parameters:
+        - name: ticket-id
+          in: path
+          description: 指定考试准考证的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamPaper'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试准考证不存在.
       security:
         - examStationAuth: 
           - client:inner
