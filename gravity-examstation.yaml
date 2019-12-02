@@ -597,7 +597,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EchainAticket'
+                $ref: '#/components/schemas/ExamAticket'
+        '400':
+          description: Bad Request.
         '401':
           description: Unauthorized.
         '403':
@@ -685,7 +687,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EchainAticket'
+                $ref: '#/components/schemas/ExamAticket'
+        '400':
+          description: Bad Request.
         '401':
           description: Unauthorized.
         '403':
@@ -771,7 +775,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EchainAticket'
+                $ref: '#/components/schemas/ExamAticket'
+        '400':
+          description: Bad Request.
         '401':
           description: Unauthorized.
         '403':
@@ -806,17 +812,477 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
-  # /examtickets/of/exam/{exam-id}:
-  #   get:
-  #     tags:
-  #       - ExamAticket
-  #     security:
-  #       - examStationAuth: 
-  #         - client:inner
-  # /echaintickets:
-  #   post:
-  #     tags:
-  #       - EchainAticket
+  /examtickets/{examticket-id}:
+    get:
+      tags:
+        - ExamAticket
+      summary: 获取指定ExamAticket的详情.
+      description: 获取指定ExamAticket的详情.
+      operationId: getExamAticketById
+      parameters: 
+        - name: examticket-id
+          in: path
+          description: 指定ExamAticket的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAticket'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的ExamAticket不存在.
+      security:
+        - examStationAuth: 
+          - client:inner
+    put:
+      tags:
+        - ExamAticket
+      summary: 更新指定ExamAticket的信息.
+      description: 更新指定ExamAticket的信息.
+      operationId: updateExamAticketById
+      parameters: 
+        - name: examticket-id
+          in: path
+          description: 指定ExamAticket的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamAticketUpdatingReq'
+      responses:
+        '200':
+          description: 更新成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAticket'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的ExamAticket不存在.
+      security:
+        - examStationAuth: 
+          - client:inner
+  /examtickets/of/exam/{exam-id}:
+    get:
+      tags:
+        - ExamAticket
+      summary: 获取指定参考人的指定考试的准考证集.
+      description: |
+        ### 按指定考试的form不同分为以下两种情况
+        - Cooperate型考试  
+          通过query参数owner-id指定准考证的owner.  
+          **约束条件**  
+          - 目标考试为Cooperate型.
+          - 当前认证客户端的owner为目标考试的owner.
+        - 非Cooperate型考试
+          当前认证用户为准考证的owner.  
+          **约束条件**
+          - 目标考试为非Cooperate型.
+      parameters:
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+        - name: owner-id
+          in: query
+          description: 指定准考证所有者的ID.
+          required: false
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExamAticket'
+                minLength: 0
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试或准考证owner不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unmatchedExamForm:
+                  value:
+                    code: 'UnmatchedExamForm'
+                    detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
+  /echaintickets/of/form/enclosed:
+    post:
+      tags:
+        - EchainAticket
+      summary: 创建Enclosed型考试链的准考证.
+      description: |
+        ### Enclosed型考试链准考证核发
+        #### **基本约束**
+        - 目标考试链为Enclosed型.
+        - 当前认证用户没有目标考试链对应的准考证.
+        #### **申领方式**
+        - 经由AssessToken兑换其适用的特定考试链的准考证.  
+          **约束条件**
+          - 出示的AssessToken适用目标考试链.
+          - 出示的AssessToken未被兑换.
+          - 出示的AssessToken未过期.
+        - 当前认证用户已被添加到指定考试链对应的白名单上时,可直接申领.  
+          **约束条件**
+          - 当前认证用户在目标考试链对应的白名单上.
+        ### 其它注意事项
+        #### **自动完善准考证信息**
+        - 对于请求中未提供的考试链准考证相关信息,自动从账户信息中获取并完善.
+      operationId: acquireEnclosedEchainAticket
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnclosedEchainAticketAcqReq'
+      responses:
+        '200':
+          description: |
+            请求已被处理,但准考证未予核发.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                echainAticketGrantingDeny:
+                  value:
+                    code: 'EchainAticketGrantingDeny'
+                    detail: '${detail}'
+        '201':
+          description: |
+            成功核发准考证.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainAticket'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 对应的考试链不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unmatchedEchainForm:
+                  value:
+                    code: 'UnmatchedEchainForm'
+                    detail: '${detail}'
+                duplicateCreating:
+                  value:
+                    code: 'DuplicateCreating'
+                    detail: '${detail}'
+                invalidAssessToken:
+                  value:
+                    code: 'InvalidAssessToken'
+                    detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
+  /echaintickets/of/form/cooperate:
+    post:
+      tags:
+        - EchainAticket
+      summary: 创建Cooperate型考试链的准考证.
+      description: |
+        ### Cooperate型考试链准考证核发
+        #### **基本约束**
+        - 目标考试链为Cooperate型.
+        - 当前认证客户端的owner为目标考试链的owner.
+        - 指定的参考人没有目标考试链对应的准考证.
+        #### **申领方式**
+        - 直接申领.  
+        ### 其它注意事项
+        #### **自动完善准考证信息**
+        - 对于请求中未提供的考试链准考证相关信息,自动从账户信息中获取并完善.
+      operationId: acquireCooperateEchainAticket
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CooperateEchainAticketAcqReq'
+      responses:
+        '200':
+          description: |
+            请求已被处理,但准考证未予核发.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                echainAticketGrantingDeny:
+                  value:
+                    code: 'EchainAticketGrantingDeny'
+                    detail: '${detail}'
+        '201':
+          description: |
+            成功核发准考证.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainAticket'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: |
+            ### 对应的情况
+            - 指定的参考人不存在.
+            - 目标考试链不存在或目标考试链的owner不是当前认证客户端的owner.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unmatchedEchainForm:
+                  value:
+                    code: 'UnmatchedEchainForm'
+                    detail: '${detail}'
+                duplicateCreating:
+                  value:
+                    code: 'DuplicateCreating'
+                    detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
+  /echaintickets/of/form/public:
+    post:
+      tags:
+        - EchainAticket
+      summary: 创建Public型考试链的准考证.
+      description: |
+        ### Public型考试链准考证核发
+        #### **基本约束**
+        - 目标考试链为Public型.
+        - 当前认证用户没有目标考试链对应的准考证.
+        #### **申领方式**
+        - 直接申领.  
+        ### 其它注意事项
+        #### **自动完善准考证信息**
+        - 对于请求中未提供的考试链准考证相关信息,自动从账户信息中获取并完善.
+      operationId: acquirePublicEchainAticket
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicEchainAticketAcqReq'
+      responses:
+        '200':
+          description: |
+            请求已被处理,但准考证未予核发.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                echainAticketGrantingDeny:
+                  value:
+                    code: 'EchainAticketGrantingDeny'
+                    detail: '${detail}'
+        '201':
+          description: |
+            成功核发准考证.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainAticket'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 对应的考试链不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unmatchedEchainForm:
+                  value:
+                    code: 'UnmatchedEchainForm'
+                    detail: '${detail}'
+                duplicateCreating:
+                  value:
+                    code: 'DuplicateCreating'
+                    detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
+  /echaintickets/{echainticket-id}:
+    get:
+      tags:
+        - EchainAticket
+      summary: 获取指定EchainAticket的详情.
+      description: 获取指定EchainAticket的详情.
+      operationId: getEchainAticketById
+      parameters: 
+        - name: echainticket-id
+          in: path
+          description: 指定EchainAticket的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainAticket'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的EchainAticket不存在.
+      security:
+        - examStationAuth: 
+          - client:inner
+    put:
+      tags:
+        - EchainAticket
+      summary: 更新指定EchainAticket的信息.
+      description: 更新指定EchainAticket的信息.
+      operationId: updateEchainAticketById
+      parameters: 
+        - name: echainticket-id
+          in: path
+          description: 指定EchainAticket的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainAticketUpdatingReq'
+      responses:
+        '200':
+          description: 更新成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainAticket'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的EchainAticket不存在.
+      security:
+        - examStationAuth: 
+          - client:inner
+  /echaintickets/of/echain/{echain-id}:
+    get:
+      tags:
+        - EchainAticket
+      summary: 获取指定参考人的指定考试链的准考证集.
+      description: |
+        ### 按指定考试链的form不同分为以下两种情况
+        - Cooperate型考试链  
+          通过query参数owner-id指定准考证的owner.  
+          **约束条件**  
+          - 目标考试链为Cooperate型.
+          - 当前认证客户端的owner为目标考试链的owner.
+        - 非Cooperate型考试链
+          当前认证用户为准考证的owner.  
+          **约束条件**
+          - 目标考试链为非Cooperate型.
+      parameters:
+        - name: echain-id
+          in: path
+          description: 指定考试链的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+        - name: owner-id
+          in: query
+          description: 指定准考证所有者的ID.
+          required: false
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EchainAticket'
+                minLength: 0
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试链或准考证owner不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unmatchedEchainForm:
+                  value:
+                    code: 'UnmatchedEchainForm'
+                    detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
 components:
   schemas:
     ExamQuery:
@@ -1148,6 +1614,8 @@ components:
           properties:
             assessToken:
               $ref: '#/components/schemas/AssessTokenCode'
+          required:
+            - assessToken
     CooperateExamAticketAcqReq:
       type: object
       description: 申领Cooperate型考试准考证的请求信息.
@@ -1164,6 +1632,105 @@ components:
       description: 申领Public型考试准考证的请求信息.
       allOf:
         - $ref: '#/components/schemas/ExamAticketAcqBasicReq'
+    ExamAticketUpdatingReq:
+      type: object
+      description: 考试准考证更新请求.
+      properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        province:
+          $ref: '#/components/schemas/Province'
+        city:
+          $ref: '#/components/schemas/City'
+        county:
+          $ref: '#/components/schemas/County'
+        age:
+          $ref: '#/components/schemas/Age'
+        studyingStatus:
+          $ref: '#/components/schemas/StudyingStatus'
+        extInfo:
+          $ref: '#/components/schemas/ExamAticketExtInfo'
+      required:
+        - lUTime
+    EchainAticketAcqBasicReq:
+      type: object
+      description: 申领考试链准考证的基本请求信息.
+      properties:
+        echain:
+          $ref: '#/components/schemas/ObjectID'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        province:
+          $ref: '#/components/schemas/Province'
+        city:
+          $ref: '#/components/schemas/City'
+        county:
+          $ref: '#/components/schemas/County'
+        age:
+          $ref: '#/components/schemas/Age'
+        studyingStatus:
+          $ref: '#/components/schemas/StudyingStatus'
+        extInfo:
+          $ref: '#/components/schemas/ExamAticketExtInfo'
+      required:
+        - echain
+    EnclosedEchainAticketAcqReq:
+      type: object
+      description: 申领Enclosed型考试链准考证的请求信息.
+      allOf:
+        - $ref: '#/components/schemas/EchainAticketAcqBasicReq'
+        - type: object
+          properties:
+            assessToken:
+              $ref: '#/components/schemas/AssessTokenCode'
+          required:
+            - assessToken
+    CooperateEchainAticketAcqReq:
+      type: object
+      description: 申领Cooperate型考试链准考证的请求信息.
+      allOf:
+        - $ref: '#/components/schemas/EchainAticketAcqBasicReq'
+        - type: object
+          properties:
+            owner:
+              $ref: '#/components/schemas/ObjectID'
+          required:
+            - owner
+    PublicEchainAticketAcqReq:
+      type: object
+      description: 申领Public型考试链准考证的请求信息.
+      allOf:
+        - $ref: '#/components/schemas/EchainAticketAcqBasicReq'
+    EchainAticketUpdatingReq:
+      type: object
+      description: 考试链准考证更新请求.
+      properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        province:
+          $ref: '#/components/schemas/Province'
+        city:
+          $ref: '#/components/schemas/City'
+        county:
+          $ref: '#/components/schemas/County'
+        age:
+          $ref: '#/components/schemas/Age'
+        studyingStatus:
+          $ref: '#/components/schemas/StudyingStatus'
+        extInfo:
+          $ref: '#/components/schemas/ExamAticketExtInfo'
+      required:
+        - lUTime
     Exam:
       type: object
       description: 考试.
@@ -2599,6 +3166,7 @@ components:
         - InvalidAssessToken
         - InvalidEchainAticket
         - ExamAticketGrantingDeny
+        - EchainAticketGrantingDeny
     BasicPage:
       type: object
       description: 分页基本信息.
