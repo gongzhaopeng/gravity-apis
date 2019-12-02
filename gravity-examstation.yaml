@@ -878,6 +878,17 @@ paths:
           description: Forbidden.
         '404':
           description: 指定的ExamAticket不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
       security:
         - examStationAuth: 
           - client:inner
@@ -1223,6 +1234,17 @@ paths:
           description: Forbidden.
         '404':
           description: 指定的EchainAticket不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
       security:
         - examStationAuth: 
           - client:inner
@@ -1314,6 +1336,181 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
+  /answersheets:
+    post:
+      tags:
+        - AnswerSheet
+      summary: 提交答卷.
+      description: 提交答卷.
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnswerSheetSubmission'
+      responses:
+        '201':
+          description: 提交成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerSheetCreatedResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidExamAticket:
+                  value:
+                    code: 'InvalidExamAticket'
+                    detail: '${detail}'
+                duplicateCreating:
+                  value:
+                    code: 'DuplicateCreating'
+                    detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
+  /answersheets/{answersheet-id}:
+    get:
+      tags:
+        - AnswerSheet
+      summary: 获取指定的答卷详情.
+      description: 获取指定的答卷详情.
+      operationId: getAnswerSheetById
+      parameters: 
+        - name: answersheet-id
+          in: path
+          description: 指定AnswerSheet的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerSheet'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的AnswerSheet不存在.
+      security:
+        - examStationAuth: 
+          - client:inner
+    patch:
+      tags:
+        - AnswerSheet
+      summary: patch指定的答卷.
+      description: patch指定的答卷.
+      operationId: patchAnswerSheetById
+      parameters: 
+        - name: answersheet-id
+          in: path
+          description: 指定AnswerSheet的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnswerSheetPatch'
+      responses:
+        '200':
+          description: patch成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerSheetPatchingResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的AnswerSheet不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
+  /answersheets/to/ticket/{ticket-id}:
+    get:
+      tags:
+        - AnswerSheet
+      summary: 获取指定考试准考证对应的答卷.
+      description: 获取指定考试准考证对应的答卷.
+      parameters:
+        - name: ticket-id
+          in: path
+          description: 指定考试准考证的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerSheet'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的答卷不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidExamAticket:
+                  value:
+                    code: 'InvalidExamAticket'
+                    detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
+  # /answersheets/{answersheet-id}/qureplies:
+  #   put:
+  #     tags:
+  #       - AnswerSheet
+  #     security:
+  #       - examStationAuth: 
+  #         - client:inner
+  # /answersheets/{answersheet-id}/epsdetails:
+  #   put:
+  #     tags:
+  #       - AnswerSheet
+  #     security:
+  #       - examStationAuth: 
+  #         - client:inner
 components:
   schemas:
     ExamQuery:
@@ -1761,6 +1958,67 @@ components:
         extInfo:
           $ref: '#/components/schemas/ExamAticketExtInfo'
       required:
+        - lUTime
+    AnswerSheetSubmission:
+      type: object
+      description: 提交的答卷信息.
+      properties:
+        aticket:
+          $ref: '#/components/schemas/ObjectID'
+        startTime:
+          $ref: '#/components/schemas/Timestamp'
+        endTime:
+          $ref: '#/components/schemas/Timestamp'
+        quReplies:
+          $ref: '#/components/schemas/AsQuReplies'
+        epsDetails:
+          $ref: '#/components/schemas/AsEpsDetails'
+        extFeedbacks:
+          $ref: '#/components/schemas/AsExtFeedbacks'
+        resources:
+          $ref: '#/components/schemas/AsInputResources'
+      required:
+        - aticket
+        - startTime
+    AnswerSheetCreatedResp:
+      type: object
+      description: 答卷创建成功时的响应.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+      required:
+        - id
+        - lUTime
+    AnswerSheetPatch:
+      type: object
+      description: 答卷Patch.
+      properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        endTime:
+          $ref: '#/components/schemas/Timestamp'
+        quReplies:
+          $ref: '#/components/schemas/AsQuReplies'
+        epsDetails:
+          $ref: '#/components/schemas/AsEpsDetails'
+        extFeedbacks:
+          $ref: '#/components/schemas/AsExtFeedbacks'
+        resources:
+          $ref: '#/components/schemas/AsInputResources'
+      required:
+        - lUTime
+    AnswerSheetPatchingResp:
+      type: object
+      description: 答卷Patch成功时的响应.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+      required:
+        - id
         - lUTime
     Exam:
       type: object
@@ -2527,6 +2785,8 @@ components:
       type: object
       description: 可复合的试卷题目单位.
       properties:
+        path:
+          $ref: '#/components/schemas/EpQuPath'
         form:
           $ref: '#/components/schemas/EpQuForm'
         stem:
@@ -2807,6 +3067,8 @@ components:
       type: object
       description: 可复合的试卷块.
       properties:
+        path:
+          $ref: '#/components/schemas/EpsPath'
         title:
           $ref: '#/components/schemas/EpsTitle'
         purpose:
@@ -3198,6 +3460,7 @@ components:
         - InvalidEchainAticket
         - ExamAticketGrantingDeny
         - EchainAticketGrantingDeny
+        - InvalidExamAticket
     BasicPage:
       type: object
       description: 分页基本信息.
