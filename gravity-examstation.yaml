@@ -308,7 +308,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WhitelistItemsAddingResp'
+                $ref: '#/components/schemas/WhitelistItemsAddedResp'
         '400':
           description: Bad Request.
         '401':
@@ -442,7 +442,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AssessTokensGeneratingResp'
+                $ref: '#/components/schemas/AssessTokensGeneratedResp'
         '400':
           description: Bad Request.
         '401':
@@ -497,14 +497,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AssessTokenTakingReq'
+              $ref: '#/components/schemas/AssessTokensTakingReq'
       responses:
         '200':
           description: 请求被正常处理.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AssessTokenTakingResp'
+                $ref: '#/components/schemas/AssessTokensTakenResp'
         '400':
           description: Bad Request.
         '401':
@@ -1264,6 +1264,7 @@ paths:
           当前认证用户为准考证的owner.  
           **约束条件**
           - 目标考试链为非Cooperate型.
+      operationId: getEchainAticketsByEchainAndOwner
       parameters:
         - name: echain-id
           in: path
@@ -1313,6 +1314,7 @@ paths:
         - ExamPaper
       summary: 获取指定考试准考证对应的试卷.
       description: 获取指定考试准考证对应的试卷.
+      operationId: getExamPaperByExamAticket
       parameters:
         - name: ticket-id
           in: path
@@ -1342,6 +1344,7 @@ paths:
         - AnswerSheet
       summary: 提交答卷.
       description: 提交答卷.
+      operationId: submitAnswerSheet
       requestBody:
         description: 请求信息.
         content:
@@ -1434,7 +1437,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AnswerSheetPatchingResp'
+                $ref: '#/components/schemas/AnswerSheetPatchedResp'
         '400':
           description: Bad Request.
         '401':
@@ -1463,6 +1466,7 @@ paths:
         - AnswerSheet
       summary: 获取指定考试准考证对应的答卷.
       description: 获取指定考试准考证对应的答卷.
+      operationId: getAnswerSheetByExamAticket
       parameters:
         - name: ticket-id
           in: path
@@ -1497,13 +1501,55 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
-  # /answersheets/{answersheet-id}/qureplies:
-  #   put:
-  #     tags:
-  #       - AnswerSheet
-  #     security:
-  #       - examStationAuth: 
-  #         - client:inner
+  /answersheets/{answersheet-id}/qureplies:
+    put:
+      tags:
+        - AnswerSheet
+      summary: 更新指定答卷下的指定的题目单位作答集.
+      description: 更新指定答卷下的指定的题目单位作答集.
+      operationId: updateSpecifiedQuReplies
+      parameters: 
+        - name: answersheet-id
+          in: path
+          description: 指定AnswerSheet的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuRepliesUpdatingReq'
+      responses:
+        '200':
+          description: 更新成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuRepliesUpdatedResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的AnswerSheet不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
   # /answersheets/{answersheet-id}/epsdetails:
   #   put:
   #     tags:
@@ -1649,7 +1695,7 @@ components:
         - targetType
         - targets
         - amount
-    AssessTokensGeneratingResp:
+    AssessTokensGeneratedResp:
       type: object
       description: |
         生成AssessToken成功时的响应.
@@ -1714,7 +1760,7 @@ components:
               minLength: 0
           required:
             - content
-    AssessTokenTakingReq:
+    AssessTokensTakingReq:
       type: object
       description: |
         取占AssessToken的请求信息.
@@ -1727,7 +1773,7 @@ components:
           maxLength: 100
       required:
         - tokensToTake
-    AssessTokenTakingResp:
+    AssessTokensTakenResp:
       type: object
       description: |
         取占AssessToken成功时的响应.
@@ -1758,7 +1804,7 @@ components:
         - targetType
         - target
         - members
-    WhitelistItemsAddingResp:
+    WhitelistItemsAddedResp:
       type: object
       description: |
         添加白名单项成功时的响应.
@@ -2009,7 +2055,7 @@ components:
           $ref: '#/components/schemas/AsInputResources'
       required:
         - lUTime
-    AnswerSheetPatchingResp:
+    AnswerSheetPatchedResp:
       type: object
       description: 答卷Patch成功时的响应.
       properties:
