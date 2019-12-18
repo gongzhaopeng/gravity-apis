@@ -1397,17 +1397,17 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
-  /answersheets/{answersheet-id}:
+  /answersheets/to/ticket/{ticket-id}:
     get:
       tags:
         - AnswerSheet
-      summary: 获取指定的答卷详情.
-      description: 获取指定的答卷详情.
-      operationId: getAnswerSheetById
-      parameters: 
-        - name: answersheet-id
+      summary: 获取指定考试准考证对应的答卷.
+      description: 获取指定考试准考证对应的答卷.
+      operationId: getAnswerSheetByExamAticket
+      parameters:
+        - name: ticket-id
           in: path
-          description: 指定AnswerSheet的ID.
+          description: 指定考试准考证的ID.
           required: true
           schema:
             $ref: '#/components/schemas/ObjectID'
@@ -1423,7 +1423,18 @@ paths:
         '403':
           description: Forbidden.
         '404':
-          description: 指定的AnswerSheet不存在.
+          description: 指定的答卷不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidExamAticket:
+                  value:
+                    code: 'InvalidExamAticket'
+                    detail: '${detail}'
       security:
         - examStationAuth: 
           - client:inner
@@ -1432,11 +1443,11 @@ paths:
         - AnswerSheet
       summary: patch指定的答卷.
       description: patch指定的答卷.
-      operationId: patchAnswerSheetById
+      operationId: patchAnswerSheetByExamAticket
       parameters: 
-        - name: answersheet-id
+        - name: ticket-id
           in: path
-          description: 指定AnswerSheet的ID.
+          description: 指定考试准考证的ID.
           required: true
           schema:
             $ref: '#/components/schemas/ObjectID'
@@ -1479,48 +1490,7 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
-  /answersheets/to/ticket/{ticket-id}:
-    get:
-      tags:
-        - AnswerSheet
-      summary: 获取指定考试准考证对应的答卷.
-      description: 获取指定考试准考证对应的答卷.
-      operationId: getAnswerSheetByExamAticket
-      parameters:
-        - name: ticket-id
-          in: path
-          description: 指定考试准考证的ID.
-          required: true
-          schema:
-            $ref: '#/components/schemas/ObjectID'
-      responses:
-        '200':
-          description: 获取成功.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AnswerSheet'
-        '401':
-          description: Unauthorized.
-        '403':
-          description: Forbidden.
-        '404':
-          description: 指定的答卷不存在.
-        '428':
-          description: Precondition Required.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                invalidExamAticket:
-                  value:
-                    code: 'InvalidExamAticket'
-                    detail: '${detail}'
-      security:
-        - examStationAuth: 
-          - client:inner
-  /answersheets/{answersheet-id}/qureplies:
+  /answersheets/to/ticket/{ticket-id}/qureplies:
     put:
       tags:
         - AnswerSheet
@@ -1528,9 +1498,9 @@ paths:
       description: 更新指定答卷下的指定的题目单位作答集.
       operationId: updateSpecifiedQuReplies
       parameters: 
-        - name: answersheet-id
+        - name: ticket-id
           in: path
-          description: 指定AnswerSheet的ID.
+          description: 指定考试准考证的ID.
           required: true
           schema:
             $ref: '#/components/schemas/ObjectID'
@@ -1573,7 +1543,7 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
-  /answersheets/{answersheet-id}/epsdetails:
+  /answersheets/to/ticket/{ticket-id}/epsdetails:
     put:
       tags:
         - AnswerSheet
@@ -1581,9 +1551,9 @@ paths:
       description: 更新指定答卷下的指定的试卷块信息集.
       operationId: updateSpecifiedEpsDetails
       parameters: 
-        - name: answersheet-id
+        - name: ticket-id
           in: path
-          description: 指定AnswerSheet的ID.
+          description: 指定考试准考证的ID.
           required: true
           schema:
             $ref: '#/components/schemas/ObjectID'
@@ -1957,8 +1927,6 @@ components:
           properties:
             assessToken:
               $ref: '#/components/schemas/AssessTokenCode'
-          required:
-            - assessToken
     CooperateExamAticketAcqReq:
       type: object
       description: 申领Cooperate型考试准考证的请求信息.
@@ -2032,8 +2000,6 @@ components:
           properties:
             assessToken:
               $ref: '#/components/schemas/AssessTokenCode'
-          required:
-            - assessToken
     CooperateEchainAticketAcqReq:
       type: object
       description: 申领Cooperate型考试链准考证的请求信息.
