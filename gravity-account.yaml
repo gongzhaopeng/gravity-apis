@@ -743,6 +743,8 @@ components:
       description: |
         创建Client的请求信息.  
       properties:
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
         ownerId:
           $ref: '#/components/schemas/ObjectID'
         scope:
@@ -843,6 +845,8 @@ components:
       properties:
         lUTime:
           $ref: '#/components/schemas/Timestamp'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
         scope:
           $ref: '#/components/schemas/ClientScope'
         resourceIds:
