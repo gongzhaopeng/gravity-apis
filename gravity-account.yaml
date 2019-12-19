@@ -789,6 +789,8 @@ components:
           $ref: '#/components/schemas/TimeQueryField'
         creator:
           $ref: '#/components/schemas/IdAnyMatchQueryField'
+        description:
+          $ref: '#/components/schemas/TextSearchSpec'
         state:
           type: array
           items:
@@ -1222,6 +1224,8 @@ components:
           $ref: '#/components/schemas/Timestamp'
         creator:
           $ref: '#/components/schemas/AccountBrief'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
         state:
           $ref: '#/components/schemas/ClientState'
         owner:
@@ -1323,6 +1327,7 @@ components:
         - client:inner
         - client:partner
         - client:public
+        - service:inner
       minLength: 1
       maxLength: 50
     ClientState:
@@ -1716,6 +1721,11 @@ components:
         - Neutral
       minLength: 1
       maxLength: 50
+    MgmtDescriptionField:
+      type: string
+      description: 用于管理的描述信息.
+      minLength: 1
+      maxLength: 250
     Timestamp:
       type: integer
       format: int64
