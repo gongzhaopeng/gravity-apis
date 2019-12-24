@@ -326,6 +326,8 @@ paths:
         - authenticated
         - Client{'client:partner' in scope, owner is current account}
         - 请求创建的新账户类型只能为'Personal'
+        - 如果指定了affiliation信息, 则affiliation::id须指向当前认证账户  
+          (此种情况下, 应自动填充affiliation中的相关信息, 如name, nickname等)
       operationId: createAccount
       requestBody:
         description: 请求创建的Account信息.
@@ -509,8 +511,6 @@ paths:
       security:
         - accountCenterAuth: 
           - client:inner
-        - accountCenterAuth: 
-          - client:partner
     put:
       tags:
         - Account
@@ -579,8 +579,6 @@ paths:
       security:
         - accountCenterAuth: 
           - client:inner
-        - accountCenterAuth: 
-          - client:partner
   /accounts/{account-id}/state:
     put:
       tags: 
@@ -649,8 +647,6 @@ paths:
       security:
         - accountCenterAuth: 
           - client:inner
-        - accountCenterAuth: 
-          - client:partner
   /accounts/{account-id}/roles:
     put:
       tags: 
@@ -664,7 +660,7 @@ paths:
         #### **内部账户**
         - authenticated
         - Client{'client:inner' in scope}  
-        - Account{type='Inner', "Admin" in roles}
+        - Account{type='Inner'}
         - 当前认证账户的最高等级角色须大于待修改账户的最高等级角色
         - 新修改角色集中任一角色的等级须小于当前认证用户的最高等级角色
       operationId: updateAccountRolesById
