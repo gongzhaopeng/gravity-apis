@@ -24,12 +24,18 @@ paths:
       tags: 
         - Client
       summary: 创建Client.
-      description: 创建Client.
+      description: |
+        创建Client.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', 最高等级角色 >= "Admin"}
       operationId: createClient
       requestBody:
         description: |
           请求创建的Client信息.  
-          仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
         content:
           application/json:
             schema:
@@ -45,8 +51,35 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accountTypeMismatch:
+                  value:
+                    code: 'AccountTypeMismatch'
+                    detail: '${detail}'
+                  description: |
+                    #### 指定的owner账户类型域为
+                      - Organization
+                      - AgencyL3
+                      - AgencyL2
+                      - AgencyL1
+                      - Inner
       security:
         - accountCenterAuth: 
           - client:inner
@@ -55,7 +88,14 @@ paths:
       tags: 
         - Client
       summary: Query Client.
-      description: Query Client.
+      description: |
+        Query Client.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', 最高等级角色 >= "Admin"}
       operationId: queryClients
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -78,6 +118,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
       security:
@@ -88,7 +137,14 @@ paths:
       tags: 
         - Client
       summary: 获取指定的Client详情.
-      description: 获取指定的Client详情.
+      description: |
+        获取指定的Client详情.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', 最高等级角色 >= "Admin"}
       operationId: getClientById
       parameters: 
         - name: client-id
@@ -106,6 +162,15 @@ paths:
                 $ref: '#/components/schemas/Client'
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -119,7 +184,12 @@ paths:
       summary: 更新指定Client的信息.
       description: |
         更新指定Client的信息.  
-        仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', 最高等级角色 >= "Admin"}
       operationId: updateClientById
       parameters: 
         - name: client-id
@@ -141,6 +211,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -171,7 +250,12 @@ paths:
       summary: 更新指定Client的状态.
       description: |
         更新指定Client的状态.  
-        仅允许在client:inner scope下认证的具有管理员角色的Inner类型的账户调用.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', 最高等级角色 >= "Admin"}
       operationId: updateClientStateById
       parameters: 
         - name: client-id
@@ -193,6 +277,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -221,7 +314,18 @@ paths:
       tags: 
         - Account
       summary: 创建Account.
-      description: 创建Account.
+      description: |
+        创建Account.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', 最高等级角色 >= "Admin"}
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope, owner is current account}
+        - 请求创建的新账户类型只能为'Personal'
       operationId: createAccount
       requestBody:
         description: 请求创建的Account信息.
@@ -240,6 +344,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
       security:
@@ -252,7 +365,17 @@ paths:
       tags: 
         - Account
       summary: Query Account.
-      description: Query Account.
+      description: |
+        Query Account.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope, owner is current account}
       operationId: queryAccounts
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -275,6 +398,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
       security:
@@ -287,7 +419,14 @@ paths:
       tags: 
         - Account
       summary: Query Account(Advanced).
-      description: Query Account(Advanced).
+      description: |
+        Query Account(Advanced).
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
       operationId: queryAccountsAdvanced
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -310,6 +449,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
       security:
@@ -322,6 +470,12 @@ paths:
       summary: 获取指定的Account详情.
       description: | 
         获取指定的Account详情.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
       operationId: getAccountById
       parameters: 
         - name: account-id
@@ -339,6 +493,15 @@ paths:
                 $ref: '#/components/schemas/Account'
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -356,6 +519,13 @@ paths:
         更新指定Account的信息.  
         账户未激活时, 允许其它拥有相应权限的账户更新其信息.  
         账户激活后, 仅允许本账户更新自己的信息.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', 最高等级角色 >= "Admin"}
+        - 待修改账户的类型只能为'Personal'
       operationId: updateAccountById
       parameters: 
         - name: account-id
@@ -377,6 +547,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -410,6 +589,13 @@ paths:
       description: |
         更新指定Account的状态.  
         账户状态更新成功后, 若账户当前处于登录状态, 则将其自动登出.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        - 当前认证账户的最高等级角色须大于待修改账户的最高等级角色
       operationId: updateAccountStateById
       parameters: 
         - name: account-id
@@ -431,6 +617,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -464,6 +659,14 @@ paths:
       description: |
         更新指定Account的角色集.  
         账户角色集更新成功后, 若账户当前处于登录状态, 则将其自动登出.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "Admin" in roles}
+        - 当前认证账户的最高等级角色须大于待修改账户的最高等级角色
+        - 新修改角色集中任一角色的等级须小于当前认证用户的最高等级角色
       operationId: updateAccountRolesById
       parameters: 
         - name: account-id
@@ -485,6 +688,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -513,7 +725,8 @@ paths:
       tags: 
         - Me
       summary: 通过手机获取注册码.
-      description: 通过手机获取注册码.
+      description: |
+        通过手机获取注册码.
       operationId: getSignupCodeByMobile
       requestBody:
         description: 请求信息.
@@ -535,7 +748,8 @@ paths:
       tags: 
         - Me
       summary: 通过邮箱获取注册码.
-      description: 通过邮箱获取注册码.
+      description: |
+        通过邮箱获取注册码.
       operationId: getSignupCodeByEmail
       requestBody:
         description: 请求信息.
@@ -557,7 +771,8 @@ paths:
       tags: 
         - Me
       summary: 通过注册码注册账户.
-      description: 通过注册码注册账户.
+      description: |
+        通过注册码注册账户.
       operationId: signupByCode
       requestBody:
         description: 请求信息.
@@ -581,6 +796,9 @@ paths:
       summary: 获取当前Account详情.
       description: | 
         获取当前Account详情.
+        
+        ### 权限控制
+        - authenticated through account.
       operationId: getMe
       responses:
         '200':
@@ -604,7 +822,11 @@ paths:
       tags: 
         - Me
       summary: 更新当前Account信息.
-      description: 更新当前Account信息.
+      description: |
+        更新当前Account信息.
+        
+        ### 权限控制
+        - authenticated through account.
       operationId: updateMe
       requestBody:
         description: 请求更新的Account信息.
@@ -652,6 +874,9 @@ paths:
       description: |
         修改当前Account密码.
         账户密码更新成功后, 若账户当前处于登录状态, 则将其自动登出.
+        
+        ### 权限控制
+        - authenticated through account.
       operationId: updateMePassword
       requestBody:
         description: 请求信息.
@@ -696,7 +921,11 @@ paths:
       tags: 
         - Me
       summary: 更新当前Account的avatar.
-      description: 更新当前Account的avatar.
+      description: |
+        更新当前Account的avatar.
+        
+        ### 权限控制
+        - authenticated through account.
       operationId: updateMeAvatar
       requestBody:
         description: 请求信息.
@@ -1490,7 +1719,14 @@ components:
       maxLength: 50
     AccountRole:
       type: string
-      description: 账户角色.
+      description: |
+        账户角色.
+        
+        #### **角色等级由高到低排列如下**
+        - God
+        - SuperAdmin
+        - Admin
+        - QuestionBuilder, ExamPaperBuilder, ExamBuilder, Grader, Analyst, Normal
       enum:
         - Normal
         - God
@@ -1755,7 +1991,9 @@ components:
       description: 错误码.
       enum: 
         - Undefined
+        - AccessLimited
         - LUTimeConflict
+        - AccountTypeMismatch
         - AlteringNotAllowed
         - SpecifiedStateConversionNotAllowed
     IdAnyMatchQueryField:
