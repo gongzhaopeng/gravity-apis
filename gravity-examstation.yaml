@@ -2601,6 +2601,9 @@ components:
           $ref: '#/components/schemas/Timestamp'
         quRepliesToUpdate:
           $ref: '#/components/schemas/AsQuReplies'
+      required: 
+        - asLUTime
+        - quRepliesToUpdate
     AsQuRepliesUpdatedResp:
       type: object
       description: 指定题目单位作答集更新成功时的响应.
@@ -2617,6 +2620,9 @@ components:
           $ref: '#/components/schemas/Timestamp'
         epsDetailsToUpdate:
           $ref: '#/components/schemas/AsEpsDetails'
+      required: 
+        - asLUTime
+        - epsDetailsToUpdate
     AsEpsDetailsUpdatedResp:
       type: object
       description: 答卷中指定试卷块信息集更新成功时的响应.
