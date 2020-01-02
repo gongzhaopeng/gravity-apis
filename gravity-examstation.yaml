@@ -1065,6 +1065,58 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
+  /examtickets/query:
+    post:
+      tags: 
+        - ExamAticket
+      summary: Query考试准考证.
+      description: |
+        Query考试准考证.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
+      operationId: queryExamAtickets
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamAticketQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAticketPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+      security:
+        - examStationAuth: 
+          - client:inner
   /examtickets/{examticket-id}:
     get:
       tags:
@@ -1498,6 +1550,58 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
+  /echaintickets/query:
+    post:
+      tags: 
+        - EchainAticket
+      summary: Query考试链准考证.
+      description: |
+        Query考试链准考证.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
+      operationId: queryEchainAtickets
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainAticketQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainAticketPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+      security:
+        - examStationAuth: 
+          - client:inner
   /echaintickets/{echainticket-id}:
     get:
       tags:
@@ -1810,6 +1914,58 @@ paths:
                   value:
                     code: 'OutOfAnswerSheetSubmitDuration'
                     detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
+  /answersheets/query:
+    post:
+      tags: 
+        - AnswerSheet
+      summary: Query答卷.
+      description: |
+        Query答卷.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
+      operationId: queryAnswerSheets
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnswerSheetQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerSheetPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
       security:
         - examStationAuth: 
           - client:inner
@@ -2435,6 +2591,35 @@ components:
       description: 申领Public型考试准考证的请求信息.
       allOf:
         - $ref: '#/components/schemas/ExamAticketAcqBasicReq'
+    ExamAticketQuery:
+      type: object
+      description: ExamAticket查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        createTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        lUTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        exam:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        owner:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        epMold:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+    ExamAticketPage:
+      description: ExamAticket分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExamAticket'
+              minLength: 0
+          required:
+            - content
     ExamAticketUpdatingReq:
       type: object
       description: 考试准考证更新请求.
@@ -2508,6 +2693,41 @@ components:
       description: 申领Public型考试链准考证的请求信息.
       allOf:
         - $ref: '#/components/schemas/EchainAticketAcqBasicReq'
+    EchainAticketQuery:
+      type: object
+      description: EchainAticket查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        createTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        lUTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        echain:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        owner:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        epmSerialIndex:
+          type: array
+          items:
+            type: integer
+            format: int32
+          description: 指定的索引集合. =relation=>any-match.
+          minLength: 1
+          maxLength: 50
+    EchainAticketPage:
+      description: EchainAticket分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/EchainAticket'
+              minLength: 0
+          required:
+            - content
     EchainAticketUpdatingReq:
       type: object
       description: 考试链准考证更新请求.
@@ -2564,6 +2784,25 @@ components:
       required:
         - id
         - lUTime
+    AnswerSheetQuery:
+      type: object
+      description: AnswerSheet查询描述对象.
+      properties:
+        aticket: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+    AnswerSheetPage:
+      description: AnswerSheet分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/AnswerSheet'
+              minLength: 0
+          required:
+            - content
     AnswerSheetPatch:
       type: object
       description: 答卷Patch.
