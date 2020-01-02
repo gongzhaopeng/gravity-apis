@@ -2497,6 +2497,7 @@ components:
       description: 错误码.
       enum: 
         - Undefined
+        - AccessLimited
         - LUTimeConflict
         - AlteringNotAllowed
         - SpecifiedStateConversionNotAllowed
