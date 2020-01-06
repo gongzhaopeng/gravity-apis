@@ -16,6 +16,116 @@ tags:
   - name: ExamReport
     description: 访问考试报告.
 paths:
+  /examreports/config/to/exam/{exam-id}:
+    get:
+      tags: 
+        - ExamReport
+      summary: 获取指定考试对应的报告配置信息.
+      description: |
+        获取指定考试对应的报告配置信息.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+      operationId: getReportConfigByExam
+      parameters:
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamReportConfig'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试报告配置信息不存在.
+      security:
+        - examResultAuth: 
+          - client:inner
+    put:
+      tags: 
+        - ExamReport
+      summary: 更新指定考试对应的报告配置信息.
+      description: |
+        更新指定考试对应的报告配置信息.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
+      operationId: updateReportConfigByExam
+      parameters:
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamReportConfigUpdatingReq'
+      responses:
+        '200':
+          description: 更新成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamReportConfig'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+      security:
+        - examStationAuth: 
+          - client:inner
   /examreports/to/ticket/{ticket-id}:
     get:
       tags: 
@@ -78,6 +188,12 @@ paths:
           - client:inner
 components:
   schemas:
+    ExamReportConfigUpdatingReq:
+      type: object
+      description: 考试报告配置更新请求.
+    ExamReportConfig:
+      type: object
+      description: 考试报告配置.
     ExamPersonalReport:
       type: object
       description: 考试个人报告.
