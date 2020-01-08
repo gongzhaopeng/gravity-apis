@@ -191,9 +191,54 @@ components:
     ExamReportConfigUpdatingReq:
       type: object
       description: 考试报告配置更新请求.
+      properties:
+        personalReport:
+          $ref: '#/components/schemas/ExamPersonalReportConfig'
     ExamReportConfig:
       type: object
       description: 考试报告配置.
+      properties:
+        exam:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        creator:
+          $ref: '#/components/schemas/AccountBrief'
+        personalReport:
+          $ref: '#/components/schemas/ExamPersonalReportConfig'
+    ExamPersonalReportConfig:
+      type: object
+      description: 考试个人报告配置.
+      properties:
+        algorithm:
+          $ref: '#/components/schemas/ExamPersonalReportAlgorithm'
+    ExamPersonalReportAlgorithm:
+      type: object
+      description: 考试个人报告算法.
+      properties:
+        type:
+          $ref: '#/components/schemas/ExamPersonalReportAlgType'
+        metadata:
+          type: object
+          description: 算法元数据.用于定义辅助的算法参数.
+          additionalProperties:
+            type: string
+            minLength: 1
+            maxLength: 500
+          minLength: 1
+          maxLength: 50
+      required: 
+        - type
+    ExamPersonalReportAlgType:
+      type: string
+      description: 考试个人报告算法类型.
+      enum: 
+        - Undefined
+        # TODO
+      minLength: 1
+      maxLength: 50
     ExamPersonalReport:
       type: object
       description: 考试个人报告.
