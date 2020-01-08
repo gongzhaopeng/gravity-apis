@@ -1,0 +1,2388 @@
+openapi: 3.0.0
+info:
+  version: '0.1'
+  title: 'Gravity API for Ape'
+  description: 'Gravity API for Ape.'
+
+servers:
+# Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/bebenedu/cn.benbenedu.api.to.ape/0.1
+  - description: Exam-Platform.
+    url: http://gravity.benbenedu.cn
+    
+tags:
+  - name: Account
+    description: 访问账户.
+  - name: Me
+    description: 访问个人账户.
+    
+  - name: Exam
+    description: 访问考试.
+  - name: ExamAticket
+    description: 访问考试准考证.
+  - name: ExamPaper
+    description: 访问试卷.
+  - name: AnswerSheet
+    description: 访问答卷.
+    
+  - name: ExamReport
+    description: 访问考试报告.
+    
+paths:
+
+  # accountcenter-service related.
+  
+  /accountcenter/genesis/accounts:
+    post:
+      tags: 
+        - Account
+      summary: 创建Account.
+      description: |
+        创建Account.
+        
+        调用该接口前须使用**<分配给合作方(猿辅导)的客户端和机构账户>**通过**<用户认证>**以获取access_token.
+        
+        请求创建的新账户类型只能为'Personal'.  
+        请求中如果指定了affiliation信息, 则affiliation::id须为分配的机构账户的ID.  
+        请求中将defaultActive设为true.
+      operationId: createAccount
+      requestBody:
+        description: 请求创建的Account信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreatingReq'
+      responses:
+        '201':
+          description: 成功创建Client.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountCreatedResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+  /accountcenter/genesis/accounts/query:
+    post:
+      tags: 
+        - Account
+      summary: Query Account.
+      description: |
+        Query Account.
+        
+        调用该接口前须使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**以获取access_token.
+      operationId: queryAccounts
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+  /accountcenter/genesis/me:
+    get:
+      tags: 
+        - Me
+      summary: 获取当前Account详情.
+      description: | 
+        获取当前Account详情.
+        
+        调用该接口前须使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**以获取access_token.
+      operationId: getMe
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+    put:
+      tags: 
+        - Me
+      summary: 更新当前Account信息.
+      description: |
+        更新当前Account信息.
+        
+        调用该接口前须使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**以获取access_token.
+      operationId: updateMe
+      requestBody:
+        description: 请求更新的Account信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdatingReq'
+      responses:
+        '204':
+          description: 更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '更改仅在Active状态下被允许.'
+  /accountcenter/genesis/me/password:
+    put:
+      tags: 
+        - Me
+      summary: 修改当前Account密码.
+      description: |
+        修改当前Account密码.
+        
+        调用该接口前须使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**以获取access_token.
+      operationId: updateMePassword
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MePasswordUpdatingReq'
+      responses:
+        '204':
+          description: 修改成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+                alteringNotAllowed:
+                  value:
+                    code: 'AlteringNotAllowed'
+                    detail: '${detail}'
+                  description: '密码修改仅在Active状态下被允许.'
+          
+  # examstation-service related.
+          
+  /examstation/genesis/exams/{exam-id}/pub:
+    get:
+      tags:
+        - Exam
+      summary: 获取指定考试的公开信息.
+      description: |
+        获取指定考试的公开信息.
+        
+        调用该接口前须使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**以获取access_token.
+      operationId: getPubExamById
+      parameters: 
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PubExam'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试不存在.
+  /examstation/genesis/examtickets/of/form/enclosed:
+    post:
+      tags:
+        - ExamAticket
+      summary: 创建Enclosed型考试的准考证.
+      description: |
+        创建Enclosed型考试的准考证.
+        
+        调用该接口前须使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**以获取access_token.
+        
+        须在请求中提供预先分发的考试码(assessToken).
+      operationId: acquireEnclosedExamAticket
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnclosedExamAticketAcqReq'
+      responses:
+        '200':
+          description: |
+            请求已被处理,但准考证未予核发.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                examAticketGrantingDeny:
+                  value:
+                    code: 'ExamAticketGrantingDeny'
+                    detail: '${detail}'
+        '201':
+          description: |
+            成功核发准考证.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAticket'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+        '404':
+          description: 对应的考试不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unmatchExamForm:
+                  value:
+                    code: 'UnmatchExamForm'
+                    detail: '${detail}'
+                exceedExamMRTsLimit:
+                  value:
+                    code: 'ExceedExamMRTsLimit'
+                    detail: '${detail}'
+                  description: '超过了考试的最大重复次数限制.'
+                outOfExamAticketAcqDuration:
+                  value:
+                    code: 'OutOfExamAticketAcqDuration'
+                    detail: '${detail}'
+                  description: '未处在ExamAticket申领时间段内.'
+                invalidAssessToken:
+                  value:
+                    code: 'InvalidAssessToken'
+                    detail: '${detail}'
+  /examstation/genesis/examtickets/of/form/cooperate:
+    post:
+      tags:
+        - ExamAticket
+      summary: 创建Cooperate型考试的准考证.
+      description: |
+        创建Cooperate型考试的准考证.
+        
+        调用该接口前须使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**以获取access_token.
+      operationId: acquireCooperateExamAticket
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CooperateExamAticketAcqReq'
+      responses:
+        '200':
+          description: |
+            请求已被处理,但准考证未予核发.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                examAticketGrantingDeny:
+                  value:
+                    code: 'ExamAticketGrantingDeny'
+                    detail: '${detail}'
+        '201':
+          description: |
+            成功核发准考证.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAticket'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+        '404':
+          description: |
+            ### 对应的情况
+            - 指定的参考人不存在.
+            - 目标考试不存在或目标考试的owner不是当前认证客户端的owner.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unmatchExamForm:
+                  value:
+                    code: 'UnmatchExamForm'
+                    detail: '${detail}'
+                exceedExamMRTsLimit:
+                  value:
+                    code: 'ExceedExamMRTsLimit'
+                    detail: '${detail}'
+                  description: '超过了考试的最大重复次数限制.'
+                outOfExamAticketAcqDuration:
+                  value:
+                    code: 'OutOfExamAticketAcqDuration'
+                    detail: '${detail}'
+                  description: '未处在ExamAticket申领时间段内.'
+  /examstation/genesis/examtickets/{examticket-id}:
+    get:
+      tags:
+        - ExamAticket
+      summary: 获取指定ExamAticket的详情.
+      description: |
+        获取指定ExamAticket的详情.
+        
+        调用该接口前须获取access_token: 
+          - 若为**<Enclosed型考试>**, 使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**.  
+            对应的access_token仅能访问属于该参考用户的准考证.
+          - 若为**<Cooperate型考试>**, 使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**.  
+            对应的access_token可访问合作考试相关的所有准考证.
+      operationId: getExamAticketById
+      parameters: 
+        - name: examticket-id
+          in: path
+          description: 指定ExamAticket的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAticket'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的ExamAticket不存在.
+    put:
+      tags:
+        - ExamAticket
+      summary: 更新指定ExamAticket的信息.
+      description: |
+        更新指定ExamAticket的信息.
+        
+        调用该接口前须获取access_token: 
+          - 若为**<Enclosed型考试>**, 使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**.  
+            对应的access_token仅能访问属于该参考用户的准考证.
+          - 若为**<Cooperate型考试>**, 使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**.  
+            对应的access_token可访问合作考试相关的所有准考证.
+      operationId: updateExamAticketById
+      parameters: 
+        - name: examticket-id
+          in: path
+          description: 指定ExamAticket的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamAticketUpdatingReq'
+      responses:
+        '200':
+          description: 更新成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAticket'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的ExamAticket不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                lUTimeConflict:
+                  value:
+                    code: 'LUTimeConflict'
+                    detail: '${detail}'
+  /examstation/genesis/examtickets/of/exam/{exam-id}:
+    get:
+      tags:
+        - ExamAticket
+      summary: 获取指定参考人的指定考试的准考证集.
+      description: |
+        获取指定参考人的指定考试的准考证集.
+        
+        调用该接口前须获取access_token: 
+          - 若为**<Enclosed型考试>**, 使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**.  
+            对应的access_token仅能访问属于该参考用户的准考证.
+          - 若为**<Cooperate型考试>**, 使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**.  
+            对应的access_token可访问合作考试相关的所有准考证.
+      parameters:
+        - name: exam-id
+          in: path
+          description: 指定考试的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+        - name: owner-id
+          in: query
+          description: |
+            指定准考证所有者的账户ID.  
+            仅在采用**<客户端认证>**时需要指定.
+          required: false
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExamAticket'
+                minLength: 0
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试或准考证owner不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unmatchExamForm:
+                  value:
+                    code: 'UnmatchExamForm'
+                    detail: '${detail}'
+  /examstation/genesis/exampapers/to/ticket/{ticket-id}:
+    get:
+      tags:
+        - ExamPaper
+      summary: 获取指定考试准考证对应的试卷.
+      description: |
+        获取指定考试准考证对应的试卷.
+        
+        调用该接口前须获取access_token: 
+          - 若为**<Enclosed型考试>**, 使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**.  
+            对应的access_token仅能访问属于该参考用户的准考证.
+          - 若为**<Cooperate型考试>**, 使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**.  
+            对应的access_token可访问合作考试相关的所有准考证.
+      operationId: getExamPaperByExamAticket
+      parameters:
+        - name: ticket-id
+          in: path
+          description: 指定考试准考证的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamPaper'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的考试准考证不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                outOfPaperFetchDuration:
+                  value:
+                    code: 'OutOfPaperFetchDuration'
+                    detail: '${detail}'
+  /examstation/genesis/answersheets:
+    post:
+      tags:
+        - AnswerSheet
+      summary: 提交答卷.
+      description: |
+        提交答卷.
+        
+        调用该接口前须获取access_token: 
+          - 若为**<Enclosed型考试>**, 使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**.  
+            对应的access_token仅能访问属于该参考用户的准考证.
+          - 若为**<Cooperate型考试>**, 使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**.  
+            对应的access_token可访问合作考试相关的所有准考证.
+      operationId: submitAnswerSheet
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnswerSheetSubmission'
+      responses:
+        '201':
+          description: 提交成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerSheetCreatedResp'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidExamAticket:
+                  value:
+                    code: 'InvalidExamAticket'
+                    detail: '${detail}'
+                duplicateCreating:
+                  value:
+                    code: 'DuplicateCreating'
+                    detail: '${detail}'
+                outOfAnswerSheetSubmitDuration:
+                  value:
+                    code: 'OutOfAnswerSheetSubmitDuration'
+                    detail: '${detail}'
+  /examstation/genesis/answersheets/to/ticket/{ticket-id}:
+    get:
+      tags:
+        - AnswerSheet
+      summary: 获取指定考试准考证对应的答卷.
+      description: |
+        获取指定考试准考证对应的答卷.
+        
+        调用该接口前须获取access_token: 
+          - 若为**<Enclosed型考试>**, 使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**.  
+            对应的access_token仅能访问属于该参考用户的准考证.
+          - 若为**<Cooperate型考试>**, 使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**.  
+            对应的access_token可访问合作考试相关的所有准考证.
+      operationId: getAnswerSheetByExamAticket
+      parameters:
+        - name: ticket-id
+          in: path
+          description: 指定考试准考证的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerSheet'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的答卷不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidExamAticket:
+                  value:
+                    code: 'InvalidExamAticket'
+                    detail: '${detail}'
+          
+  # examresult-service related.
+  
+  /examreports/to/ticket/{ticket-id}:
+    get:
+      tags: 
+        - ExamReport
+      summary: 获取指定考试准考证对应的个人报告.
+      description: |
+        获取指定考试准考证对应的个人报告.
+        
+        调用该接口前须获取access_token: 
+          - 若为**<Enclosed型考试>**, 使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**.  
+            对应的access_token仅能访问属于该参考用户的准考证.
+          - 若为**<Cooperate型考试>**, 使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**.  
+            对应的access_token可访问合作考试相关的所有准考证.
+      operationId: getExamReportByAticket
+      parameters:
+        - name: ticket-id
+          in: path
+          description: 指定考试准考证的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamPersonalReport'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的报告不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidExamAticket:
+                  value:
+                    code: 'InvalidExamAticket'
+                    detail: '${detail}'
+  
+components:
+  schemas:
+    AccountCreatingReq:
+      type: object
+      description: |
+        创建Account的请求信息.  
+        idNumber, mobile, email均可作为账户标识, 均不能被其它账户占用. 在请求中至少要包含一项.
+      properties:
+        affiliation:
+          $ref: '#/components/schemas/AccountAffiliation'
+        idNumber:
+          $ref: '#/components/schemas/IdNumber'
+        mobile:
+          $ref: '#/components/schemas/MobileNumber'
+        email:
+          $ref: '#/components/schemas/Email'
+        password:
+          $ref: '#/components/schemas/Password'
+        type:
+          $ref: '#/components/schemas/AccountType'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+        defaultActive:
+          type: boolean
+          description: 是否缺省激活.
+      required: 
+        - password
+        - type
+    AccountCreatedResp:
+      type: object
+      description: Account创建成功时的响应.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+      required: 
+        - id
+    AccountQuery:
+      type: object
+      description: Account查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        createTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        lUTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        state:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountState'
+          description: 指定state所属的集合. =relation=>in.
+          minLength: 1
+          maxLength: 10
+        idNumber:
+          $ref: '#/components/schemas/TextAnyMatchQueryField'
+        mobile:
+          $ref: '#/components/schemas/TextAnyMatchQueryField'
+        email:
+          $ref: '#/components/schemas/TextAnyMatchQueryField'
+        affiliatingOnly:
+          type: boolean
+          description: |
+            是否限定在隶属当前账号的账号集中.
+            若指定了foreignId属性,则affiliatingOnly强制为true.
+        foreignId:
+          $ref: '#/components/schemas/TextAnyMatchQueryField'
+    QueriedAccount:
+      type: object
+      description: |
+        query返回的Account.
+        idNumber,mobile,email,name等须进行敏感信息处理.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        state:
+          $ref: '#/components/schemas/AccountState'
+        idNumber:
+          $ref: '#/components/schemas/IdNumber'
+        mobile:
+          $ref: '#/components/schemas/MobileNumber'
+        email:
+          $ref: '#/components/schemas/Email'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+      required:
+        - id
+        - createTime
+        - lUTime
+        - state
+    AccountPage:
+      description: Account分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/QueriedAccount'
+              minLength: 0
+          required:
+            - content
+    AccountUpdatingReq:
+      type: object
+      description: |
+        更新Account的请求信息.
+      properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        birthday:
+          $ref: '#/components/schemas/Birthday'
+        address:
+          $ref: '#/components/schemas/AccountAddress'
+        studyingStatus:
+          $ref: '#/components/schemas/StudyingStatus'
+        extInfo:
+          $ref: '#/components/schemas/AccountExtInfo'
+    MePasswordUpdatingReq:
+      type: object
+      description: |
+        更新当前账户的密码.
+      properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        oldPassword:
+          $ref: '#/components/schemas/Password'
+        newPassword:
+          $ref: '#/components/schemas/Password'
+      required:
+        - oldPassword
+        - newPassword
+    Account:
+      type: object
+      description: |
+        账户.  
+        idNumber, mobile, email, wechat均只能对应到至多一个账户, 故均可以作为账号的标识.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        creator:
+          $ref: '#/components/schemas/AccountBrief'
+        state:
+          $ref: '#/components/schemas/AccountState'
+        affiliation:
+          $ref: '#/components/schemas/AccountAffiliation'
+        idNumber:
+          $ref: '#/components/schemas/IdNumber'
+        identified:
+          type: boolean
+          description: 是否已通过实名认证.
+        mobile:
+          $ref: '#/components/schemas/MobileNumber'
+        mobileVerified:
+          type: boolean
+          description: 手机是否已通过认证.
+        email:
+          $ref: '#/components/schemas/Email'
+        emailVerified:
+          type: boolean
+          description: 邮箱是否已通过认证.
+        password:
+          $ref: '#/components/schemas/Password'
+        wechat:
+          $ref: '#/components/schemas/WechatInfo'
+        type:
+          $ref: '#/components/schemas/AccountType'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        birthday:
+          $ref: '#/components/schemas/Birthday'
+        address:
+          $ref: '#/components/schemas/AccountAddress'
+        avatar:
+          $ref: '#/components/schemas/URL'
+        roles:
+          $ref: '#/components/schemas/AccountRoles'
+        studyingStatus:
+          $ref: '#/components/schemas/StudyingStatus'
+        extInfo:
+          $ref: '#/components/schemas/AccountExtInfo'
+      required: 
+        - id
+        - createTime
+        - lUTime
+        - creator
+        - state
+        - type
+        - roles
+    AccountExtInfo:
+      type: object
+      additionalProperties:
+        type: string
+        minLength: 1
+        maxLength: 250
+      minLength: 1
+      maxLength: 20
+    AccountRoles:
+      type: array
+      description: 账户角色集.
+      items:
+        $ref: '#/components/schemas/AccountRole'
+      minLength: 1
+      maxLength: 25
+    AccountAddress:
+      type: object
+      description: 账户地址.
+      properties:
+        country:
+          $ref: '#/components/schemas/Country'
+        province:
+          $ref: '#/components/schemas/Province'
+        city:
+          $ref: '#/components/schemas/City'
+        county:
+          $ref: '#/components/schemas/County'
+      required:
+        - country
+        - province
+        - city
+    AccountState:
+      type: string
+      description: 账户状态.
+      enum:
+        - Unactivated
+        - Active
+        - Locked
+        - Disabled
+        - Abandoned
+      minLength: 1
+      maxLength: 50
+    AccountType:
+      type: string
+      description: 账户类型.
+      enum:
+        - Personal
+        - Organization
+      minLength: 1
+      maxLength: 50
+    AccountRole:
+      type: string
+      description: |
+        账户角色.
+      enum:
+        - Normal
+      minLength: 1
+      maxLength: 50
+    WechatInfo:
+      type: object
+      description: 账户关联的微信信息.
+      properties:
+        openid:
+          type: string
+        unionid:
+          type: string
+        latestLogin:
+          $ref: '#/components/schemas/WechatLogin'
+    WechatLogin:
+      type: object
+      description: 微信登录信息.
+      properties:
+        loginAt:
+          $ref: '#/components/schemas/Timestamp'
+        accessToken:
+          type: string
+        expiresAt:
+          $ref: '#/components/schemas/Timestamp'
+        refreshToken:
+          type: string
+    AccountBrief:
+      type: object
+      description: 账户的简单信息.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+      required: 
+        - id
+    AccountAffiliation:
+      type: object
+      description: 账户从属关系.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+        foreignId:
+          $ref: '#/components/schemas/AccountAffiliationForeignId'
+        foreignExtInfo:
+          $ref: '#/components/schemas/AccountAffiliationForeignExtInfo'
+      required: 
+        - id
+    AccountAffiliationForeignId:
+      type: string
+      description: 账户从属关系里的外部ID.
+      minLength: 1
+      maxLength: 128
+    AccountAffiliationForeignExtInfo:
+      type: object
+      description: 账户从属关系里的外部扩展信息.
+      additionalProperties:
+        type: string
+        minLength: 1
+        maxLength: 250
+      minLength: 1
+      maxLength: 20
+    AccountName:
+      type: string
+      description: 账户名.
+      minLength: 1
+      maxLength: 50
+    AccountNickname:
+      type: string
+      description: 账户昵称.
+      minLength: 1
+      maxLength: 25
+    StudyingStatus:
+      type: object
+      description: 就学信息.
+      properties:
+        sno:
+          type: string
+          description: 学号.
+          minLength: 1
+          maxLength: 50
+        school:
+          type: string
+          description: 学校.
+          minLength: 1
+          maxLength: 100
+        grade:
+          $ref: '#/components/schemas/GradeInSchool'
+        executiveClass:
+          type: string
+          description: 行政班级.
+          minLength: 1
+          maxLength: 20
+        chosenSubjects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subject'
+          minLength: 1
+          maxLength: 10
+        subjectClass:
+          type: string
+          description: 学科班级.
+          minLength: 1
+          maxLength: 20
+        tutors:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 20
+          minLength: 1
+          maxLength: 10
+      required:
+        - sno
+        - school
+        - grade
+    GradeInSchool:
+      type: string
+      description: 年级
+      enum:
+        - KG1
+        - KG2
+        - KG3
+        - E1
+        - E2
+        - E3
+        - E4
+        - E5
+        - E6
+        - J1_7
+        - J2_8
+        - J3_9
+        - S1_10
+        - S2_11
+        - S3_12
+      minLength: 1
+      maxLength: 50
+    Subject:
+      type: string
+      description: 学科.
+      enum:
+        - Physics
+        - Chemistry
+        - Biology
+        - History
+        - Geography
+        - Politics
+      minLength: 1
+      maxLength: 20
+    Birthday:
+      type: string
+      format: date
+      description: 生日.
+    IdNumber:
+      type: string
+      description: 身份证号.
+      minLength: 1
+      maxLength: 25
+    MobileNumber:
+      type: string
+      description: 手机号码.
+      minLength: 1
+      maxLength: 25
+    Country:
+      type: string
+      description: |
+        The country. For example, USA. You can also provide the two-letter ISO 3166-1 alpha-2 country code.
+      enum:
+        - CN
+      minLength: 2
+      maxLength: 2
+    Province:
+      type: string
+      description: 省.
+      minLength: 1
+      maxLength: 50
+    City:
+      type: string
+      description: 市.
+      minLength: 1
+      maxLength: 50
+    County:
+      type: string
+      description: 县.
+      minLength: 1
+      maxLength: 50
+    URL:
+      type: string
+      description: URL.
+      minLength: 1
+      maxLength: 250
+    Email:
+      type: string
+      description: Email.
+      minLength: 5
+      maxLength: 50
+    Password:
+      type: string
+      format: password
+      description: Password.
+      minLength: 6
+      maxLength: 50
+    Gender:
+      type: string
+      description: 性取向.
+      enum:
+        - Masculine
+        - Feminine
+        - Neutral
+      minLength: 1
+      maxLength: 50
+        
+        
+    PubExam:
+      type: object
+      description: 考试的公开信息.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        form:
+          $ref: '#/components/schemas/ExamForm'
+        title:
+          $ref: '#/components/schemas/ExamTitle'
+        maxRepeatTimes:
+          $ref: '#/components/schemas/ExamMaxRepeatTimes'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        currentTime:
+          $ref: '#/components/schemas/Timestamp'
+        beginTime:
+          $ref: '#/components/schemas/ExamBeginTime'
+        preEnterDuration:
+          $ref: '#/components/schemas/ExamPreEnterDuration'
+        postEnterDuration:
+          $ref: '#/components/schemas/ExamPostEnterDuration'
+        paperPreFetchDuration:
+          $ref: '#/components/schemas/ExamPaperPreFetchDuration'
+        duration:
+          $ref: '#/components/schemas/ExamDuration'
+        maxDurationOffset:
+          $ref: '#/components/schemas/ExamMaxDurationOffset'
+        extFeatures:
+          $ref: '#/components/schemas/ExamExtFeatures'
+        resources:
+          $ref: '#/components/schemas/ExamResources'
+      required:
+        - id
+        - lUTime
+        - form
+        - title
+    ExamAticketAcqBasicReq:
+      type: object
+      description: 申领考试准考证的基本请求信息.
+      properties:
+        exam:
+          $ref: '#/components/schemas/ObjectID'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        province:
+          $ref: '#/components/schemas/Province'
+        city:
+          $ref: '#/components/schemas/City'
+        county:
+          $ref: '#/components/schemas/County'
+        age:
+          $ref: '#/components/schemas/Age'
+        studyingStatus:
+          $ref: '#/components/schemas/StudyingStatus'
+        extInfo:
+          $ref: '#/components/schemas/ExamAticketExtInfo'
+      required:
+        - exam
+    EnclosedExamAticketAcqReq:
+      type: object
+      description: 申领Enclosed型考试准考证的请求信息.
+      allOf:
+        - $ref: '#/components/schemas/ExamAticketAcqBasicReq'
+        - type: object
+          properties:
+            assessToken:
+              $ref: '#/components/schemas/AssessTokenCode'
+          required:
+            - assessToken
+    CooperateExamAticketAcqReq:
+      type: object
+      description: |
+        申领Cooperate型考试准考证的请求信息.
+        
+        通过owner属性指定参考用户账户的ID.
+      allOf:
+        - $ref: '#/components/schemas/ExamAticketAcqBasicReq'
+        - type: object
+          properties:
+            owner:
+              $ref: '#/components/schemas/ObjectID'
+          required:
+            - owner
+    ExamAticketUpdatingReq:
+      type: object
+      description: 考试准考证更新请求.
+      properties:
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        province:
+          $ref: '#/components/schemas/Province'
+        city:
+          $ref: '#/components/schemas/City'
+        county:
+          $ref: '#/components/schemas/County'
+        age:
+          $ref: '#/components/schemas/Age'
+        studyingStatus:
+          $ref: '#/components/schemas/StudyingStatus'
+        extInfo:
+          $ref: '#/components/schemas/ExamAticketExtInfo'
+      required:
+        - lUTime
+    AnswerSheetSubmission:
+      type: object
+      description: 提交的答卷信息.
+      properties:
+        aticket:
+          $ref: '#/components/schemas/ObjectID'
+        startTime:
+          $ref: '#/components/schemas/Timestamp'
+        endTime:
+          $ref: '#/components/schemas/Timestamp'
+        quReplies:
+          $ref: '#/components/schemas/AsQuReplies'
+        epsDetails:
+          $ref: '#/components/schemas/AsEpsDetails'
+        extFeedbacks:
+          $ref: '#/components/schemas/AsExtFeedbacks'
+        resources:
+          $ref: '#/components/schemas/AsInputResources'
+      required:
+        - aticket
+        - startTime
+    AnswerSheetCreatedResp:
+      type: object
+      description: 答卷创建成功时的响应.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+      required:
+        - id
+        - lUTime
+    ExamForm:
+      type: string
+      description: 考试的形式.
+      enum:
+        - Enclosed
+        - Cooperate
+        - Public
+      minLength: 1
+      maxLength: 50
+    ExamTitle:
+      type: string
+      description: 考试标题.
+      minLength: 1
+      maxLength: 200
+    ExamMaxRepeatTimes:
+      type: integer
+      format: int32
+      description: |
+        单个用户的最大考试次数.
+      minimum: 1
+    ExamBeginTime:
+      type: integer
+      format: int64
+      description: 考试开始时间(timestamp).
+    ExamPreEnterDuration:
+      type: integer
+      format: int32
+      description: 开考前的提前进入时间窗(second).
+      minimum: 300
+      maximum: 7200
+    ExamPostEnterDuration:
+      type: integer
+      format: int32
+      description: 开考后的迟到进入时间窗(second).
+      minimum: 60
+      maximum: 3600
+    ExamPaperPreFetchDuration:
+      type: integer
+      format: int32
+      description: 开考前的提前获取试卷时间窗(second).
+      minimum: 30
+      maximum: 1800
+    ExamDuration:
+      type: integer
+      format: int32
+      description: 考试持续时长(second).
+      minimum: 60
+    ExamMaxDurationOffset:
+      type: integer
+      format: int32
+      description: 允许的时长顺延最大值(second).
+      minimum: 60
+      maximum: 3600
+    ExamExtFeatures:
+      type: object
+      description: 考试的扩展特征集,有业务含义.
+      additionalProperties:
+        $ref: '#/components/schemas/MediumValue'
+      minLength: 1
+      maxLength: 20
+    ExamResources:
+      type: array
+      description: 对应考试层用到的资源集.
+      items:
+        $ref: '#/components/schemas/ResourceBrief'
+      minLength: 1
+      maxLength: 50
+    ExamBrief:
+      type: object
+      description: 考试的简单信息.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        title:
+          $ref: '#/components/schemas/ExamTitle'
+      required:
+        - id
+        - title
+    AssessTokenCode:
+      type: string
+      description: |
+        测评令牌码.
+        由[大写字母,小写字母,数字]构成.
+      minLength: 8
+      maxLength: 20
+      example:
+        aX0s95PtBn
+    ExamAticket:
+      type: object
+      description: |  
+        考试对应的准考证.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        exam:
+          $ref: '#/components/schemas/ExamBrief'
+        owner:
+          $ref: '#/components/schemas/ObjectID'
+        epMold:
+          $ref: '#/components/schemas/ObjectID'
+        examPaper:
+          $ref: '#/components/schemas/ObjectID'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        province:
+          $ref: '#/components/schemas/Province'
+        city:
+          $ref: '#/components/schemas/City'
+        county:
+          $ref: '#/components/schemas/County'
+        age:
+          $ref: '#/components/schemas/Age'
+        studyingStatus:
+          $ref: '#/components/schemas/StudyingStatus'
+        extInfo:
+          $ref: '#/components/schemas/ExamAticketExtInfo'
+      required:
+        - id
+        - createTime
+        - lUTime
+        - exam
+        - owner
+        - epMold
+        - examPaper
+    ExamAticketExtInfo:
+      type: object
+      additionalProperties:
+        type: string
+        minLength: 1
+        maxLength: 250
+      minLength: 1
+      maxLength: 20
+    EpTitle:
+      type: string
+      description: 试卷标题.
+      minLength: 1
+      maxLength: 200
+    EpExtFeatures:
+      type: object
+      description: 试卷的扩展特征集,有业务含义.
+      additionalProperties:
+        $ref: '#/components/schemas/MediumValue'
+      minLength: 1
+      maxLength: 20
+    EpResources:
+      type: array
+      description: 对应试卷层用到的资源集.
+      items:
+        $ref: '#/components/schemas/ResourceBrief'
+      minLength: 1
+      maxLength: 50
+    CompositeEpsGenerator:
+      type: object
+      description: 可复合的试卷块生成器.
+      properties:
+        title:
+          $ref: '#/components/schemas/EpsTitle'
+        purpose:
+          $ref: '#/components/schemas/EpsPurpose'
+        description:
+          $ref: '#/components/schemas/MgmtDescriptionField'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        generateStrategy:
+          $ref: '#/components/schemas/EpsGenerateStrategy'
+        subGenerators:
+          type: array
+          description: 下属的子生成器集.
+          items:
+            $ref: '#/components/schemas/CompositeEpsGenerator'
+          minLength: 1
+          maxLength: 50
+        questions:
+          type: array
+          description: '对应的题集. 当purpose取值为Formal时, 当前试卷块中引入的题目须将answerMatchStrategy, stdAnswers以及对应的资源过滤掉.'
+          items:
+            $ref: '#/components/schemas/EpQuestion'
+          minLength: 1
+          maxLength: 2000
+        timeLimit:
+          $ref: '#/components/schemas/EpsTimeLimit'
+        extFeatures:
+          $ref: '#/components/schemas/EpsExtFeatures'
+        defaultQuScore:
+          $ref: '#/components/schemas/DefaultQuScore'
+        resources:
+          $ref: '#/components/schemas/EpsResources'
+      required:
+        - title
+        - purpose
+        - generateStrategy
+    EpsTitle:
+      type: string
+      description: 试卷块标题.
+      minLength: 1
+      maxLength: 200
+    EpsPurpose:
+      type: string
+      description: 试卷块的用途.
+      enum:
+        - Formal
+        - Practice
+        - Example
+      minLength: 1
+      maxLength: 50
+    EpsGenerateStrategy:
+      type: object
+      description: 试卷块生成策略.
+      properties:
+        type:
+          type: string
+          description: 策略类型.
+          enum:
+            - CompositeFix
+            - CompositeRand
+            - QSetFix
+            - QSetRand
+          minLength: 1
+          maxLength: 50
+        metadata:
+          type: object
+          description: 策略元数据.用于定义辅助的策略参数.
+          additionalProperties:
+            type: string
+            minLength: 1
+            maxLength: 500
+          minLength: 1
+          maxLength: 50
+          example:
+            outputEpsCount: 3
+            outputQuestionCount: 10
+      required: 
+        - type
+    EpsTimeLimit:
+      type: integer
+      format: int32
+      description: 限时.单位(second).
+      minimum: 1
+    EpsExtFeatures:
+      type: object
+      description: 试卷块的扩展特征集,有业务含义.
+      additionalProperties:
+        $ref: '#/components/schemas/MediumValue'
+      minLength: 1
+      maxLength: 20
+    EpsResources:
+      type: array
+      description: 对应试卷块层用到的资源集.
+      items:
+        $ref: '#/components/schemas/ResourceBrief'
+      minLength: 1
+      maxLength: 50
+    EpQuestion:
+      type: object
+      description: 试卷题目.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        version:
+          $ref: '#/components/schemas/VersionSerial'
+        title:
+          $ref: '#/components/schemas/EpQuestionTitle'
+        compositeEpQunit:
+          $ref: '#/components/schemas/CompositeEpQuestionUnit'
+        difficulty:
+          $ref: '#/components/schemas/EpQuestionDifficulty'
+      required: 
+        - id
+        - version
+        - title
+        - compositeEpQunit
+    EpQuestionTitle:
+      type: string
+      description: 题目标题.
+      minLength: 1
+      maxLength: 200
+    EpQuestionDifficulty:
+      type: number
+      format: float
+      description: 题目的难度系数.
+    CompositeEpQuestionUnit:
+      type: object
+      description: 可复合的试卷题目单位.
+      properties:
+        path:
+          $ref: '#/components/schemas/EpQuPath'
+        form:
+          $ref: '#/components/schemas/EpQuForm'
+        stem:
+          $ref: '#/components/schemas/RichTextContentField'
+        options:
+          type: array
+          description: 可选项集.仅当形式为选择题时出现.
+          items:
+            $ref: '#/components/schemas/EpQuOption'
+          minLength: 1
+          maxLength: 20
+        quScore:
+          type: number
+          format: float
+          description: 题目单位的分值.
+        answerMatchStrategy:
+          $ref: '#/components/schemas/EpAnswerMatchStrategy'
+        stdAnswers:
+          type: array
+          description: 标准答案集.
+          items:
+            $ref: '#/components/schemas/EpStdAnswer'
+          minLength: 1
+          maxLength: 20
+        subQunits:
+          type: array
+          description: 下属的题目单位集.
+          items:
+            $ref: '#/components/schemas/CompositeEpQuestionUnit'
+          minLength: 1
+          maxLength: 20
+        extFeatures:
+          type: object
+          description: 扩展的特征集,有业务含义.
+          additionalProperties:
+            $ref: '#/components/schemas/MediumValue'
+          minLength: 1
+          maxLength: 20
+        resources:
+          type: array
+          description: 当前层面用到的资源集.
+          items:
+            $ref: '#/components/schemas/ResourceBrief'
+          minLength: 1
+          maxLength: 50
+      required: 
+        - form
+    EpQuForm:
+      type: string
+      description: 题目单位的形式.
+      enum: 
+        - Choice
+        - MChoice
+        - FillIn
+        - QA
+        - Composite
+      minLength: 1
+      maxLength: 50
+    EpQuOption:
+      type: object
+      description: 可选项.
+      properties:
+        number:
+          $ref: '#/components/schemas/NumberField'
+        content:
+          $ref: '#/components/schemas/RichTextContentField'
+      required: 
+        - number
+        - content
+    EpAnswerMatchStrategy:
+      type: object
+      description: 答案匹配策略.
+      properties:
+        type:
+          type: string
+          description: 策略类型.
+          enum: 
+            - OrderSensitiveEqual
+            - OrderInsensitiveEqual
+          minLength: 1
+          maxLength: 50
+        metadata:
+          type: object
+          description: 策略元数据.用于定义辅助的策略参数.
+          additionalProperties:
+            type: string
+            minLength: 1
+            maxLength: 500
+          minLength: 1
+          maxLength: 50
+      required: 
+        - type
+    EpStdAnswer:
+      type: object
+      description: 标准答案.
+      properties:
+        number:
+          $ref: '#/components/schemas/NumberField'
+        choices:
+          type: array
+          description: 选择集.用于支持类选择题形式.
+          items:
+            $ref: '#/components/schemas/NumberField'
+          minLength: 1
+          maxLength: 20
+        criteria:
+          type: array
+          description: 非选项形式的答案内容集.用于支持非选择题形式.
+          items:
+            $ref: '#/components/schemas/MediumValue'
+          minLength: 1
+          maxLength: 20
+        score:
+          type: number
+          format: float
+          description: 特定标准答案对应的分值.
+      required: 
+        - number
+    AnswerSheet:
+      type: object
+      description: 答卷
+      properties:
+        aticket:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        startTime:
+          $ref: '#/components/schemas/Timestamp'
+        endTime:
+          $ref: '#/components/schemas/Timestamp'
+        quReplies:
+          $ref: '#/components/schemas/AsQuReplies'
+        epsDetails:
+          $ref: '#/components/schemas/AsEpsDetails'
+        extFeedbacks:
+          $ref: '#/components/schemas/AsExtFeedbacks'
+        resources:
+          $ref: '#/components/schemas/AsInputResources'
+      required: 
+        - aticket
+        - createTime
+        - lUTime
+        - startTime
+    AsEpsDetails:
+      type: object
+      description: |
+        答卷中的试卷块对应信息集.
+        key为对应的EpsPath.
+      additionalProperties:
+        $ref: '#/components/schemas/AsEpsDetail'
+      minLength: 1
+    EpsPath:
+      type: string
+      description: |
+        试卷块在试卷中的路径.
+        FORMAT => $eps_a_index.$eps_aa_index...
+      example:
+        1.2
+    AsEpsDetail:
+      type: object
+      description: 答卷中试卷块对应的信息.
+      properties:
+        startTime:
+          $ref: '#/components/schemas/Timestamp'
+        endTime:
+          $ref: '#/components/schemas/Timestamp'
+        extFeedbacks:
+          $ref: '#/components/schemas/AsExtFeedbacks'
+        resources:
+          $ref: '#/components/schemas/AsInputResources'
+    AsQuReplies:
+      type: object
+      description: |
+        答卷中的题目单位作答集.
+        key为对应的EpQuPath.
+      additionalProperties:
+        $ref: '#/components/schemas/AsQuReply'
+      minLength: 1
+    EpQuPath:
+      type: string
+      description: |
+        题目单位在试卷中的路径.
+        FORMAT => $eps_a_index.$eps_aa_index.../$qu_b_index.qu_bb_index...
+      example:
+        1.2/5.3
+    AsQuReply:
+      type: object
+      description: 题目单位作答信息.
+      properties:
+        startTime:
+          $ref: '#/components/schemas/Timestamp'
+        endTime:
+          $ref: '#/components/schemas/Timestamp'
+        choices:
+          type: array
+          description: 选择集.
+          items:
+            type: integer
+            format: int32
+          minLength: 1
+          maxLength: 20
+        contents:
+          type: array
+          description: 非选择类型的作答内容集.
+          items:
+            $ref: '#/components/schemas/InputMediumValue'
+          minLength: 1
+          maxLength: 20
+        extFeedbacks:
+          $ref: '#/components/schemas/AsExtFeedbacks'
+        resources:
+          $ref: '#/components/schemas/AsInputResources'
+    AsExtFeedbacks:
+      type: object
+      description: 答卷中扩展的反馈信息集.
+      additionalProperties:
+        $ref: '#/components/schemas/InputMediumValue'
+      minLength: 1
+    AsInputResources:
+      type: array
+      description: 答卷中传入的资源集.
+      items:
+        $ref: '#/components/schemas/InputResource'
+      minLength: 1
+    ExamPaper:
+      type: object
+      description: 试卷.
+      properties:
+        id: 
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        aticket:
+          $ref: '#/components/schemas/EpAticket'
+        epMold:
+          $ref: '#/components/schemas/VersioningRef'
+        mark:
+          $ref: '#/components/schemas/EpMark'
+        title:
+          $ref: '#/components/schemas/EpTitle'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        sections:
+          type: array
+          description: 包含的试卷块集.
+          items:
+            $ref: '#/components/schemas/CompositeEpSection'
+        extFeatures:
+          $ref: '#/components/schemas/EpExtFeatures'
+        defaultQuScore:
+          $ref: '#/components/schemas/DefaultQuScore'
+        resources:
+          $ref: '#/components/schemas/EpResources'
+      required: 
+        - id
+        - createTime
+        - epMold
+        - title
+        - sections
+    EpAticket:
+      type: object
+      description: 准考证在试卷内的表示.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        owner:
+          $ref: '#/components/schemas/ObjectID'
+        exam:
+          $ref: '#/components/schemas/ObjectID'
+      required: 
+        - id
+        - owner
+        - exam
+    EpMark:
+      type: string
+      description: 标记.
+      minLength: 1
+      maxLength: 200
+    CompositeEpSection:
+      type: object
+      description: 可复合的试卷块.
+      properties:
+        path:
+          $ref: '#/components/schemas/EpsPath'
+        title:
+          $ref: '#/components/schemas/EpsTitle'
+        purpose:
+          $ref: '#/components/schemas/EpsPurpose'
+        introduction:
+          $ref: '#/components/schemas/RichTextContentField'
+        subSections:
+          type: array
+          description: 下属的子试卷块集.
+          items:
+            $ref: '#/components/schemas/CompositeEpSection'
+        questions:
+          type: array
+          description: 对应的题集.
+          items:
+            $ref: '#/components/schemas/EpQuestion'
+        timeLimit:
+          $ref: '#/components/schemas/EpsTimeLimit'
+        extFeatures:
+          $ref: '#/components/schemas/EpsExtFeatures'
+        defaultQuScore:
+          $ref: '#/components/schemas/DefaultQuScore'
+        resources:
+          $ref: '#/components/schemas/EpsResources'
+      required: 
+        - title
+        - purpose
+    InputMediumValue:
+      type: object
+      description: 外部传入的多媒体值.
+      properties:
+        resourceIndex:
+          type: integer
+          format: int32
+          description: 对应资源在资源表中的索引值.
+          minimum: 0
+        mediaType:
+          $ref: '#/components/schemas/MediaTypeField'
+        value:
+          type: string
+          description: 值.
+    InputResource:
+      type: object
+      description: 外部传入的资源.
+      properties:
+        id:
+          type: string
+          description: |
+            内部存档后, 该属性用于存储对应的内部ID.
+        mediaType:
+          $ref: '#/components/schemas/MediaTypeField'
+        contentUrl:
+          type: string
+          description: 资源内容的实际访问地址.
+      required: 
+        - mediaType
+        - contentUrl
+    DefaultQuScore:
+      type: number
+      format: float
+      description: 对应范围内缺省的题目单位分值.
+    
+        
+    ExamPersonalReport:
+      type: object
+      description: 考试个人报告.
+      properties:
+        aticket:
+          $ref: '#/components/schemas/ObjectID'
+        createTime:
+          $ref: '#/components/schemas/Timestamp'
+        lUTime:
+          $ref: '#/components/schemas/Timestamp'
+        owner:
+          $ref: '#/components/schemas/ObjectID'
+        exam:
+          $ref: '#/components/schemas/ObjectID'
+        type:
+          $ref: '#/components/schemas/ExamPersonalReportType'
+        data:
+          $ref: '#/components/schemas/ReportData'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportFile'
+          minLength: 1
+      required:
+        - aticket
+        - createTime
+        - lUTime
+        - owner
+        - exam
+        - type
+        - data
+    ExamPersonalReportType:
+      type: string
+      description: 考试个人报告类型.
+      enum: 
+        - Undefined
+        # TODO
+    ReportData:
+      type: object
+      description: |
+        报告数据.
+      additionalProperties:
+        type: string
+      minLength: 1
+    ReportFile:
+      type: object
+      description: |
+        报告文件.
+      properties:
+        mediaType:
+          $ref: '#/components/schemas/MediaTypeField'
+        size:
+          type: integer
+          format: int32
+          description: File size in bytes.
+        url:
+          $ref: '#/components/schemas/URL'
+          
+          
+    ResourceBrief:
+      type: object
+      description: 资源的简单形式.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        version:
+          $ref: '#/components/schemas/VersionSerial'
+        mediaType:
+          $ref: '#/components/schemas/MediaTypeField'
+        contents:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceContentBrief'
+          minLength: 1
+          maxLength: 5
+      required: 
+        - id
+        - version
+        - mediaType
+        - contents
+    ResourceContentBrief:
+      type: object
+      description: 资源内容摘要.
+      properties:
+        number:
+          $ref: '#/components/schemas/NumberField'
+        quality:
+          $ref: '#/components/schemas/ResourceContentQuality'
+        size:
+          type: integer
+          format: int32
+          description: File size in bytes.
+        duration:
+          type: integer
+          format: int32
+          description: The duration.
+        height:
+          type: integer
+          format: int32
+        width:
+          type: integer
+          format: int32
+        url:
+          type: string
+          description: 资源内容的实际访问地址.
+          minLength: 1
+          maxLength: 250
+      required: 
+        - number
+        - size
+        - url
+    ResourceContentQuality:
+      type: integer
+      format: int32
+      description: 质量等级.
+      minimum: 1
+      maximum: 10
+    VersioningRef:
+      type: object
+      description: 带版本的引用描述符.
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectID'
+        version:
+          $ref: '#/components/schemas/VersionSerial'
+      required:
+        - id
+    VersionSerial:
+      type: integer
+      format: int32
+      description: |
+        版本对应的序号.
+      minimum: 0
+    RichTextContentField:
+      type: string
+      description: 富文本编辑器输出的内容.
+      minLength: 1
+      maxLength: 2000
+    NumberField:
+      type: integer
+      format: int32
+      description: 编号.编号越小,优先级越高.
+      minimum: 0
+    MediumValue:
+      type: object
+      description: '多媒体形式的值.表现为两种形式: a.资源型,此时有效字段为resourceId和mediaType, b.直接文本型,此时有效字段为mediaType和value.'
+      properties:
+        resourceId:
+          $ref: '#/components/schemas/ObjectID'
+        mediaType:
+          $ref: '#/components/schemas/MediaTypeField'
+        value:
+          type: string
+          description: 值.
+          minLength: 1
+          maxLength: 1000
+      required:
+        - mediaType
+      example: 
+        mediaType: "text/plain"
+        value: "tabu"
+    MgmtDescriptionField:
+      type: string
+      description: 用于管理的描述信息.
+      minLength: 1
+      maxLength: 250
+    MediaTypeField:
+      type: string
+      externalDocs: 
+        description: wiki
+        url: https://en.wikipedia.org/wiki/Media_type
+      description: mime.types
+      minLength: 1
+      maxLength: 100
+    Age:
+      type: integer
+      format: int32
+      description: 年龄.
+      minimum: 0
+    Timestamp:
+      type: integer
+      format: int64
+      description: 时间戳.
+    ObjectID:
+      type: string
+      description: MongoDB:ObjectId
+      minLength: 24
+      maxLength: 24
+    ErrorResponse:
+      description: 错误响应.
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorResponseCode'
+        detail:
+          type: string
+          description: 错误详情.
+      required:
+        - code
+    ErrorResponseCode:
+      type: string
+      description: 错误码.
+      enum: 
+        - Undefined
+        - AccessLimited
+        - LUTimeConflict
+        - AlteringNotAllowed
+        - DuplicateCreating
+        - UnmatchExamForm
+        - ExceedExamMRTsLimit
+        - OutOfExamAticketAcqDuration
+        - InvalidAssessToken
+        - ExamAticketGrantingDeny
+        - InvalidExamAticket
+        - OutOfPaperFetchDuration
+        - OutOfAnswerSheetSubmitDuration
+    IdAnyMatchQueryField:
+      type: array
+      items:
+        $ref: '#/components/schemas/ObjectID'
+      description: 指定的id集合. =relation=>any-match.
+      minLength: 1
+      maxLength: 50
+    TimeQueryField:
+      type: array
+      items:
+        type: integer
+        format: int64
+      description: 指定时间所属的区间序列. =relation=>in. 数组长度必须为偶数.
+      minLength: 2
+      maxLength: 20
+    TextAnyMatchQueryField:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 150
+      description: 指定的Text集合. =relation=>any-match.
+      minLength: 1
+      maxLength: 50
+    BasicPage:
+      type: object
+      description: 分页基本信息.
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+      required: 
+        - totalPages
+        - totalElements
+    PageNumberSpec:
+      type: integer
+      format: int32
+      minimum: 0
+      default: 0
+    PageSizeSpec:
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 100
+      default: 10
+    PageSortWithDefaultCreateTimeDescSpec:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 50
+      minLength: 1
+      maxLength: 5
+      default: 
+        - 'createTime,desc'
+    PageSortWithDefaultLUTimeDescSpec:
+      type: array
+      items:
+        type: string
+        minLength: 1
+        maxLength: 50
+      minLength: 1
+      maxLength: 5
+      default: 
+        - 'lUTime,desc'
+            
+  parameters:
+    pageNumber:
+      name: page
+      in: query
+      description: 指定页码.
+      schema:
+        $ref: '#/components/schemas/PageNumberSpec'
+    pageSize:
+      name: size
+      in: query
+      description: 指定页长.
+      schema:
+        $ref: '#/components/schemas/PageSizeSpec'
+    pageSortWithDefaultCreateTimeDesc:
+      name: sort
+      in: query
+      description: '排序规则. Sorting criteria in the format: property(,asc|desc). Default sort order is ascending. Multiple sort criteria are supported.'
+      schema:
+        $ref: '#/components/schemas/PageSortWithDefaultCreateTimeDescSpec'
+      style: form
+      explode: true
+    pageSortWithDefaultLUTimeDesc:
+      name: sort
+      in: query
+      description: '排序规则. Sorting criteria in the format: property(,asc|desc). Default sort order is ascending. Multiple sort criteria are supported.'
+      schema:
+        $ref: '#/components/schemas/PageSortWithDefaultLUTimeDescSpec'
+      style: form
+      explode: true
