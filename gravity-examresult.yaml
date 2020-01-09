@@ -276,6 +276,8 @@ components:
       enum: 
         - Undefined
         # TODO
+      minLength: 1
+      maxLength: 50
     ReportData:
       type: object
       description: |
