@@ -324,10 +324,10 @@ paths:
         - Account{type='Inner', 最高等级角色 >= "Admin"}
         #### **合作客户端**
         - authenticated
-        - Client{'client:partner' in scope, owner is current account}
+        - Client{'client:partner' in scope}
         - 请求创建的新账户类型只能为'Personal'
-        - 如果指定了affiliation信息, 则affiliation::id须指向当前认证账户  
-          (此种情况下, 应自动填充affiliation中的相关信息, 如name, nickname等)
+        - 此时，以client的owner作为创建人.
+        - 如果指定了affiliation信息, 应自动填充affiliation中的相关信息,  包括id/name/nickname等.
       operationId: createAccount
       requestBody:
         description: 请求创建的Account信息.
@@ -1783,8 +1783,6 @@ components:
           $ref: '#/components/schemas/AccountAffiliationForeignId'
         foreignExtInfo:
           $ref: '#/components/schemas/AccountAffiliationForeignExtInfo'
-      required: 
-        - id
     AccountAffiliationForeignId:
       type: string
       description: 账户从属关系里的外部ID.
