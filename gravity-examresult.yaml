@@ -16,116 +16,6 @@ tags:
   - name: ExamReport
     description: 访问考试报告.
 paths:
-  /examreports/config/to/exam/{exam-id}:
-    get:
-      tags: 
-        - ExamReport
-      summary: 获取指定考试对应的报告配置信息.
-      description: |
-        获取指定考试对应的报告配置信息.
-        
-        ### 权限控制
-        #### **内部账户**
-        - authenticated
-        - Client{'client:inner' in scope}  
-        - Account{type='Inner'}
-      operationId: getReportConfigByExam
-      parameters:
-        - name: exam-id
-          in: path
-          description: 指定考试的ID.
-          required: true
-          schema:
-            $ref: '#/components/schemas/ObjectID'
-      responses:
-        '200':
-          description: 获取成功.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ExamReportConfig'
-        '401':
-          description: Unauthorized.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                accessLimited:
-                  value:
-                    code: 'AccessLimited'
-                    detail: '${detail}'
-        '403':
-          description: Forbidden.
-        '404':
-          description: 指定的考试报告配置信息不存在.
-      security:
-        - examResultAuth: 
-          - client:inner
-    put:
-      tags: 
-        - ExamReport
-      summary: 更新指定考试对应的报告配置信息.
-      description: |
-        更新指定考试对应的报告配置信息.
-        
-        ### 权限控制
-        #### **内部账户**
-        - authenticated
-        - Client{'client:inner' in scope}  
-        - Account{type='Inner', "ExamBuilder" in roles}
-      operationId: updateReportConfigByExam
-      parameters:
-        - name: exam-id
-          in: path
-          description: 指定考试的ID.
-          required: true
-          schema:
-            $ref: '#/components/schemas/ObjectID'
-      requestBody:
-        description: 请求信息.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ExamReportConfigUpdatingReq'
-      responses:
-        '200':
-          description: 更新成功.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ExamReportConfig'
-        '400':
-          description: Bad Request.
-        '401':
-          description: Unauthorized.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                accessLimited:
-                  value:
-                    code: 'AccessLimited'
-                    detail: '${detail}'
-        '403':
-          description: Forbidden.
-        '404':
-          description: 指定的考试不存在.
-        '428':
-          description: Precondition Required.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                lUTimeConflict:
-                  value:
-                    code: 'LUTimeConflict'
-                    detail: '${detail}'
-      security:
-        - examStationAuth: 
-          - client:inner
   /examreports/to/ticket/{ticket-id}:
     get:
       tags: 
@@ -186,59 +76,69 @@ paths:
       security:
         - examResultAuth: 
           - client:inner
+    put:
+      tags: 
+        - ExamReport
+      summary: 更新指定考试准考证对应的个人报告.
+      description: |
+        更新指定考试准考证对应的个人报告.
+        
+        ### 权限控制
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
+      operationId: updateExamReportByAticket
+      parameters:
+        - name: ticket-id
+          in: path
+          description: 指定考试准考证的ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/ObjectID'
+      requestBody:
+        description: 更新请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamPersonalReportUpdatingReq'
+      responses:
+        '204':
+          description: 更新成功.
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidExamAticket:
+                  value:
+                    code: 'InvalidExamAticket'
+                    detail: '${detail}'
 components:
   schemas:
-    ExamReportConfigUpdatingReq:
+    ExamPersonalReportUpdatingReq:
       type: object
-      description: 考试报告配置更新请求.
-      properties:
-        personalReport:
-          $ref: '#/components/schemas/ExamPersonalReportConfig'
-    ExamReportConfig:
-      type: object
-      description: 考试报告配置.
-      properties:
-        exam:
-          $ref: '#/components/schemas/ObjectID'
-        createTime:
-          $ref: '#/components/schemas/Timestamp'
-        lUTime:
-          $ref: '#/components/schemas/Timestamp'
-        creator:
-          $ref: '#/components/schemas/AccountBrief'
-        personalReport:
-          $ref: '#/components/schemas/ExamPersonalReportConfig'
-    ExamPersonalReportConfig:
-      type: object
-      description: 考试个人报告配置.
-      properties:
-        algorithm:
-          $ref: '#/components/schemas/ExamPersonalReportAlgorithm'
-    ExamPersonalReportAlgorithm:
-      type: object
-      description: 考试个人报告算法.
+      description: 考试个人报告更新请求.
       properties:
         type:
-          $ref: '#/components/schemas/ExamPersonalReportAlgType'
-        metadata:
-          type: object
-          description: 算法元数据.用于定义辅助的算法参数.
-          additionalProperties:
-            type: string
-            minLength: 1
-            maxLength: 500
+          $ref: '#/components/schemas/ExamPersonalReportType'
+        data:
+          $ref: '#/components/schemas/ReportData'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportFile'
           minLength: 1
-          maxLength: 50
-      required: 
+      required:
         - type
-    ExamPersonalReportAlgType:
-      type: string
-      description: 考试个人报告算法类型.
-      enum: 
-        - Undefined
-        # TODO
-      minLength: 1
-      maxLength: 50
+        - data
     ExamPersonalReport:
       type: object
       description: 考试个人报告.
