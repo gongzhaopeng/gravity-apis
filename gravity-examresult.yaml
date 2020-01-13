@@ -121,6 +121,9 @@ paths:
                   value:
                     code: 'InvalidExamAticket'
                     detail: '${detail}'
+      security:
+        - examResultAuth: 
+          - client:inner
 components:
   schemas:
     ExamPersonalReportUpdatingReq:
