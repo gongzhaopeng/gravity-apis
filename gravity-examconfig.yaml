@@ -29,7 +29,14 @@ paths:
       tags: 
         - ExamTag
       summary: 创建考试标签.
-      description: 创建考试标签.
+      description: |
+        创建考试标签.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: createExamTag
       requestBody:
         description: 请求创建的考试标签信息.
@@ -69,7 +76,14 @@ paths:
       tags: 
         - ExamTag
       summary: Query考试标签.
-      description: Query考试标签.
+      description: |
+        Query考试标签.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
       operationId: queryExamTags
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -102,7 +116,14 @@ paths:
       tags: 
         - ExamTag
       summary: 获取指定的考试标签详情.
-      description: 获取指定的考试标签详情.
+      description: |
+        获取指定的考试标签详情.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
       operationId: getExamTagById
       parameters: 
         - name: examtag-id
@@ -132,7 +153,14 @@ paths:
       tags:
         - Exam
       summary: 创建考试.
-      description: 创建考试.
+      description: |
+        创建考试.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: createExam
       requestBody:
         description: 请求创建的考试设计信息.
@@ -172,7 +200,17 @@ paths:
       tags: 
         - Exam
       summary: Query考试.
-      description: Query考试.
+      description: |
+        Query考试.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: queryExams
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -205,7 +243,17 @@ paths:
       tags: 
         - Exam
       summary: 获取指定的考试详情.
-      description: 获取指定的考试详情.
+      description: |
+        获取指定的考试详情.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: getExamById
       parameters: 
         - name: exam-id
@@ -234,7 +282,14 @@ paths:
       tags:
         - Exam
       summary: 更新指定考试的设计.
-      description: 更新指定考试的设计.
+      description: |
+        更新指定考试的设计.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: updateExamById
       parameters: 
         - name: exam-id
@@ -295,7 +350,14 @@ paths:
       tags: 
         - Exam
       summary: 更新指定考试的状态.
-      description: 更新指定考试的状态.
+      description: |
+        更新指定考试的状态.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: updateExamStateById
       parameters: 
         - name: exam-id
@@ -345,7 +407,14 @@ paths:
       tags: 
         - Exam
       summary: 更新指定考试的标签集.
-      description: 更新指定考试的标签集.
+      description: |
+        更新指定考试的标签集.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: updateExamTagsById
       parameters: 
         - name: exam-id
@@ -393,6 +462,11 @@ paths:
       description: |  
         部署指定的考试.
         部署完成后,考试即处于外部可用状态.
+        
+        ### 权限控制
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: deployExamById
       parameters: 
         - name: exam-id
@@ -439,7 +513,14 @@ paths:
       tags: 
         - EchainTag
       summary: 创建考试链标签.
-      description: 创建考试链标签.
+      description: |
+        创建考试链标签.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: createEchainTag
       requestBody:
         description: 请求创建的考试链标签信息.
@@ -479,7 +560,14 @@ paths:
       tags: 
         - EchainTag
       summary: Query考试链标签.
-      description: Query考试链标签.
+      description: |
+        Query考试链标签.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
       operationId: queryEchainTags
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -512,7 +600,14 @@ paths:
       tags: 
         - EchainTag
       summary: 获取指定的考试链标签详情.
-      description: 获取指定的考试链标签详情.
+      description: |
+        获取指定的考试链标签详情.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
       operationId: getEchainTagById
       parameters: 
         - name: echaintag-id
@@ -542,7 +637,14 @@ paths:
       tags:
         - ExamChain
       summary: 创建考试链.
-      description: 创建考试链.
+      description: |
+        创建考试链.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: createExamChain
       requestBody:
         description: 请求创建的考试链设计信息.
@@ -582,7 +684,17 @@ paths:
       tags: 
         - ExamChain
       summary: Query考试链.
-      description: Query考试链.
+      description: |
+        Query考试链.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: queryExamChains
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -615,7 +727,17 @@ paths:
       tags: 
         - ExamChain
       summary: 获取指定的考试链详情.
-      description: 获取指定的考试链详情.
+      description: |
+        获取指定的考试链详情.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: getExamChainById
       parameters: 
         - name: examchain-id
@@ -644,7 +766,14 @@ paths:
       tags:
         - ExamChain
       summary: 更新指定考试链的设计.
-      description: 更新指定考试链的设计.
+      description: |
+        更新指定考试链的设计.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: updateExamChainById
       parameters: 
         - name: examchain-id
@@ -705,7 +834,14 @@ paths:
       tags: 
         - ExamChain
       summary: 向考试链中添加新的考试.
-      description: 向考试链中添加新的考试.
+      description: |
+        向考试链中添加新的考试.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: appendEchainExamsById
       parameters: 
         - name: examchain-id
@@ -756,6 +892,12 @@ paths:
       summary: 向考试链中添加新的epm-serial.
       description: |  
         向考试链中添加新的epm-serial.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: appendEchainEpmSerialsById
       parameters: 
         - name: examchain-id
@@ -804,7 +946,14 @@ paths:
       tags: 
         - ExamChain
       summary: 更新指定考试链的状态.
-      description: 更新指定考试链的状态.
+      description: |
+        更新指定考试链的状态.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: updateEchainStateById
       parameters: 
         - name: examchain-id
@@ -854,7 +1003,14 @@ paths:
       tags: 
         - ExamChain
       summary: 更新指定考试链的标签集.
-      description: 更新指定考试链的标签集.
+      description: |
+        更新指定考试链的标签集.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: updateEchainTagsById
       parameters: 
         - name: examchain-id
@@ -902,6 +1058,11 @@ paths:
       description: |  
         部署指定的考试链.
         部署完成后,考试链即处于外部可用状态.
+        
+        ### 权限控制
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: deployEchainById
       parameters: 
         - name: examchain-id
@@ -954,6 +1115,11 @@ paths:
       description: |  
         部署指定的试卷模子.
         部署完成后,试卷模子即处于外部可用状态.
+        
+        ### 权限控制
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: deployEpMoldById
       requestBody:
         description: 试卷模子部署请求信息.
@@ -978,7 +1144,17 @@ paths:
       tags: 
         - PubEpMold
       summary: Query试卷模子(发布).
-      description: Query试卷模子(发布).
+      description: |
+        Query试卷模子(发布).
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: queryPubEpMolds
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -2321,6 +2497,7 @@ components:
       description: 错误码.
       enum: 
         - Undefined
+        - AccessLimited
         - LUTimeConflict
         - AlteringNotAllowed
         - SpecifiedStateConversionNotAllowed

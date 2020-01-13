@@ -39,6 +39,13 @@ paths:
         加载指定的考试.
         检查epMoldPool中的EpMold是否已经加载,若未加载,则须对其进行加载.
         加载EmpMold时,若其yieldingMode为Definite,则为其预生成对应的唯一的通用ExamPaper.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
+        - Exam{author is current account}
       operationId: loadExamById
       parameters: 
         - name: exam-id
@@ -52,6 +59,15 @@ paths:
           description: 加载成功.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -64,7 +80,14 @@ paths:
       tags: 
         - Exam
       summary: Query考试.
-      description: Query考试.
+      description: |
+        Query考试.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
       operationId: queryExams
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -87,6 +110,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
       security:
@@ -99,6 +131,12 @@ paths:
       summary: 获取指定的考试详情.
       description: |
         获取指定的考试详情.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
       operationId: getExamById
       parameters: 
         - name: exam-id
@@ -116,6 +154,15 @@ paths:
                 $ref: '#/components/schemas/Exam'
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -130,6 +177,9 @@ paths:
       summary: 获取指定考试的公开信息.
       description: |
         获取指定考试的公开信息.
+        
+        ### 权限控制
+        - authenticated
       operationId: getPubExamById
       parameters: 
         - name: exam-id
@@ -161,6 +211,13 @@ paths:
       summary: 加载指定的考试链.
       description: |
         加载指定的考试链.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
+        - ExamChain{author is current account}
       operationId: loadExamChainById
       parameters: 
         - name: examchain-id
@@ -174,6 +231,15 @@ paths:
           description: 加载成功.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -199,7 +265,14 @@ paths:
       tags: 
         - ExamChain
       summary: Query考试链.
-      description: Query考试链.
+      description: |
+        Query考试链.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
       operationId: queryExamChains
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -222,6 +295,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
       security:
@@ -234,6 +316,12 @@ paths:
       summary: 获取指定的考试链详情.
       description: |
         获取指定的考试链详情.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
       operationId: getExamChainById
       parameters: 
         - name: examchain-id
@@ -251,6 +339,15 @@ paths:
                 $ref: '#/components/schemas/ExamChain'
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -265,6 +362,9 @@ paths:
       summary: 获取指定考试链的公开信息.
       description: |
         获取指定考试链的公开信息.
+        
+        ### 权限控制
+        - authenticated
       operationId: getPubExamChainById
       parameters: 
         - name: examchain-id
@@ -296,6 +396,12 @@ paths:
       summary: 添加Whitelist-Items.
       description: |
         添加Whitelist-Items.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: addWhitelistItems
       requestBody:
         content:
@@ -313,6 +419,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '428':
@@ -338,7 +453,14 @@ paths:
       tags:
         - WhiteList
       summary: Query白名单项.
-      description: Query白名单项.
+      description: |
+        Query白名单项.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: queryWhitelistItems
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -361,6 +483,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
       security:
@@ -373,6 +504,12 @@ paths:
       summary: 获取指定的白名单项详情.
       description: |
         获取指定的白名单项详情.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: getWhitelistItemById
       parameters: 
         - name: item-id
@@ -390,6 +527,15 @@ paths:
                 $ref: '#/components/schemas/WhitelistItem'
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -403,6 +549,12 @@ paths:
       summary: 删除指定的白名单项.
       description: |
         删除指定的白名单项.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: removeWhitelistItemById
       parameters: 
         - name: item-id
@@ -416,6 +568,15 @@ paths:
           description: 删除成功.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -430,6 +591,12 @@ paths:
       summary: 生成AssessTokens.
       description: |
         生成AssessTokens.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: generateAssessTokens
       requestBody:
         content:
@@ -447,6 +614,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
       security:
@@ -457,7 +633,14 @@ paths:
       tags:
         - AssessToken
       summary: Query AssessToken.
-      description: Query AssessToken.
+      description: |
+        Query AssessToken.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: queryAssessTokens
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -480,6 +663,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
       security:
@@ -490,7 +682,14 @@ paths:
       tags:
         - AssessToken
       summary: 取占AssessTokens.
-      description: 取占AssessTokens.
+      description: |
+        取占AssessTokens.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: takeAssessTokens
       requestBody:
         description: 请求信息.
@@ -509,6 +708,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
       security:
@@ -519,7 +727,14 @@ paths:
       tags:
         - AssessToken
       summary: 获取指定的AssessToken详情.
-      description: 获取指定的AssessToken详情.
+      description: |
+        获取指定的AssessToken详情.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner', "ExamBuilder" in roles}
       operationId: getAssessTokenById
       parameters: 
         - name: assesstoken-id
@@ -537,6 +752,15 @@ paths:
                 $ref: '#/components/schemas/AssessToken'
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -604,6 +828,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -694,6 +927,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -782,6 +1024,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -814,12 +1065,77 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
+  /examtickets/query:
+    post:
+      tags: 
+        - ExamAticket
+      summary: Query考试准考证.
+      description: |
+        Query考试准考证.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
+      operationId: queryExamAtickets
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamAticketQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAticketPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+      security:
+        - examStationAuth: 
+          - client:inner
   /examtickets/{examticket-id}:
     get:
       tags:
         - ExamAticket
       summary: 获取指定ExamAticket的详情.
-      description: 获取指定ExamAticket的详情.
+      description: |
+        获取指定ExamAticket的详情.
+        
+        ### 权限控制
+        #### **所有人账户**
+        - authenticated
+        - ExamAticket(owner is current account)
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}  
+        - Exam::owner is Client::owner
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: getExamAticketById
       parameters: 
         - name: examticket-id
@@ -837,6 +1153,15 @@ paths:
                 $ref: '#/components/schemas/ExamAticket'
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -848,7 +1173,17 @@ paths:
       tags:
         - ExamAticket
       summary: 更新指定ExamAticket的信息.
-      description: 更新指定ExamAticket的信息.
+      description: |
+        更新指定ExamAticket的信息.
+        
+        ### 权限控制
+        #### **所有人账户**
+        - authenticated
+        - ExamAticket(owner is current account)
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}  
+        - Exam::owner is Client::owner
       operationId: updateExamAticketById
       parameters: 
         - name: examticket-id
@@ -874,6 +1209,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -900,14 +1244,17 @@ paths:
       description: |
         ### 按指定考试的form不同分为以下两种情况
         - Cooperate型考试  
-          通过query参数owner-id指定准考证的owner.  
-          **约束条件**  
-          - 目标考试为Cooperate型.
-          - 当前认证客户端的owner为目标考试的owner.
+          通过query参数owner-id指定准考证的owner. 
         - 非Cooperate型考试
           当前认证用户为准考证的owner.  
-          **约束条件**
-          - 目标考试为非Cooperate型.
+        
+        ### 权限控制
+        #### **所有人账户**
+        - authenticated 
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}  
+        - Exam::owner is Client::owner
       parameters:
         - name: exam-id
           in: path
@@ -933,6 +1280,15 @@ paths:
                 minLength: 0
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -1004,6 +1360,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -1077,6 +1442,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -1148,6 +1522,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -1170,12 +1553,77 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
+  /echaintickets/query:
+    post:
+      tags: 
+        - EchainAticket
+      summary: Query考试链准考证.
+      description: |
+        Query考试链准考证.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
+      operationId: queryEchainAtickets
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EchainAticketQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EchainAticketPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+      security:
+        - examStationAuth: 
+          - client:inner
   /echaintickets/{echainticket-id}:
     get:
       tags:
         - EchainAticket
       summary: 获取指定EchainAticket的详情.
-      description: 获取指定EchainAticket的详情.
+      description: |
+        获取指定EchainAticket的详情.
+        
+        ### 权限控制
+        #### **所有人账户**
+        - authenticated
+        - EchainAticket(owner is current account)
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}  
+        - ExamChain::owner is Client::owner
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: getEchainAticketById
       parameters: 
         - name: echainticket-id
@@ -1193,6 +1641,15 @@ paths:
                 $ref: '#/components/schemas/EchainAticket'
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -1204,7 +1661,17 @@ paths:
       tags:
         - EchainAticket
       summary: 更新指定EchainAticket的信息.
-      description: 更新指定EchainAticket的信息.
+      description: |
+        更新指定EchainAticket的信息.
+        
+        ### 权限控制
+        #### **所有人账户**
+        - authenticated
+        - EchainAticket(owner is current account)
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}  
+        - ExamChain::owner is Client::owner
       operationId: updateEchainAticketById
       parameters: 
         - name: echainticket-id
@@ -1230,6 +1697,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -1257,13 +1733,16 @@ paths:
         ### 按指定考试链的form不同分为以下两种情况
         - Cooperate型考试链  
           通过query参数owner-id指定准考证的owner.  
-          **约束条件**  
-          - 目标考试链为Cooperate型.
-          - 当前认证客户端的owner为目标考试链的owner.
         - 非Cooperate型考试链
           当前认证用户为准考证的owner.  
-          **约束条件**
-          - 目标考试链为非Cooperate型.
+        
+        ### 权限控制
+        #### **所有人账户**
+        - authenticated
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}  
+        - ExamChain::owner is Client::owner
       operationId: getEchainAticketsByEchainAndOwner
       parameters:
         - name: echain-id
@@ -1290,6 +1769,15 @@ paths:
                 minLength: 0
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -1313,7 +1801,17 @@ paths:
       tags:
         - ExamPaper
       summary: 获取指定考试准考证对应的试卷.
-      description: 获取指定考试准考证对应的试卷.
+      description: |
+        获取指定考试准考证对应的试卷.
+        
+        ### 权限控制
+        #### **所有人账户**
+        - authenticated
+        - ExamAticket(owner is current account)
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}  
+        - Exam::owner is Client::owner
       operationId: getExamPaperByExamAticket
       parameters:
         - name: ticket-id
@@ -1331,6 +1829,15 @@ paths:
                 $ref: '#/components/schemas/ExamPaper'
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -1354,7 +1861,17 @@ paths:
       tags:
         - AnswerSheet
       summary: 提交答卷.
-      description: 提交答卷.
+      description: |
+        提交答卷.
+        
+        ### 权限控制
+        #### **所有人账户**
+        - authenticated
+        - ExamAticket(owner is current account)
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}  
+        - Exam::owner is Client::owner
       operationId: submitAnswerSheet
       requestBody:
         description: 请求信息.
@@ -1373,6 +1890,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '428':
@@ -1397,12 +1923,77 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
+  /answersheets/query:
+    post:
+      tags: 
+        - AnswerSheet
+      summary: Query答卷.
+      description: |
+        Query答卷.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
+      operationId: queryAnswerSheets
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnswerSheetQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerSheetPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+      security:
+        - examStationAuth: 
+          - client:inner
   /answersheets/to/ticket/{ticket-id}:
     get:
       tags:
         - AnswerSheet
       summary: 获取指定考试准考证对应的答卷.
-      description: 获取指定考试准考证对应的答卷.
+      description: |
+        获取指定考试准考证对应的答卷.
+        
+        ### 权限控制
+        #### **所有人账户**
+        - authenticated
+        - ExamAticket(owner is current account)
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}  
+        - Exam::owner is Client::owner
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: getAnswerSheetByExamAticket
       parameters:
         - name: ticket-id
@@ -1420,6 +2011,15 @@ paths:
                 $ref: '#/components/schemas/AnswerSheet'
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -1442,7 +2042,17 @@ paths:
       tags:
         - AnswerSheet
       summary: patch指定的答卷.
-      description: patch指定的答卷.
+      description: |
+        patch指定的答卷.
+        
+        ### 权限控制
+        #### **所有人账户**
+        - authenticated
+        - ExamAticket(owner is current account)
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}  
+        - Exam::owner is Client::owner
       operationId: patchAnswerSheetByExamAticket
       parameters: 
         - name: ticket-id
@@ -1468,6 +2078,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -1495,7 +2114,17 @@ paths:
       tags:
         - AnswerSheet
       summary: 更新指定答卷下的指定的题目单位作答集.
-      description: 更新指定答卷下的指定的题目单位作答集.
+      description: |
+        更新指定答卷下的指定的题目单位作答集.
+        
+        ### 权限控制
+        #### **所有人账户**
+        - authenticated
+        - ExamAticket(owner is current account)
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}  
+        - Exam::owner is Client::owner
       operationId: updateSpecifiedQuReplies
       parameters: 
         - name: ticket-id
@@ -1521,6 +2150,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -1548,7 +2186,17 @@ paths:
       tags:
         - AnswerSheet
       summary: 更新指定答卷下的指定的试卷块信息集.
-      description: 更新指定答卷下的指定的试卷块信息集.
+      description: |
+        更新指定答卷下的指定的试卷块信息集.
+        
+        ### 权限控制
+        #### **所有人账户**
+        - authenticated
+        - ExamAticket(owner is current account)
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}  
+        - Exam::owner is Client::owner
       operationId: updateSpecifiedEpsDetails
       parameters: 
         - name: ticket-id
@@ -1574,6 +2222,15 @@ paths:
           description: Bad Request.
         '401':
           description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
         '403':
           description: Forbidden.
         '404':
@@ -1943,6 +2600,35 @@ components:
       description: 申领Public型考试准考证的请求信息.
       allOf:
         - $ref: '#/components/schemas/ExamAticketAcqBasicReq'
+    ExamAticketQuery:
+      type: object
+      description: ExamAticket查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        createTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        lUTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        exam:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        owner:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        epMold:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+    ExamAticketPage:
+      description: ExamAticket分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExamAticket'
+              minLength: 0
+          required:
+            - content
     ExamAticketUpdatingReq:
       type: object
       description: 考试准考证更新请求.
@@ -2016,6 +2702,41 @@ components:
       description: 申领Public型考试链准考证的请求信息.
       allOf:
         - $ref: '#/components/schemas/EchainAticketAcqBasicReq'
+    EchainAticketQuery:
+      type: object
+      description: EchainAticket查询描述对象.
+      properties:
+        id: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        createTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        lUTime:
+          $ref: '#/components/schemas/TimeQueryField'
+        echain:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        owner:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        epmSerialIndex:
+          type: array
+          items:
+            type: integer
+            format: int32
+          description: 指定的索引集合. =relation=>any-match.
+          minLength: 1
+          maxLength: 50
+    EchainAticketPage:
+      description: EchainAticket分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/EchainAticket'
+              minLength: 0
+          required:
+            - content
     EchainAticketUpdatingReq:
       type: object
       description: 考试链准考证更新请求.
@@ -2072,6 +2793,25 @@ components:
       required:
         - id
         - lUTime
+    AnswerSheetQuery:
+      type: object
+      description: AnswerSheet查询描述对象.
+      properties:
+        aticket: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+    AnswerSheetPage:
+      description: AnswerSheet分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/AnswerSheet'
+              minLength: 0
+          required:
+            - content
     AnswerSheetPatch:
       type: object
       description: 答卷Patch.
@@ -2109,6 +2849,9 @@ components:
           $ref: '#/components/schemas/Timestamp'
         quRepliesToUpdate:
           $ref: '#/components/schemas/AsQuReplies'
+      required: 
+        - asLUTime
+        - quRepliesToUpdate
     AsQuRepliesUpdatedResp:
       type: object
       description: 指定题目单位作答集更新成功时的响应.
@@ -2125,6 +2868,9 @@ components:
           $ref: '#/components/schemas/Timestamp'
         epsDetailsToUpdate:
           $ref: '#/components/schemas/AsEpsDetails'
+      required: 
+        - asLUTime
+        - epsDetailsToUpdate
     AsEpsDetailsUpdatedResp:
       type: object
       description: 答卷中指定试卷块信息集更新成功时的响应.
@@ -3565,6 +4311,7 @@ components:
       description: 错误码.
       enum: 
         - Undefined
+        - AccessLimited
         - LUTimeConflict
         - AlteringNotAllowed
         - DependencyMissed
