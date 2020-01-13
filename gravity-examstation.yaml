@@ -1985,6 +1985,9 @@ paths:
         - authenticated
         - Client{'client:partner' in scope}  
         - Exam::owner is Client::owner
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: getAnswerSheetByExamAticket
       parameters:
         - name: ticket-id
