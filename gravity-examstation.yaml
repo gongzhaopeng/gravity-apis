@@ -1133,6 +1133,9 @@ paths:
         - authenticated
         - Client{'client:partner' in scope}  
         - Exam::owner is Client::owner
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: getExamAticketById
       parameters: 
         - name: examticket-id
@@ -1618,6 +1621,9 @@ paths:
         - authenticated
         - Client{'client:partner' in scope}  
         - ExamChain::owner is Client::owner
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: getEchainAticketById
       parameters: 
         - name: echainticket-id
