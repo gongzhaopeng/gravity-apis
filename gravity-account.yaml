@@ -377,7 +377,7 @@ paths:
         - Account{type='Inner'}
         #### **合作客户端**
         - authenticated
-        - Client{'client:partner' in scope, owner is current account}
+        - Client{'client:partner' in scope}
       operationId: queryAccounts
       parameters:
         - $ref: '#/components/parameters/pageNumber'
@@ -478,6 +478,9 @@ paths:
         - authenticated
         - Client{'client:inner' in scope}  
         - Account{type='Inner'}
+        #### **合作客户端**
+        - authenticated
+        - Client{'client:partner' in scope}
       operationId: getAccountById
       parameters: 
         - name: account-id
