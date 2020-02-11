@@ -357,6 +357,18 @@ paths:
                     detail: '${detail}'
         '403':
           description: Forbidden.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                exclusivePropOccupied:
+                  value:
+                    code: 'ExclusivePropOccupied'
+                    detail: '${detail}'
+                    description: '独占性的属性值已被占用，包括idNumber/mobile/email等'
       security:
         - accountCenterAuth: 
           - client:inner
@@ -742,6 +754,21 @@ paths:
                 $ref: '#/components/schemas/SignupCodeAcquiringByMobileResp'
         '400':
           description: Bad Request.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                mobileOccupied:
+                  value:
+                    code: 'MobileOccupied'
+                    detail: '${detail}'
+                failToSendSM:
+                  value:
+                    code: 'FailToSendSM'
+                    detail: '${detail}'
   /signup/code/by/email:
     post:
       tags: 
@@ -765,6 +792,21 @@ paths:
                 $ref: '#/components/schemas/SignupCodeAcquiringByEmailResp'
         '400':
           description: Bad Request.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                mobileOccupied:
+                  value:
+                    code: 'EmailOccupied'
+                    detail: '${detail}'
+                failToSendSM:
+                  value:
+                    code: 'FailToSendEmail'
+                    detail: '${detail}'
   /signup/by/code:
     post:
       tags: 
@@ -788,6 +830,17 @@ paths:
                 $ref: '#/components/schemas/SignupResp'
         '400':
           description: Bad Request.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidSignupCode:
+                  value:
+                    code: 'InvalidSignupCode'
+                    detail: '${detail}'
   /me:
     get:
       tags: 
@@ -908,6 +961,10 @@ paths:
                     code: 'AlteringNotAllowed'
                     detail: '${detail}'
                   description: '密码修改仅在Active状态下被允许.'
+                wrongPassword:
+                  value:
+                    code: 'WrongPassword'
+                    detail: '${detail}'
       security:
         - accountCenterAuth: 
           - client:inner
@@ -1993,6 +2050,13 @@ components:
         - AccountTypeMismatch
         - AlteringNotAllowed
         - SpecifiedStateConversionNotAllowed
+        - ExclusivePropOccupied
+        - MobileOccupied
+        - FailToSendSM
+        - EmailOccupied
+        - FailToSendEmail
+        - InvalidSignupCode
+        - WrongPassword
     IdAnyMatchQueryField:
       type: array
       items:
