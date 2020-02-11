@@ -13,6 +13,8 @@ servers:
   - description: SwaggerHub API Auto Mocking
     url: http://sd1.benbenedu.cn:9000/examstation/genesis
 tags:
+  - name: Server
+    description: 访问服务器信息.
   - name: Exam
     description: 访问考试.
   - name: ExamChain
@@ -30,6 +32,29 @@ tags:
   - name: AnswerSheet
     description: 访问答卷.
 paths:
+  /server/time:
+    get:
+      tags:
+        - Server
+      summary: 获取服务器当前时间.
+      description: |
+        获取服务器当前时间.
+      operationId: getServerTime
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            text/plain:
+              schema:
+                type: integer
+                format: int64
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+      security:
+        - examStationAuth: 
+          - client:inner
   /exams/{exam-id}/load:
     post:
       tags:
