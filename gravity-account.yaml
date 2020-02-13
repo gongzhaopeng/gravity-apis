@@ -364,11 +364,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
-                exclusivePropOccupied:
+                mobileOccupied:
                   value:
-                    code: 'ExclusivePropOccupied'
+                    code: 'MobileOccupied'
                     detail: '${detail}'
-                    description: '独占性的属性值已被占用，包括idNumber/mobile/email等'
+                emailOccupied:
+                  value:
+                    code: 'EmailOccupied'
+                    detail: '${detail}'
+                idNumberOccupied:
+                  value:
+                    code: 'IdNumberOccupied'
+                    detail: '${detail}'
       security:
         - accountCenterAuth: 
           - client:inner
@@ -2055,6 +2062,7 @@ components:
         - FailToSendSM
         - EmailOccupied
         - FailToSendEmail
+        - IdNumberOccupied
         - InvalidSignupCode
         - WrongPassword
     IdAnyMatchQueryField:
