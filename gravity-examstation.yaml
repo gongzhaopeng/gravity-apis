@@ -2582,6 +2582,8 @@ components:
           $ref: '#/components/schemas/ObjectID'
         echainTicket:
           $ref: '#/components/schemas/ObjectID'
+        idNumber:
+          $ref: '#/components/schemas/IdNumber'
         name:
           $ref: '#/components/schemas/AccountName'
         gender:
@@ -2684,6 +2686,8 @@ components:
       properties:
         echain:
           $ref: '#/components/schemas/ObjectID'
+        idNumber:
+          $ref: '#/components/schemas/IdNumber'
         name:
           $ref: '#/components/schemas/AccountName'
         gender:
@@ -2823,6 +2827,8 @@ components:
       description: AnswerSheet查询描述对象.
       properties:
         aticket: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        exam:
           $ref: '#/components/schemas/IdAnyMatchQueryField'
     AnswerSheetPage:
       description: AnswerSheet分页.
@@ -3364,6 +3370,8 @@ components:
           $ref: '#/components/schemas/ObjectID'
         examPaper:
           $ref: '#/components/schemas/ObjectID'
+        idNumber:
+          $ref: '#/components/schemas/IdNumber'
         name:
           $ref: '#/components/schemas/AccountName'
         gender:
@@ -3425,6 +3433,8 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/ObjectID'
+        idNumber:
+          $ref: '#/components/schemas/IdNumber'
         name:
           $ref: '#/components/schemas/AccountName'
         gender:
@@ -3801,6 +3811,8 @@ components:
           $ref: '#/components/schemas/Timestamp'
         lUTime:
           $ref: '#/components/schemas/Timestamp'
+        exam:
+          $ref: '#/components/schemas/ObjectID'
         startTime:
           $ref: '#/components/schemas/Timestamp'
         endTime:
@@ -4284,6 +4296,11 @@ components:
       description: mime.types
       minLength: 1
       maxLength: 100
+    IdNumber:
+      type: string
+      description: 身份证号.
+      minLength: 1
+      maxLength: 25
     Province:
       type: string
       description: 省.
