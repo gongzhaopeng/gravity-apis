@@ -23,8 +23,6 @@ tags:
     description: 访问考试准考证.
   - name: ExamPaper
     description: 访问试卷.
-  - name: AnswerSheet
-    description: 访问答卷.
     
   - name: ExamReport
     description: 访问考试报告.
@@ -41,10 +39,10 @@ paths:
       description: |
         创建Account.
         
-        调用该接口前须使用**<分配给合作方(猿辅导)的客户端和机构账户>**通过**<用户认证>**以获取access_token.
+        调用该接口前须使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**以获取access_token.
         
         请求创建的新账户类型只能为'Personal'.  
-        请求中如果指定了affiliation信息, 则affiliation::id须为分配的机构账户的ID.  
+        
         请求中将defaultActive设为true.
       operationId: createAccount
       requestBody:
@@ -75,6 +73,25 @@ paths:
                     detail: '${detail}'
         '403':
           description: Forbidden.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                mobileOccupied:
+                  value:
+                    code: 'MobileOccupied'
+                    detail: '${account_id}'
+                emailOccupied:
+                  value:
+                    code: 'EmailOccupied'
+                    detail: '${account_id}'
+                idNumberOccupied:
+                  value:
+                    code: 'IdNumberOccupied'
+                    detail: '${account_id}'
   /accountcenter/genesis/accounts/query:
     post:
       tags: 
@@ -117,6 +134,45 @@ paths:
                     detail: '${detail}'
         '403':
           description: Forbidden.
+  /accounts/{account-id}:
+    get:
+      tags: 
+        - Account
+      summary: 获取指定的Account详情.
+      description: | 
+        获取指定的Account详情.
+        
+        调用该接口前须使用<分配给合作方(猿辅导)的客户端>通过<客户端认证>以获取access_token.
+      operationId: getAccountById
+      parameters: 
+        - name: account-id
+          in: path
+          description: 指定account的ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+        '404':
+          description: 指定的Account不存在.
   /accountcenter/genesis/me:
     get:
       tags: 
@@ -219,6 +275,10 @@ paths:
                     code: 'AlteringNotAllowed'
                     detail: '${detail}'
                   description: '密码修改仅在Active状态下被允许.'
+                wrongPassword:
+                  value:
+                    code: 'WrongPassword'
+                    detail: '${detail}'
           
   # examstation-service related.
           
@@ -321,17 +381,17 @@ paths:
                 exceedExamMRTsLimit:
                   value:
                     code: 'ExceedExamMRTsLimit'
-                    detail: '${detail}'
+                    detail: '${accoun_id}'
                   description: '超过了考试的最大重复次数限制.'
                 outOfExamAticketAcqDuration:
                   value:
                     code: 'OutOfExamAticketAcqDuration'
-                    detail: '${detail}'
+                    detail: '${account_id}'
                   description: '未处在ExamAticket申领时间段内.'
                 invalidAssessToken:
                   value:
                     code: 'InvalidAssessToken'
-                    detail: '${detail}'
+                    detail: '${account_id}'
   /examstation/genesis/examtickets/of/form/cooperate:
     post:
       tags:
@@ -631,177 +691,52 @@ paths:
                   value:
                     code: 'OutOfPaperFetchDuration'
                     detail: '${detail}'
-  /examstation/genesis/answersheets:
+          
+  # examresult-service related.
+  
+  /genesis/examreports/generating:
     post:
-      tags:
-        - AnswerSheet
-      summary: 提交答卷.
+      tags: 
+        - ExamReport
+      summary: 生成对应答卷的报告数据.
       description: |
-        提交答卷.
-        
-        调用该接口前须获取access_token: 
-          - 若为**<Enclosed型考试>**, 使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**.  
-            对应的access_token仅能访问属于该参考用户的准考证.
-          - 若为**<Cooperate型考试>**, 使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**.  
-            对应的access_token可访问合作考试相关的所有准考证.
-      operationId: submitAnswerSheet
+        生成对应答卷的报告数据.
+      operationId: generateExamReport
+      parameters: 
+        - name: X-Api-Key
+          in: header
+          required: true
+          schema:
+            type: string
       requestBody:
         description: 请求信息.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AnswerSheetSubmission'
+              $ref: '#/components/schemas/ApeAnswerSheet'
       responses:
-        '201':
-          description: 提交成功.
+        '200':
+          description: 生成成功.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AnswerSheetCreatedResp'
+                $ref: '#/components/schemas/ApeExamPersonalReport'
         '400':
           description: Bad Request.
         '401':
           description: Unauthorized.
+        '422':
+          description: Unprocessable Entity.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
-                accessLimited:
+                invalidAnswerSheet:
+                  description: |
+                    答卷无效.
                   value:
-                    code: 'AccessLimited'
-                    detail: '${detail}'
-        '403':
-          description: Forbidden.
-        '428':
-          description: Precondition Required.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                invalidExamAticket:
-                  value:
-                    code: 'InvalidExamAticket'
-                    detail: '${detail}'
-                duplicateCreating:
-                  value:
-                    code: 'DuplicateCreating'
-                    detail: '${detail}'
-                outOfAnswerSheetSubmitDuration:
-                  value:
-                    code: 'OutOfAnswerSheetSubmitDuration'
-                    detail: '${detail}'
-  /examstation/genesis/answersheets/to/ticket/{ticket-id}:
-    get:
-      tags:
-        - AnswerSheet
-      summary: 获取指定考试准考证对应的答卷.
-      description: |
-        获取指定考试准考证对应的答卷.
-        
-        调用该接口前须获取access_token: 
-          - 若为**<Enclosed型考试>**, 使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**.  
-            对应的access_token仅能访问属于该参考用户的准考证.
-          - 若为**<Cooperate型考试>**, 使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**.  
-            对应的access_token可访问合作考试相关的所有准考证.
-      operationId: getAnswerSheetByExamAticket
-      parameters:
-        - name: ticket-id
-          in: path
-          description: 指定考试准考证的ID.
-          required: true
-          schema:
-            $ref: '#/components/schemas/ObjectID'
-      responses:
-        '200':
-          description: 获取成功.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AnswerSheet'
-        '401':
-          description: Unauthorized.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                accessLimited:
-                  value:
-                    code: 'AccessLimited'
-                    detail: '${detail}'
-        '403':
-          description: Forbidden.
-        '404':
-          description: 指定的答卷不存在.
-        '428':
-          description: Precondition Required.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                invalidExamAticket:
-                  value:
-                    code: 'InvalidExamAticket'
-                    detail: '${detail}'
-          
-  # examresult-service related.
-  
-  /examreports/to/ticket/{ticket-id}:
-    get:
-      tags: 
-        - ExamReport
-      summary: 获取指定考试准考证对应的个人报告.
-      description: |
-        获取指定考试准考证对应的个人报告.
-        
-        调用该接口前须获取access_token: 
-          - 若为**<Enclosed型考试>**, 使用**<分配给合作方(猿辅导)的客户端和参考用户的账户>**通过**<用户认证>**.  
-            对应的access_token仅能访问属于该参考用户的准考证.
-          - 若为**<Cooperate型考试>**, 使用**<分配给合作方(猿辅导)的客户端>**通过**<客户端认证>**.  
-            对应的access_token可访问合作考试相关的所有准考证.
-      operationId: getExamReportByAticket
-      parameters:
-        - name: ticket-id
-          in: path
-          description: 指定考试准考证的ID.
-          required: true
-          schema:
-            $ref: '#/components/schemas/ObjectID'
-      responses:
-        '200':
-          description: 获取成功.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ExamPersonalReport'
-        '401':
-          description: Unauthorized.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                accessLimited:
-                  value:
-                    code: 'AccessLimited'
-                    detail: '${detail}'
-        '403':
-          description: Forbidden.
-        '404':
-          description: 指定的报告不存在.
-        '428':
-          description: Precondition Required.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                invalidExamAticket:
-                  value:
-                    code: 'InvalidExamAticket'
+                    code: 'InvalidAnswerSheet'
                     detail: '${detail}'
   
 components:
@@ -1108,7 +1043,10 @@ components:
         - id
     AccountAffiliation:
       type: object
-      description: 账户从属关系.
+      description: |
+        账户从属关系.  
+        请求创建账户时, 不填写id/name/nickname.
+        
       properties:
         id:
           $ref: '#/components/schemas/ObjectID'
@@ -1120,8 +1058,6 @@ components:
           $ref: '#/components/schemas/AccountAffiliationForeignId'
         foreignExtInfo:
           $ref: '#/components/schemas/AccountAffiliationForeignExtInfo'
-      required: 
-        - id
     AccountAffiliationForeignId:
       type: string
       description: 账户从属关系里的外部ID.
@@ -1841,33 +1777,68 @@ components:
           description: 特定标准答案对应的分值.
       required: 
         - number
-    AnswerSheet:
+    ApeAnswerSheet:
       type: object
-      description: 答卷
+      description: |
+        猿辅导答卷.
       properties:
-        aticket:
-          $ref: '#/components/schemas/ObjectID'
-        createTime:
-          $ref: '#/components/schemas/Timestamp'
-        lUTime:
-          $ref: '#/components/schemas/Timestamp'
+        fid:
+          type: string
+          description: |
+            答卷对应的外部(猿辅导)ID.
+        epmId:
+          type: string
+          description: |
+            对应试卷的内部(本本)业务ID.
+        examinee:
+          $ref: '#/components/schemas/ApeasExaminee'
         startTime:
           $ref: '#/components/schemas/Timestamp'
         endTime:
           $ref: '#/components/schemas/Timestamp'
-        quReplies:
-          $ref: '#/components/schemas/AsQuReplies'
-        epsDetails:
-          $ref: '#/components/schemas/AsEpsDetails'
-        extFeedbacks:
-          $ref: '#/components/schemas/AsExtFeedbacks'
-        resources:
-          $ref: '#/components/schemas/AsInputResources'
+        answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApeasAnswer'
+          minLength: 1
       required: 
-        - aticket
-        - createTime
-        - lUTime
-        - startTime
+        - fid
+        - epmId
+        - examinee
+        - answers
+    ApeasExaminee:
+      type: object
+      description: |
+        猿辅导答卷中的考试人信息.
+      properties:
+        grade:
+          $ref: '#/components/schemas/GradeInSchool'
+        gender:
+          type: string
+          description: |
+            性别.
+        region:
+          type: string
+          description: |
+            地区.
+      required:
+        - grade
+    ApeasAnswer:
+      type: object
+      description: |
+        猿辅导答卷中的答案.
+      properties:
+        qid:
+          type: string
+          description: |
+            题目业务ID.
+        choice:
+          type: integer
+          description: |
+            选项编号.
+      required:
+        - qid
+        - choice
     AsEpsDetails:
       type: object
       description: |
@@ -2072,65 +2043,90 @@ components:
       description: 对应范围内缺省的题目单位分值.
     
         
-    ExamPersonalReport:
+    ApeExamPersonalReport:
       type: object
       description: 考试个人报告.
       properties:
-        aticket:
-          $ref: '#/components/schemas/ObjectID'
-        createTime:
-          $ref: '#/components/schemas/Timestamp'
-        lUTime:
-          $ref: '#/components/schemas/Timestamp'
-        owner:
-          $ref: '#/components/schemas/ObjectID'
-        exam:
-          $ref: '#/components/schemas/ObjectID'
-        type:
-          $ref: '#/components/schemas/ExamPersonalReportType'
-        data:
-          $ref: '#/components/schemas/ReportData'
-        files:
+        fasId:
+          type: string
+          description: |
+            答卷对应的外部(猿辅导)ID.
+        overallScore:
+          type: number
+          format: float
+          description: |
+            总得分.
+        overallLevel:
+          type: string
+          description: |
+            总体等级.
+        overallEvaluation:
+          type: string
+          description: |
+            总体评语.
+        grade:
+          $ref: '#/components/schemas/GradeInSchool'
+        abilityGrade:
+          $ref: '#/components/schemas/GradeInSchool'
+        advantages:
           type: array
+          description: |
+            优势能力集.
           items:
-            $ref: '#/components/schemas/ReportFile'
-          minLength: 1
+            type: string
+        abilityReports:
+          type: array
+          description: |
+            能力报告集.
+          items:
+            $ref: '#/components/schemas/AbilityReport'
+        extFeatures:
+          type: object
+          description: 扩展特征集.
+          additionalProperties:
+            type: string
       required:
-        - aticket
-        - createTime
-        - lUTime
-        - owner
-        - exam
-        - type
-        - data
-    ExamPersonalReportType:
-      type: string
-      description: 考试个人报告类型.
-      enum: 
-        - Undefined
-        # TODO
-    ReportData:
+        - fasId
+        - overallScore
+        - overallLevel
+        - overallEvaluation
+        - grade
+        - abilityGrade
+        - advantages
+        - abilityReports
+    AbilityReport:
       type: object
       description: |
-        报告数据.
-      additionalProperties:
-        type: string
-      minLength: 1
-    ReportFile:
-      type: object
-      description: |
-        报告文件.
+        能力报告.
       properties:
-        mediaType:
-          $ref: '#/components/schemas/MediaTypeField'
-        size:
-          type: integer
-          format: int32
-          description: File size in bytes.
-        url:
-          $ref: '#/components/schemas/URL'
-          
-          
+        name:
+          type: string
+          description: |
+            名称.
+        level:
+          type: string
+          description: |
+            等级.
+        score:
+          type: number
+          format: float
+          description: |
+            得分.
+        fullScore:
+          type: number
+          format: float
+          description: |
+            满分.
+        evaluation:
+          type: string
+          description: |
+            评语.
+      required:
+        - name
+        - level
+        - score
+        - evaluation
+        
     ResourceBrief:
       type: object
       description: 资源的简单形式.
@@ -2280,6 +2276,10 @@ components:
         - LUTimeConflict
         - AlteringNotAllowed
         - DuplicateCreating
+        - MobileOccupied
+        - EmailOccupied
+        - IdNumberOccupied
+        - WrongPassword
         - UnmatchExamForm
         - ExceedExamMRTsLimit
         - OutOfExamAticketAcqDuration
@@ -2288,6 +2288,7 @@ components:
         - InvalidExamAticket
         - OutOfPaperFetchDuration
         - OutOfAnswerSheetSubmitDuration
+        - InvalidAnswerSheet
     IdAnyMatchQueryField:
       type: array
       items:
