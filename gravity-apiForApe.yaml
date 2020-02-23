@@ -2052,8 +2052,7 @@ components:
           description: |
             答卷对应的外部(猿辅导)ID.
         overallScore:
-          type: number
-          format: float
+          type: string
           description: |
             总得分.
         overallLevel:
@@ -2108,13 +2107,11 @@ components:
           description: |
             等级.
         score:
-          type: number
-          format: float
+          type: string
           description: |
             得分.
         fullScore:
-          type: number
-          format: float
+          type: string
           description: |
             满分.
         evaluation:
