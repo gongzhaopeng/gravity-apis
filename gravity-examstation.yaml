@@ -1881,6 +1881,58 @@ paths:
       security:
         - examStationAuth: 
           - client:inner
+  /exampapers/query:
+    post:
+      tags: 
+        - ExamPaper
+      summary: Query试卷.
+      description: |
+        Query试卷.
+        
+        ### 权限控制
+        #### **内部账户**
+        - authenticated
+        - Client{'client:inner' in scope}  
+        - Account{type='Inner'}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
+      operationId: queryAnswerSheets
+      parameters:
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageSortWithDefaultLUTimeDesc'
+      requestBody:
+        description: 查询描述.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamPaperQuery'
+      responses:
+        '200':
+          description: 获取成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamPaperPage'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
+      security:
+        - examStationAuth: 
+          - client:inner
   /answersheets:
     post:
       tags:
@@ -1964,7 +2016,7 @@ paths:
         #### **内部服务**
         - authenticated
         - Client{'service:inner' in scope} 
-      operationId: queryAnswerSheets
+      operationId: queryExamPapers
       parameters:
         - $ref: '#/components/parameters/pageNumber'
         - $ref: '#/components/parameters/pageSize'
@@ -2790,6 +2842,29 @@ components:
           $ref: '#/components/schemas/ExamAticketExtInfo'
       required:
         - lUTime
+    ExamPaperQuery:
+      type: object
+      description: ExamPaper查询描述对象.
+      properties:
+        id:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        aticket: 
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        epMold:
+          $ref: '#/components/schemas/VersioningRefAnyMatchQueryField'
+    ExamPaperPage:
+      description: ExamPaper分页.
+      allOf:
+        - $ref: '#/components/schemas/BasicPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExamPaper'
+              minLength: 0
+          required:
+            - content
     AnswerSheetSubmission:
       type: object
       description: 提交的答卷信息.
@@ -4216,11 +4291,11 @@ components:
           description: =relation=>all.
           minLength: 1
           maxLength: 10
-    VersioningRefQueryField:
+    VersioningRefAnyMatchQueryField:
       type: array
       items:
         $ref: '#/components/schemas/VersioningRef'
-      description: 指定的VersioningRef集合. =relation=>all.
+      description: 指定的VersioningRef集合. =relation=>any-match.
       minLength: 1
       maxLength: 10
     VersioningRef:
