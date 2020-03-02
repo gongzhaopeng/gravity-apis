@@ -806,11 +806,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
-                mobileOccupied:
+                emailOccupied:
                   value:
                     code: 'EmailOccupied'
                     detail: '${detail}'
-                failToSendSM:
+                failToSendEmail:
                   value:
                     code: 'FailToSendEmail'
                     detail: '${detail}'
@@ -1028,6 +1028,78 @@ paths:
           - client:partner
         - accountCenterAuth: 
           - client:public
+  /password/resetting/code:
+    post:
+      tags: 
+        - Me
+      summary: 获取密码重置码.
+      description: |
+        获取密码重置码.
+      operationId: getPasswordResettingCode
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResettingCodeAcquiringReq'
+      responses:
+        '200':
+          description: 获取密码重置码成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordResettingCodeAcquiringResp'
+        '400':
+          description: Bad Request.
+        '404':
+          description: 对应的Account不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                failToSendSM:
+                  value:
+                    code: 'FailToSendSM'
+                    detail: '${detail}'
+                failToSendEmail:
+                  value:
+                    code: 'FailToSendEmail'
+                    detail: '${detail}'
+  /password/resetting/by/code:
+    post:
+      tags: 
+        - Me
+      summary: 通过重置码重置密码.
+      description: |
+        通过重置码重置密码.
+      operationId: resetPasswordByCode
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResettingByCodeReq'
+      responses:
+        '204':
+          description: 重置成功.
+        '400':
+          description: Bad Request.
+        '404':
+          description: 对应的Account不存在.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidVerificationCode:
+                  value:
+                    code: 'InvalidVerificationCode'
+                    detail: '${detail}'
 components:
   schemas:
     ClientCreatingReq:
@@ -1460,7 +1532,7 @@ components:
         identifier:
           $ref: '#/components/schemas/AccountIdentifier'
         code:
-          $ref: '#/components/schemas/SignupCode'
+          $ref: '#/components/schemas/VerificationCode'
         password:
           $ref: '#/components/schemas/Password'
         name:
@@ -1505,6 +1577,43 @@ components:
           $ref: '#/components/schemas/URL'
       required:
         - newAvatar
+    PasswordResettingCodeAcquiringReq:
+      type: object
+      description: |
+        获取密码重置码的请求信息.
+      properties:
+        identifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+      required:
+        - identifier
+    PasswordResettingCodeAcquiringResp:
+      type: object
+      description: |
+        获取密码重置码成功时的响应.
+      properties:
+        identifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        expiresIn:
+          type: integer
+          format: int32
+      required:
+        - identifier
+        - expiresIn
+    PasswordResettingByCodeReq:
+      type: object
+      description: |
+        通过重置码重置密码的请求信息.
+      properties:
+        identifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        code:
+          $ref: '#/components/schemas/VerificationCode'
+        newPassword:
+          $ref: '#/components/schemas/Password'
+      required:
+        - identifier
+        - code
+        - password
     Client:
       type: object
       description: 客户端.
@@ -1951,9 +2060,9 @@ components:
         - Politics
       minLength: 1
       maxLength: 20
-    SignupCode:
+    VerificationCode:
       type: string
-      description: 注册验证码.
+      description: 验证码.
       minLength: 6
       maxLength: 6
     Birthday:
@@ -2065,6 +2174,7 @@ components:
         - IdNumberOccupied
         - InvalidSignupCode
         - WrongPassword
+        - InvalidVerificationCode
     IdAnyMatchQueryField:
       type: array
       items:
