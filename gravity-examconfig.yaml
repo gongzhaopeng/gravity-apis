@@ -1752,7 +1752,7 @@ components:
       format: int32
       description: 开考后的迟到进入时间窗(second).
       minimum: 60
-      maximum: 3600
+      maximum: 1209600
     ExamPaperPreFetchDuration:
       type: integer
       format: int32
