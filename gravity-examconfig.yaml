@@ -503,11 +503,6 @@ paths:
                   value:
                     code: 'LUTimeConflict'
                     detail: '${detail}'
-                alteringNotAllowed:
-                  value:
-                    code: 'AlteringNotAllowed'
-                    detail: '${detail}'
-                  description: '部署仅在Released状态下被允许.'
   /echaintags:
     post:
       tags: 
@@ -1099,11 +1094,6 @@ paths:
                   value:
                     code: 'LUTimeConflict'
                     detail: '${detail}'
-                alteringNotAllowed:
-                  value:
-                    code: 'AlteringNotAllowed'
-                    detail: '${detail}'
-                  description: '部署仅在Released状态下被允许.'
       security:
         - examRepoAuth: 
           - client:inner
