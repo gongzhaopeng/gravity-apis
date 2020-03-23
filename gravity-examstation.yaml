@@ -1293,6 +1293,12 @@ paths:
           required: false
           schema:
             $ref: '#/components/schemas/ObjectID'
+        - name: assess-token
+          in: query
+          description: 指定AssessToken.
+          required: false
+          schema:
+            $ref: '#/components/schemas/AssessTokenCode'
       responses:
         '200':
           description: 获取成功.
@@ -1782,6 +1788,12 @@ paths:
           required: false
           schema:
             $ref: '#/components/schemas/ObjectID'
+        - name: assess-token
+          in: query
+          description: 指定AssessToken.
+          required: false
+          schema:
+            $ref: '#/components/schemas/AssessTokenCode'
       responses:
         '200':
           description: 获取成功.
@@ -3439,6 +3451,8 @@ components:
           $ref: '#/components/schemas/Timestamp'
         exam:
           $ref: '#/components/schemas/ExamBrief'
+        assessToken:
+          $ref: '#/components/schemas/AssessTokenCode'
         owner:
           $ref: '#/components/schemas/ObjectID'
         epMold:
@@ -3492,6 +3506,8 @@ components:
           $ref: '#/components/schemas/Timestamp'
         echain:
           $ref: '#/components/schemas/EchainBrief'
+        assessToken:
+              $ref: '#/components/schemas/AssessTokenCode'
         owner:
           $ref: '#/components/schemas/ObjectID'
         epmSerialIndex:
