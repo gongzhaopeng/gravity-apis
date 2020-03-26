@@ -193,6 +193,10 @@ components:
       description: |
         报告文件.
       properties:
+        title:
+          type: string
+          description: |
+            报告数据.
         mediaType:
           $ref: '#/components/schemas/MediaTypeField'
         size:
