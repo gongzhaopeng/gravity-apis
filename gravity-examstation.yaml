@@ -2458,8 +2458,8 @@ components:
       properties:
         targetType:
           $ref: '#/components/schemas/AssessTokenTargetType'
-        targets:
-          $ref: '#/components/schemas/AssessTokenTargets'
+        target:
+          $ref: '#/components/schemas/AssessTokenTarget'
         expiresAt:
           $ref: '#/components/schemas/Timestamp'
         codeLength:
@@ -2468,6 +2468,8 @@ components:
           minimum: 8
           maximum: 20
           default: 12
+        codeStyle:
+          $ref: '#/components/schemas/AssessTokenCodeStytle'
         amount:
           type: integer
           format: int32
@@ -2478,8 +2480,15 @@ components:
           $ref: '#/components/schemas/AssessTokenTags'
       required:
         - targetType
-        - targets
+        - target
         - amount
+    AssessTokenCodeStytle:
+      type: string
+      description: 测评令牌码的样式.
+      enum: 
+        - General
+        - Numeric
+      default: General
     AssessTokensGeneratedResp:
       type: object
       description: |
@@ -2515,8 +2524,8 @@ components:
           description: 指定所属的集合. =relation=>in.
           minLength: 1
           maxLength: 50
-        targets:
-          $ref: '#/components/schemas/IdAllMatchQueryField'
+        target:
+          $ref: '#/components/schemas/IdAnyMatchQueryField'
         isTaken:
           type: boolean
         taker:
@@ -3348,8 +3357,9 @@ components:
     AssessToken:
       type: object
       description: |
-        测评令牌.
-        参加Enclosed型的考试或考试链时提供.
+        测评令牌.  
+        参加Enclosed型的考试或考试链时提供.  
+        (targetType, code, target.id)构成的元组需保证唯一性,应建立唯一性索引.
       properties:
         id:
           $ref: '#/components/schemas/ObjectID'
@@ -3363,8 +3373,8 @@ components:
           $ref: '#/components/schemas/AssessTokenTargetType'
         code:
           $ref: '#/components/schemas/AssessTokenCode'
-        targets:
-          $ref: '#/components/schemas/AssessTokenTargets'
+        target:
+          $ref: '#/components/schemas/AssessTokenTarget'
         expiresAt:
           $ref: '#/components/schemas/Timestamp'
         taker:
@@ -3380,7 +3390,7 @@ components:
         - creator
         - targetType
         - code
-        - targets
+        - target
     AssessTokenTargetType:
       type: string
       description: 测评令牌的适用目标类型.
@@ -3396,14 +3406,6 @@ components:
       maxLength: 20
       example:
         aX0s95PtBn
-    AssessTokenTargets:
-      type: array
-      description: |
-        测评令牌码适用目标集.
-      items:
-        $ref: '#/components/schemas/AssessTokenTarget'
-      minLength: 1
-      maxLength: 25
     AssessTokenTarget:
       type: object
       description: |
