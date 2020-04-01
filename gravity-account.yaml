@@ -391,6 +391,13 @@ paths:
         通过微信unionid创建账户.
         如果对应账户已存在，则返回已有账户信息.
         
+        创建的账户赋予以下初始值
+        - state: Active
+        - type: Personal
+        - roles: [Normal]
+        
+        创建账户时，须按指定的格式生成对应的'wechat.token'.
+        
         ### 权限控制
         #### **内部服务**
         - authenticated
