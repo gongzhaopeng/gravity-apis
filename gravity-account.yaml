@@ -2031,6 +2031,7 @@ components:
       type: string
       description: 年级
       enum:
+        - PK
         - KG1
         - KG2
         - KG3
