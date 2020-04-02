@@ -27,6 +27,9 @@ tags:
   - name: ExamReport
     description: 访问考试报告.
     
+  - name: AssessmentEntrance
+    description: 测评入口
+    
 paths:
 
   # accountcenter-service related.
@@ -739,6 +742,102 @@ paths:
                     code: 'InvalidAnswerSheet'
                     detail: '${detail}'
   
+  /assessment/entrance/reading:
+    get:
+      tags: 
+        - AssessmentEntrance
+      summary: 阅读测评入口.
+      description: |
+        阅读测评入口.
+      parameters:
+        - name: username
+          in: query
+          description: |
+            账户名称，可以为下几种形式
+              - 创建账户时对应的手机号
+              - 创建账户时对应的邮箱地址
+              - 账户创建成功时返回的账户ID
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: |
+            账户密码.
+          required: true
+          schema:
+            $ref: '#/components/schemas/Password'
+        - name: assess_token
+          in: query
+          description: |
+            测评码.  
+            由[大写字母,小写字母,数字]构成, 长度为8-20位.
+          required: true
+          schema:
+            $ref: '#/components/schemas/AssessTokenCode'
+        - name: name
+          in: query
+          description: |
+            姓名.
+          required: true
+          schema:
+            $ref: '#/components/schemas/AccountName'
+          example: 张三
+        - name: gender
+          in: query
+          description: |
+            性别.
+          required: true
+          schema:
+            $ref: '#/components/schemas/Gender'
+        - name: birthday
+          in: query
+          description: |
+            生日(yyyy-MM-dd).
+          required: true
+          schema:
+            $ref: '#/components/schemas/Birthday'
+          example: '2020-03-24'
+        - name: grade
+          in: query
+          description: |
+            年级.
+          required: true
+          schema:
+            $ref: '#/components/schemas/GradeInSchool'
+        - name: school
+          in: query
+          description: |
+            学校.
+          required: true
+          schema:
+            type: string
+          example: 北京四中
+        - name: region
+          in: query
+          description: |
+            地区.
+            身份证格式，例110108(北京市海淀区).
+          required: true
+          schema:
+            type: string
+          example: 北京市海淀区
+        - name: tel
+          in: query
+          description: |
+            电话.
+          required: false
+          schema:
+            type: string
+          example: 13912345678
+      responses:
+        '200':
+          description: 入口页面获取成功.
+          content:
+            text/html:
+              schema:
+                type: string
+    
 components:
   schemas:
     AccountCreatingReq:
@@ -1130,6 +1229,7 @@ components:
       type: string
       description: 年级
       enum:
+        - PK
         - KG1
         - KG2
         - KG3
@@ -1800,7 +1900,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ApeasAnswer'
-          minLength: 1
       required: 
         - fid
         - epmId
@@ -2055,6 +2154,10 @@ components:
           type: string
           description: |
             总得分.
+        overallFullScore:
+          type: string
+          description: |
+            总得分满分.
         overallLevel:
           type: string
           description: |
@@ -2064,9 +2167,13 @@ components:
           description: |
             总体评语.
         grade:
-          $ref: '#/components/schemas/GradeInSchool'
-        abilityGrade:
-          $ref: '#/components/schemas/GradeInSchool'
+          type: string
+          description: |
+            年级名称.
+        overallAbility:
+          type: string
+          description: |
+            能力水平.
         advantages:
           type: array
           description: |
@@ -2090,7 +2197,7 @@ components:
         - overallLevel
         - overallEvaluation
         - grade
-        - abilityGrade
+        - overallAbility
         - advantages
         - abilityReports
     AbilityReport:
@@ -2102,6 +2209,10 @@ components:
           type: string
           description: |
             名称.
+        description:
+          type: string
+          description: |
+            描述.
         level:
           type: string
           description: |
@@ -2120,6 +2231,7 @@ components:
             评语.
       required:
         - name
+        - description
         - level
         - score
         - evaluation
