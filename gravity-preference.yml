@@ -15,27 +15,33 @@ tags:
   - name: Me
     description: 访问个人账户.
 paths:
-  /signup/by/code:
+  /login/wechat/mini:
     post:
       tags: 
         - Me
-      summary: 通过注册码注册账户.
+      summary: 通过微信小程序登录.
       description: |
-        通过注册码注册账户.
-      operationId: signupByCode
+        通过微信小程序登录.
+        
+        # 处理逻辑:
+        1. 通过jscode调用微信开放平台接口获取微信登录Session  
+        2. 通过微信登录Session中的wechat-unionid查看本地是否已创建过对应账号  
+          2.1 若本地无对应账号，则调用中台账户服务的相关接口创建对应账号，成功后在本地创建相应用户  
+        3. 返回接口响应中定义的相关信息
+      operationId: loginByWechatMini
       requestBody:
         description: 请求信息.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SignupByCodeReq'
+              $ref: '#/components/schemas/WechatMiniLoginReq'
       responses:
-        '201':
-          description: 注册成功.
+        '200':
+          description: 登录成功.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SignupResp'
+                $ref: '#/components/schemas/WechatMiniLoginResp'
         '400':
           description: Bad Request.
         '428':
@@ -45,9 +51,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               examples:
-                invalidSignupCode:
+                invalidWechatJsCode:
                   value:
-                    code: 'InvalidSignupCode'
+                    code: 'InvalidWechatJsCode'
                     detail: '${detail}'
 components:
   schemas:
@@ -59,30 +65,36 @@ components:
         jscode:
           type: string
         nickName:
-          type: string
-        identifier:
-          $ref: '#/components/schemas/AccountIdentifier'
-        code:
-          $ref: '#/components/schemas/VerificationCode'
-        password:
-          $ref: '#/components/schemas/Password'
-        name:
-          $ref: '#/components/schemas/AccountName'
-        nickname:
           $ref: '#/components/schemas/AccountNickname'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        country:
+          $ref: '#/components/schemas/Country'
+        province:
+          $ref: '#/components/schemas/Province'
+        city:
+          $ref: '#/components/schemas/City'
       required:
-        - identifier
-        - code
-        - password
-    SignupResp:
+        - jscode
+        - nickName
+    WechatMiniLoginResp:
       type: object
       description: |
-        注册成功时的响应.
+        通过微信小程序登录成功时的响应.
       properties:
-        identifier:
-          $ref: '#/components/schemas/AccountIdentifier'
+        wechatUnionid:
+          type: string
+        token:
+          $ref: '#/components/schemas/WechatAuthToken'
+        wechatOpenid:
+          type: string
+        wechatSessionKey:
+          type: string
       required: 
-        - identifier
+        - wechatUnionid
+        - token
+        - wechatOpenid
+        - wechatSessionKey
     PreferUser:
       type: object
       description: |
@@ -91,13 +103,17 @@ components:
         unionid:
           type: string
           description: |
-            Sundial平台上对应账户的ID.
+            $ref: '#/components/schemas/SundialUnionId'
         createTime:
           $ref: '#/components/schemas/Timestamp'
         lUTime:
           $ref: '#/components/schemas/Timestamp'
         wechat:
           $ref: '#/components/schemas/WechatInfo'
+    SundialUnionId:
+      type: string
+      description: |
+        Sundial平台上对应账户的ID.   
     WechatInfo:
       type: object
       description: 账户关联的微信信息.
@@ -106,27 +122,25 @@ components:
           type: string
           description: wechat-unionid
         token:
-          type: string
-          description: |
-            通过wechat-unionid在Sundial平台上创建对应账户时返回的用于认证的token.
+          $ref: '#/components/schemas/WechatAuthToken'
         mini:
-          $ref: '#/components/schemas/WechatLogin'
+          $ref: '#/components/schemas/WechatMiniLogin'
       required: 
         - unionid
         - token
-    WechatLogin:
+    WechatAuthToken:
+      type: string
+      description: |
+        通过wechat-unionid在Sundial平台上创建对应账户时返回的用于认证的token.
+    WechatMiniLogin:
       type: object
-      description: 微信登录信息.
+      description: 微信小程序登录信息.
       properties:
         openid:
           type: string
         loginAt:
           $ref: '#/components/schemas/Timestamp'
-        accessToken:
-          type: string
-        expiresAt:
-          $ref: '#/components/schemas/Timestamp'
-        refreshToken:
+        sessionKey:
           type: string
     AccountNickname:
       type: string
@@ -156,6 +170,15 @@ components:
       description: URL.
       minLength: 1
       maxLength: 250
+    Gender:
+      type: string
+      description: 性取向.
+      enum:
+        - Masculine
+        - Feminine
+        - Neutral
+      minLength: 1
+      maxLength: 50
     Timestamp:
       type: integer
       format: int64
@@ -183,6 +206,7 @@ components:
         - Undefined
         - AccessLimited
         - LUTimeConflict
+        - InvalidWechatJsCode
     IdAnyMatchQueryField:
       type: array
       items:
@@ -329,4 +353,3 @@ components:
         $ref: '#/components/schemas/PageSortWithDefaultLUTimeDescSpec'
       style: form
       explode: true
-
