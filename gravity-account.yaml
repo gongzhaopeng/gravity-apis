@@ -10,7 +10,7 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 servers:
   - description: Development Environment.
-    url: http://sd1.benbenedu.cn:9000/accountcenter/genesis
+    url: http://sd3.benbenedu.cn:9000/accountcenter/genesis
 tags:
   - name: Client
     description: 访问客户端.
@@ -2395,7 +2395,7 @@ components:
       type: oauth2
       flows:
         password:
-          tokenUrl: "http://sd1.benbenedu.cn:9000/xauth/oauth/token"
+          tokenUrl: "http://sd3.benbenedu.cn:9000/xauth/oauth/token"
           scopes:
             'client:inner': 内部客户端
             'client:partner': 合作方客户端
