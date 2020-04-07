@@ -10,7 +10,7 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 servers:
   - description: Development Environment.
-    url: http://sd1.benbenedu.cn:9000/preference/genesis
+    url: http://sd3.benbenedu.cn:9000/preference/genesis
 tags:
   - name: Me
     description: 访问个人账户.
@@ -320,7 +320,7 @@ components:
       type: oauth2
       flows:
         password:
-          tokenUrl: "http://sd1.benbenedu.cn:9000/xauth/oauth/token"
+          tokenUrl: "http://sd3.benbenedu.cn:9000/xauth/oauth/token"
           scopes:
             'client:public': 公开的客户端
   
