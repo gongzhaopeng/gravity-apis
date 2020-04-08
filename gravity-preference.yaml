@@ -65,19 +65,14 @@ components:
       properties:
         jscode:
           type: string
-        nickName:
-          $ref: '#/components/schemas/AccountNickname'
-        gender:
-          $ref: '#/components/schemas/Gender'
-        country:
-          $ref: '#/components/schemas/Country'
-        province:
-          $ref: '#/components/schemas/Province'
-        city:
-          $ref: '#/components/schemas/City'
+        encryptedData:
+          type: string
+        iv:
+          type: string
       required:
         - jscode
-        - nickName
+        - encryptedData
+        - iv
     WechatMiniLoginResp:
       type: object
       description: |
