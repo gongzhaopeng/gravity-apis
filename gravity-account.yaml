@@ -500,6 +500,9 @@ paths:
         #### **合作客户端**
         - authenticated
         - Client{'client:partner' in scope}
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope} 
       operationId: getAccountById
       parameters: 
         - name: account-id
