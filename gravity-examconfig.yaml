@@ -1229,6 +1229,11 @@ components:
           $ref: '#/components/schemas/ExamForm'
         title:
           $ref: '#/components/schemas/ExamTitle'
+        isSingleFinish:
+          type: boolean
+          description: |
+            是否仅有一次结束考试机会.  
+            若是,则一旦结束考试(答卷中有endTime),则后续不允许再修改答卷.
         maxRepeatTimes:
           $ref: '#/components/schemas/ExamMaxRepeatTimes'
         description:
@@ -1647,6 +1652,11 @@ components:
           $ref: '#/components/schemas/ExamTitle'
         maxRepeatTimes:
           $ref: '#/components/schemas/ExamMaxRepeatTimes'
+        isSingleFinish:
+          type: boolean
+          description: |
+            是否仅有一次结束考试机会.  
+            若是,则一旦结束考试(答卷中有endTime),则后续不允许再修改答卷.
         description:
           $ref: '#/components/schemas/MgmtDescriptionField'
         introduction:
