@@ -2009,6 +2009,10 @@ paths:
                   value:
                     code: 'OutOfAnswerSheetSubmitDuration'
                     detail: '${detail}'
+                repAsFinishNotAllowed:
+                  value:
+                    code: 'RepAsFinishNotAllowed'
+                    detail: '${detail}'
       security:
         - examStationAuth: 
           - client:inner
@@ -2195,6 +2199,10 @@ paths:
                   value:
                     code: 'OutOfAnswerSheetSubmitDuration'
                     detail: '${detail}'
+                repAsFinishNotAllowed:
+                  value:
+                    code: 'RepAsFinishNotAllowed'
+                    detail: '${detail}'
       security:
         - examStationAuth: 
           - client:inner
@@ -2266,6 +2274,10 @@ paths:
                 outOfAnswerSheetSubmitDuration:
                   value:
                     code: 'OutOfAnswerSheetSubmitDuration'
+                    detail: '${detail}'
+                repAsFinishNotAllowed:
+                  value:
+                    code: 'RepAsFinishNotAllowed'
                     detail: '${detail}'
       security:
         - examStationAuth: 
@@ -2339,6 +2351,10 @@ paths:
                   value:
                     code: 'OutOfAnswerSheetSubmitDuration'
                     detail: '${detail}'
+                repAsFinishNotAllowed:
+                  value:
+                    code: 'RepAsFinishNotAllowed'
+                    detail: '${detail}'
       security:
         - examStationAuth: 
           - client:inner
@@ -2377,6 +2393,11 @@ components:
           $ref: '#/components/schemas/ExamForm'
         title:
           $ref: '#/components/schemas/ExamTitle'
+        isSingleFinish:
+          type: boolean
+          description: |
+            是否仅有一次结束考试机会.  
+            若是,则一旦结束考试(答卷中有endTime),则后续不允许再修改答卷.
         maxRepeatTimes:
           $ref: '#/components/schemas/ExamMaxRepeatTimes'
         introduction:
@@ -3017,6 +3038,11 @@ components:
           $ref: '#/components/schemas/ExamForm'
         title:
           $ref: '#/components/schemas/ExamTitle'
+        isSingleFinish:
+          type: boolean
+          description: |
+            是否仅有一次结束考试机会.  
+            若是,则一旦结束考试(答卷中有endTime),则后续不允许再修改答卷.
         maxRepeatTimes:
           $ref: '#/components/schemas/ExamMaxRepeatTimes'
         description:
@@ -4463,6 +4489,7 @@ components:
         - InvalidExamAticket
         - OutOfPaperFetchDuration
         - OutOfAnswerSheetSubmitDuration
+        - RepAsFinishNotAllowed
     BasicPage:
       type: object
       description: 分页基本信息.
