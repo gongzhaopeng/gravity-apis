@@ -2458,8 +2458,8 @@ components:
       properties:
         targetType:
           $ref: '#/components/schemas/AssessTokenTargetType'
-        target:
-          $ref: '#/components/schemas/AssessTokenTarget'
+        targets:
+          $ref: '#/components/schemas/AssessTokenTargets'
         expiresAt:
           $ref: '#/components/schemas/Timestamp'
         codeLength:
@@ -2480,7 +2480,7 @@ components:
           $ref: '#/components/schemas/AssessTokenTags'
       required:
         - targetType
-        - target
+        - targets
         - amount
     AssessTokenCodeStytle:
       type: string
@@ -2524,8 +2524,8 @@ components:
           description: 指定所属的集合. =relation=>in.
           minLength: 1
           maxLength: 50
-        target:
-          $ref: '#/components/schemas/IdAnyMatchQueryField'
+        targets:
+          $ref: '#/components/schemas/IdAllMatchQueryField'
         isTaken:
           type: boolean
         taker:
@@ -3359,7 +3359,7 @@ components:
       description: |
         测评令牌.  
         参加Enclosed型的考试或考试链时提供.  
-        (targetType, code, target.id)构成的元组需保证唯一性,应建立唯一性索引.
+        (targetType, code, target.id)构成的元组需保证唯一性.
       properties:
         id:
           $ref: '#/components/schemas/ObjectID'
@@ -3373,8 +3373,8 @@ components:
           $ref: '#/components/schemas/AssessTokenTargetType'
         code:
           $ref: '#/components/schemas/AssessTokenCode'
-        target:
-          $ref: '#/components/schemas/AssessTokenTarget'
+        targets:
+          $ref: '#/components/schemas/AssessTokenTargets'
         expiresAt:
           $ref: '#/components/schemas/Timestamp'
         taker:
@@ -3390,7 +3390,7 @@ components:
         - creator
         - targetType
         - code
-        - target
+        - targets
     AssessTokenTargetType:
       type: string
       description: 测评令牌的适用目标类型.
@@ -3406,6 +3406,14 @@ components:
       maxLength: 20
       example:
         aX0s95PtBn
+    AssessTokenTargets:
+      type: array
+      description: |
+        测评令牌码适用目标集.
+      items:
+        $ref: '#/components/schemas/AssessTokenTarget'
+      minLength: 1
+      maxLength: 25
     AssessTokenTarget:
       type: object
       description: |
