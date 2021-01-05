@@ -11,7 +11,7 @@ info:
 # Added by API Auto Mocking Plugin
 servers:
   - description: SwaggerHub API Auto Mocking
-    url: http://sd1.benbenedu.cn:9000/examstation/genesis
+    url: http://sd3.benbenedu.cn:9000/examstation/genesis
 tags:
   - name: Server
     description: 访问服务器信息.
@@ -2489,6 +2489,8 @@ components:
           minimum: 8
           maximum: 20
           default: 12
+        codeStyle:
+          $ref: '#/components/schemas/AssessTokenCodeStytle'
         amount:
           type: integer
           format: int32
@@ -2501,6 +2503,13 @@ components:
         - targetType
         - targets
         - amount
+    AssessTokenCodeStytle:
+      type: string
+      description: 测评令牌码的样式.
+      enum: 
+        - General
+        - Numeric
+      default: General
     AssessTokensGeneratedResp:
       type: object
       description: |
@@ -3374,8 +3383,9 @@ components:
     AssessToken:
       type: object
       description: |
-        测评令牌.
-        参加Enclosed型的考试或考试链时提供.
+        测评令牌.  
+        参加Enclosed型的考试或考试链时提供.  
+        (targetType, code, target.id)构成的元组需保证唯一性.
       properties:
         id:
           $ref: '#/components/schemas/ObjectID'
@@ -4541,7 +4551,7 @@ components:
       type: oauth2
       flows:
         password:
-          tokenUrl: "http://sd1.benbenedu.cn:9000/xauth/oauth/token"
+          tokenUrl: "http://sd3.benbenedu.cn:9000/xauth/oauth/token"
           scopes:
             'client:inner': 内网客户端
   

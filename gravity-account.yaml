@@ -10,7 +10,7 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 servers:
   - description: Development Environment.
-    url: http://sd1.benbenedu.cn:9000/accountcenter/genesis
+    url: http://sd3.benbenedu.cn:9000/accountcenter/genesis
 tags:
   - name: Client
     description: 访问客户端.
@@ -337,7 +337,7 @@ paths:
               $ref: '#/components/schemas/AccountCreatingReq'
       responses:
         '201':
-          description: 成功创建Client.
+          description: 成功创建Account.
           content:
             application/json:
               schema:
@@ -381,6 +381,63 @@ paths:
           - client:inner
         - accountCenterAuth: 
           - client:partner
+  /accounts/wechat:
+    post:
+      tags: 
+        - Account
+      summary: |
+        通过微信unionid创建账户.
+      description: |
+        通过微信unionid创建账户.
+        如果对应账户已存在，则返回已有账户信息.
+        
+        创建的账户赋予以下初始值
+        - state: Active
+        - type: Personal
+        - roles: [Normal]
+        
+        创建账户时，须按指定的格式生成对应的'wechat.token'.
+        
+        ### 权限控制
+        #### **内部服务**
+        - authenticated
+        - Client{'service:inner' in scope}
+      operationId: createAccountToWechat
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WechatAccountCreatingReq'
+      responses:
+        '200':
+          description: |
+            对应账户已存在，返回已有账户信息.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WechatAccountAuthParams'
+        '201':
+          description: 成功创建Account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WechatAccountAuthParams'
+        '400':
+          description: Bad Request.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accessLimited:
+                  value:
+                    code: 'AccessLimited'
+                    detail: '${detail}'
+        '403':
+          description: Forbidden.
   /accounts/query:
     post:
       tags: 
@@ -1280,6 +1337,42 @@ components:
           $ref: '#/components/schemas/ObjectID'
       required: 
         - id
+    WechatAccountCreatingReq:
+      type: object
+      description: |
+        通过wechat-unionid创建账户时的请求信息.
+      properties:
+        unionid:
+          $ref: '#/components/schemas/WechatUnionid'
+        name:
+          $ref: '#/components/schemas/AccountName'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+        gender:
+          $ref: '#/components/schemas/Gender'
+        birthday:
+          $ref: '#/components/schemas/Birthday'
+        address:
+          $ref: '#/components/schemas/AccountAddress'
+      required: 
+        - unionid
+        - name
+        - nickname
+    WechatAccountAuthParams:
+      type: object
+      description: |
+        wechat型账户的认证参数.
+      properties:
+        id: 
+          $ref: '#/components/schemas/ObjectID'
+        unionid:
+          $ref: '#/components/schemas/WechatUnionid'
+        token:
+          $ref: '#/components/schemas/WechatAccountToken'
+      required:
+        - id
+        - unionid
+        - token
     AccountQuery:
       type: object
       description: Account查询描述对象.
@@ -1921,9 +2014,24 @@ components:
         openid:
           type: string
         unionid:
-          type: string
+          $ref: '#/components/schemas/WechatUnionid'
+        token:
+          $ref: '#/components/schemas/WechatAccountToken'
         latestLogin:
           $ref: '#/components/schemas/WechatLogin'
+      required: 
+        - unionid
+        - token
+    WechatUnionid:
+      type: string
+      description: wechat-unionid.
+    WechatAccountToken:
+      type: string
+      description: |
+        经由wechat-unionid认证时出具的令牌.
+        由系统生成的32位字母数字随机串.
+      minLength: 32
+      maxLength: 32
     WechatLogin:
       type: object
       description: 微信登录信息.
@@ -2072,7 +2180,7 @@ components:
     Birthday:
       type: string
       format: date
-      description: 生日.
+      description: 生日(yyyy-MM-dd).
     TokenValiditySeconds:
       type: integer
       description: 'The token validity period.'
@@ -2291,7 +2399,7 @@ components:
       type: oauth2
       flows:
         password:
-          tokenUrl: "http://sd1.benbenedu.cn:9000/xauth/oauth/token"
+          tokenUrl: "http://sd3.benbenedu.cn:9000/xauth/oauth/token"
           scopes:
             'client:inner': 内部客户端
             'client:partner': 合作方客户端
