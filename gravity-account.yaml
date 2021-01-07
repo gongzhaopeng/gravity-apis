@@ -1064,6 +1064,89 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /login/by/wechat/web:
+    post:
+      tags: 
+        - Me
+        - EXTEND202101
+      summary: 网站入口上通过微信授信登录.
+      description: |
+        网站入口上通过微信授信登录.  
+        采用**登录页面内嵌微信登录二维码**的形式  
+        [详细接入流程指引](https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html)  
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WechatLoginFromWebReq'
+      responses:
+        '200':
+          description: 登录成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WechatAccountAuthParams'
+        '400':
+          description: Bad Request.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                externalApiInvokeError:
+                  value:
+                    code: 'ExternalApiInvokeError'
+                    detail: '${detail}'
+  /login/by/wechat/mobile:
+    post:
+      tags: 
+        - Me
+        - EXTEND202101
+      summary: 移动App端通过微信授信登录.
+      description: |
+        移动App端通过微信授信登录.  
+        [详细接入流程指引](https://developers.weixin.qq.com/doc/oplatform/Mobile_App/WeChat_Login/Development_Guide.html)  
+      requestBody:
+        description: 请求信息.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WechatLoginFromAppReq'
+      responses:
+        '200':
+          description: 登录成功.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WechatAccountAuthParams'
+        '400':
+          description: Bad Request.
+        '428':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Precondition Required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                externalApiInvokeError:
+                  value:
+                    code: 'ExternalApiInvokeError'
+                    detail: '${detail}'
   /me:
     get:
       tags: 
@@ -1795,6 +1878,28 @@ components:
         - identifier
         - code
         - password
+    WechatLoginFromWebReq:
+      type: object
+      description: |
+        网站入口上通过微信授信登录时的请求.
+      properties:
+        code:
+          type: string
+          description: |
+            前端应用获取的微信用户授权票据.
+      required:
+        - code
+    WechatLoginFromAppReq:
+      type: object
+      description: |
+        移动应用端通过微信授信登录时的请求.
+      properties:
+        code:
+          type: string
+          description: |
+            前端应用获取的微信用户授权票据.
+      required:
+        - code
     SignupResp:
       type: object
       description: |
@@ -2430,6 +2535,7 @@ components:
       enum: 
         - Undefined
         - AccessLimited
+        - ExternalApiInvokeError
         - LUTimeConflict
         - AccountTypeMismatch
         - AlteringNotAllowed
