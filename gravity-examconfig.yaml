@@ -10,6 +10,9 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 # Added by API Auto Mocking Plugin
 servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/atzu68/workspace.atzu68/genesis
   - description: SwaggerHub API Auto Mocking
     url: http://sd3.benbenedu.cn:9000/examconfig/genesis
 tags:
@@ -23,6 +26,10 @@ tags:
     description: 访问考试链.
   - name: PubEpMold
     description: 访问试卷模子(发布).
+  - name: UPDATE202101
+    description: 2021年1月更新
+  - name: EXTEND202101
+    description: 2021年1月扩充
 paths:
   /examtags:
     post:
@@ -631,6 +638,7 @@ paths:
     post:
       tags:
         - ExamChain
+        - UPDATE202101
       summary: 创建考试链.
       description: |
         创建考试链.
@@ -678,6 +686,7 @@ paths:
     post:
       tags: 
         - ExamChain
+        - UPDATE202101
       summary: Query考试链.
       description: |
         Query考试链.
@@ -721,6 +730,7 @@ paths:
     get:
       tags: 
         - ExamChain
+        - UPDATE202101
       summary: 获取指定的考试链详情.
       description: |
         获取指定的考试链详情.
@@ -760,6 +770,7 @@ paths:
     put:
       tags:
         - ExamChain
+        - UPDATE202101
       summary: 更新指定考试链的设计.
       description: |
         更新指定考试链的设计.
@@ -1441,6 +1452,8 @@ components:
           $ref: '#/components/schemas/EchainExtFeatures'
         resources:
           $ref: '#/components/schemas/EchainResources'
+        category:
+          $ref: '#/components/schemas/EchainCategory'
       required:
         - owner
         - form
@@ -1490,6 +1503,13 @@ components:
           $ref: '#/components/schemas/TextSearchSpec'
         exams:
           $ref: '#/components/schemas/IdAllMatchQueryField'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/EchainCategory'
+          description: 指定category所属的集合. =relation=>in.
+          minLength: 1
+          maxLength: 10
         tags:
           $ref: '#/components/schemas/IdAllMatchQueryField'
         resourceRefs:
@@ -1819,9 +1839,9 @@ components:
       description: |
         考试链.
         ### 可包含的考试类型根据考试链本身的类型对应如下:
-          - ExamChain:Enclosed 	=> Exam:{Enclosed} 
+          - ExamChain:Enclosed   => Exam:{Enclosed} 
           - ExamChain:Cooperate => Exam:{Cooperate} 
-          - ExamChain:Public 		=> Exam:{Public} 
+          - ExamChain:Public     => Exam:{Public} 
       properties:
         id:
           $ref: '#/components/schemas/ObjectID'
@@ -1851,6 +1871,8 @@ components:
           $ref: '#/components/schemas/EchainExtFeatures'
         resources:
           $ref: '#/components/schemas/EchainResources'
+        category:
+          $ref: '#/components/schemas/EchainCategory'
         tags:
           type: array
           description: 标签集.用于管理.
@@ -1873,6 +1895,13 @@ components:
         - form
         - title
         - exams
+    EchainCategory:
+      type: string
+      description: 考试链的类属.
+      enum:
+        - UniPlatform
+      minLength: 1
+      maxLength: 50
     EchainState:
       type: string
       description: 考试链的状态.
