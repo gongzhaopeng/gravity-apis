@@ -1106,7 +1106,7 @@ paths:
                   value:
                     code: 'ExternalApiInvokeError'
                     detail: '${detail}'
-  /login/by/wechat/mobile:
+  /login/by/wechat/app:
     post:
       tags: 
         - Me
